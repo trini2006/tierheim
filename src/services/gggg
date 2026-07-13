@@ -1,0 +1,3 @@
+//unsere ganzen .js dateien
+//Diese Dateien enthalten keinen HTML-Code, sondern nur die Logik,
+// um Daten von deinem Java-Backend via fetch() zu holen.
