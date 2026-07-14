@@ -6,10 +6,10 @@ import AppLayout from './views/layout.vue'
 
 // Hauptseiten Benutzer
 import Startseite from './views/benutzer/hauptseiten/start.vue'
-import Nachrichten from './views/benutzer/hauptseiten/benachrichtigungen.vue'
+import Nachrichten from './views/beides/benachrichtigungen.vue'
 import TierheimInfo from './views/benutzer/hauptseiten/tierheim.vue'
-import Einstellungen from './views/benutzer/hauptseiten/systemEinstellungen.vue'
-import HundeBeschreibung from './views/benutzer/hauptseiten/beschreibung.vue'
+import Einstellungen from './views/beides/systemEinstellungen.vue'
+import HundeBeschreibung from './views/beides/beschreibung.vue'
 import ReservierungsUebersicht from './views/benutzer/hauptseiten/revuebersicht.vue'
 import NaechsterTermin from './views/benutzer/hauptseiten/naechstertermin.vue'
 
@@ -28,7 +28,6 @@ import AdminStatistik from './views/admin/hauptseiten/statistik.vue'
 import AdminVeranstaltungen from './views/admin/hauptseiten/veranstaltungen.vue'
 import AdminVeranstaltungHinzufuegen from './views/admin/hauptseiten/veranstaltunghinzufuegen.vue'
 import AdminProfileinstellungen from './views/admin/hauptseiten/profileinstellungen.vue'
-
 
 const routes = [
   {

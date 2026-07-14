@@ -10,7 +10,26 @@
         isAdmin ? 'bg-[#8B2626]' : 'bg-[#536B53]',
       ]"
     >
-      {{ mobileTitle }}
+      <!-- Zurück-Pfeil: Nur sichtbar, wenn wir NICHT auf der Startseite sind -->
+      <button
+        v-if="showBackButton"
+        @click="goBack"
+        class="absolute left-4 top-1/2 -translate-y-1/2 p-1 active:scale-95 transition-transform focus:outline-none"
+      >
+        <!-- Ein cleaner Pfeil nach links, ähnlich deiner Skizze -->
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          fill="none"
+          viewBox="0 0 24 24"
+          stroke-width="2.5"
+          stroke="currentColor"
+          class="w-6 h-6"
+        >
+          <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 19.5L8.25 12l7.5-7.5" />
+        </svg>
+      </button>
+
+      <span>{{ mobileTitle }}</span>
     </div>
 
     <!-- ========================================================= -->
@@ -59,7 +78,6 @@
     <!-- ========================================================= -->
     <!-- DER DYNAMISCHE INHALT (Für alle Bildschirmgrößen) -->
     <!-- ========================================================= -->
-    <!-- pt-16 auf Mobile hinzugefügt, damit der Inhalt nicht unter der neuen Mobile-Top-Bar klebt -->
     <main class="flex-grow p-4 pt-18 md:pt-8 md:p-8 max-w-7xl mx-auto w-full pb-24 md:pb-8">
       <RouterView />
     </main>
@@ -102,14 +120,26 @@
 
 <script setup>
 import { computed } from 'vue'
-import { useRoute } from 'vue-router'
+import { useRoute, useRouter } from 'vue-router'
 
 const route = useRoute()
+const router = useRouter()
 
 // Prüft live, ob der aktuelle Pfad das Wort 'admin' enthält
 const isAdmin = computed(() => {
   return route.path.toLowerCase().includes('/admin')
 })
+
+// Prüft, ob wir NICHT auf der Startseite (egal ob User oder Admin) sind
+const showBackButton = computed(() => {
+  const path = route.path.toLowerCase()
+  return path !== '/' && path !== '/admin'
+})
+
+// Schickt den Benutzer im Verlauf einen Schritt zurück
+const goBack = () => {
+  router.back()
+}
 
 // Berechnet die Überschrift für die mobile Top-Bar anhand der URL
 const mobileTitle = computed(() => {
