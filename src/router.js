@@ -41,16 +41,17 @@ const routes = [
         children: [
           // Zeigt am Anfang standardmäßig "Nächster Termin"
           { path: '', component: NaechsterTermin },
-          // Zeigt "Nachrichten" auf der rechten Desktopseite
+          // Zeigt "Nachrichten" auf der rechten Desktopseite (unter /nachrichten)
           { path: 'nachrichten', component: Nachrichten },
-          // Zeigt "Reservierungsübersicht" auf der rechten Desktopseite
+          // Zeigt "Reservierungsübersicht" auf der rechten Desktopseite (unter /reservierungen)
           { path: 'reservierungen', component: ReservierungsUebersicht },
         ],
       },
 
       // SEPARATE MOBILE PFADE (Laden die Seiten im Vollbild auf dem Handy)
       { path: 'benachrichtigungen', component: Nachrichten },
-      { path: 'reservierungsuebersicht', component: ReservierungsUebersicht },
+      // GEÄNDERT: Pfad von 'reservierungsuebersicht' zu 'revuebersicht' angepasst!
+      { path: 'revuebersicht', component: ReservierungsUebersicht },
 
       // Weitere Hauptseiten
       { path: 'tierheim', component: TierheimInfo },

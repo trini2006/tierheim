@@ -130,13 +130,14 @@
       </div>
     </div>
 
-    <!-- RECHTER BEREICH: Jetzt bereits ab Tablet sichtbar (md:block statt lg:block) -->
+    <!-- RECHTER BEREICH: Platzhalter für die Detailansichten auf Tablet & Desktop -->
     <div class="w-full max-w-md mx-auto md:mx-0 mt-8 md:mt-0 hidden md:block">
       <!-- Dynamische Überschrift -->
       <h2 class="text-lg font-bold text-gray-800 mb-4 text-left">
         {{ computedHeader }}
       </h2>
 
+      <!-- Hier werden deine Views wie z.B. die Revuebersicht auf Desktop/Tablet reingeladen -->
       <RouterView />
     </div>
   </div>
@@ -164,14 +165,14 @@ const computedHeader = computed(() => {
 })
 
 const navigate = (subPath) => {
-  // Geändert: Erkennt jetzt nur noch reine Smartphones (Breite unter 768px) als Mobile.
-  // Tablets ab 768px nutzen ab jetzt wie der Desktop das zweispaltige Layout.
   const isMobile = window.matchMedia('(max-width: 767px)').matches
 
   if (isMobile) {
+    // Smartphone: Leitet wie von dir gewünscht auf die vollen Mobile-Seiten weiter
     if (subPath === 'nachrichten') router.push('/benachrichtigungen')
-    if (subPath === 'reservierungen') router.push('/reservierungsuebersicht')
+    if (subPath === 'reservierungen') router.push('/revuebersicht')
   } else {
+    // Tablet & Desktop: Lädt die Route rechts nebenan im <RouterView /> Platzhalter
     router.push(`/${subPath}`)
   }
 }
