@@ -4,7 +4,7 @@ import { createRouter, createWebHistory } from 'vue-router'
 // Layout (enthält die untere Navigation)
 import AppLayout from './views/layout.vue'
 
-// Hauptseiten
+// Hauptseiten Benutzer
 import Startseite from './views/benutzer/hauptseiten/start.vue'
 import Nachrichten from './views/benutzer/hauptseiten/benachrichtigungen.vue'
 import TierheimInfo from './views/benutzer/hauptseiten/tierheim.vue'
