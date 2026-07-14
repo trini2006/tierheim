@@ -1,3 +1,4 @@
+// router.js
 import { createRouter, createWebHistory } from 'vue-router'
 
 // Layout (enthält die untere Navigation)
@@ -9,6 +10,8 @@ import Nachrichten from './views/benutzer/hauptseiten/benachrichtigungen.vue'
 import TierheimInfo from './views/benutzer/hauptseiten/tierheim.vue'
 import Einstellungen from './views/benutzer/hauptseiten/systemEinstellungen.vue'
 import HundeBeschreibung from './views/benutzer/hauptseiten/beschreibung.vue'
+import ReservierungsUebersicht from './views/benutzer/hauptseiten/revuebersicht.vue'
+import NaechsterTermin from './views/benutzer/hauptseiten/naechstertermin.vue'
 
 // Buchungs-Prozess Seiten
 import Zeitwahl from './views/reservierung/zeitwahl.vue'
@@ -19,15 +22,32 @@ import Erfolg from './views/reservierung/erfolgreichReserviert.vue'
 const routes = [
   {
     path: '/',
-    component: AppLayout, // Das Hauptlayout mit der Navigation unten
+    component: AppLayout,
     children: [
-      { path: '', component: Startseite }, // Standard-Startseite
-      { path: 'nachrichten', component: Nachrichten }, // /nachrichten
-      { path: 'tierheim', component: TierheimInfo }, // /tierheim
-      { path: 'einstellungen', component: Einstellungen }, // /einstellungen
-      { path: 'hund/:id', component: HundeBeschreibung }, // /hund/mambo
+      // STARTSEITE (Desktop Master-Detail-Zentrale)
+      {
+        path: '',
+        component: Startseite,
+        children: [
+          // Zeigt am Anfang standardmäßig "Nächster Termin"
+          { path: '', component: NaechsterTermin },
+          // Zeigt "Nachrichten" auf der rechten Desktopseite
+          { path: 'nachrichten', component: Nachrichten },
+          // Zeigt "Reservierungsübersicht" auf der rechten Desktopseite
+          { path: 'reservierungen', component: ReservierungsUebersicht },
+        ],
+      },
 
-      // Der Reservierungs-Ablauf (wird nacheinander durchlaufen)
+      // SEPARATE MOBILE PFADE (Laden die Seiten im Vollbild auf dem Handy)
+      { path: 'benachrichtigungen', component: Nachrichten },
+      { path: 'reservierungsuebersicht', component: ReservierungsUebersicht },
+
+      // Weitere Hauptseiten
+      { path: 'tierheim', component: TierheimInfo },
+      { path: 'einstellungen', component: Einstellungen },
+      { path: 'hund/:id', component: HundeBeschreibung },
+
+      // Der Reservierungs-Ablauf
       { path: 'reservieren/zeit', component: Zeitwahl },
       { path: 'reservieren/hund', component: Hundewahl },
       { path: 'reservieren/ueberpruefen', component: Ueberpruefung },
