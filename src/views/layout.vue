@@ -2,9 +2,20 @@
   <!-- Der Hauptcontainer wird untereinander (flex-col) statt nebeneinander ausgerichtet -->
   <div class="flex flex-col min-h-screen bg-gray-50">
     <!-- ========================================================= -->
+    <!-- MOBILE TOP-BAR (NUR auf Mobile sichtbar, blendet ab md: aus) -->
+    <!-- ========================================================= -->
+    <div
+      :class="[
+        'md:hidden fixed top-0 left-0 right-0 h-14 text-white flex items-center justify-center font-bold text-lg shadow-md z-50 transition-colors duration-300',
+        isAdmin ? 'bg-[#8B2626]' : 'bg-[#536B53]',
+      ]"
+    >
+      {{ mobileTitle }}
+    </div>
+
+    <!-- ========================================================= -->
     <!-- DESKTOP & TABLET TOP-NAVIGATION (Sichtbar ab md: 768px) -->
     <!-- ========================================================= -->
-    <!-- Hintergrundfarbe wechselt dynamisch: Admin = Rot (#8B2626), Benutzer = Grün (#536B53) -->
     <nav
       :class="[
         'hidden md:flex items-center justify-between w-full text-white px-8 py-4 border-b border-gray-700 sticky top-0 z-50 shadow-md transition-colors duration-300',
@@ -48,7 +59,8 @@
     <!-- ========================================================= -->
     <!-- DER DYNAMISCHE INHALT (Für alle Bildschirmgrößen) -->
     <!-- ========================================================= -->
-    <main class="flex-grow p-4 md:p-8 max-w-7xl mx-auto w-full pb-24 md:pb-8">
+    <!-- pt-16 auf Mobile hinzugefügt, damit der Inhalt nicht unter der neuen Mobile-Top-Bar klebt -->
+    <main class="flex-grow p-4 pt-18 md:pt-8 md:p-8 max-w-7xl mx-auto w-full pb-24 md:pb-8">
       <RouterView />
     </main>
 
@@ -97,5 +109,34 @@ const route = useRoute()
 // Prüft live, ob der aktuelle Pfad das Wort 'admin' enthält
 const isAdmin = computed(() => {
   return route.path.toLowerCase().includes('/admin')
+})
+
+// Berechnet die Überschrift für die mobile Top-Bar anhand der URL
+const mobileTitle = computed(() => {
+  const path = route.path.toLowerCase()
+
+  if (path.endsWith('/benachrichtigungen') || path.endsWith('/nachrichten')) {
+    return 'Nachrichten'
+  }
+  if (path.endsWith('/tierheim')) {
+    return 'Tierheim'
+  }
+  if (path.endsWith('/einstellungen')) {
+    return 'Einstellungen'
+  }
+  if (path.endsWith('/reservierungsuebersicht') || path.endsWith('/reservierungen')) {
+    return 'Reservierungsübersicht'
+  }
+
+  // Wenn der Pfad genau "/" ist (oder ein Admin-Gegenstück) -> Willkommen
+  if (path === '/' || path === '/admin') {
+    return 'Willkommen'
+  }
+
+  // Fallback, falls du dich im Buchungs-Prozess oder auf einer Detailseite befindest
+  if (path.includes('/reservieren')) return 'Reservierung'
+  if (path.includes('/hund/')) return 'Details'
+
+  return 'Tierheim Weiden'
 })
 </script>
