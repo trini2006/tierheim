@@ -38,6 +38,7 @@ const routes = [
       {
         path: '',
         component: Startseite,
+        meta: { title: 'Willkommen' },
         children: [
           // Zeigt am Anfang standardmäßig "Nächster Termin"
           { path: '', component: NaechsterTermin },
@@ -49,30 +50,97 @@ const routes = [
       },
 
       // SEPARATE MOBILE PFADE (Laden die Seiten im Vollbild auf dem Handy)
-      { path: 'benachrichtigungen', component: Nachrichten },
-      // GEÄNDERT: Pfad von 'reservierungsuebersicht' zu 'revuebersicht' angepasst!
-      { path: 'revuebersicht', component: ReservierungsUebersicht },
+      {
+        path: 'benachrichtigungen',
+        component: Nachrichten,
+        meta: { title: 'Nachrichten' },
+      },
+      {
+        path: 'revuebersicht',
+        component: ReservierungsUebersicht,
+        meta: { title: 'Reservierungsübersicht' },
+      },
 
       // Weitere Hauptseiten
-      { path: 'tierheim', component: TierheimInfo },
-      { path: 'einstellungen', component: Einstellungen },
-      { path: 'hund/:id', component: HundeBeschreibung },
+      {
+        path: 'tierheim',
+        component: TierheimInfo,
+        meta: { title: 'Tierheim Info' },
+      },
+      {
+        path: 'einstellungen',
+        component: Einstellungen,
+        meta: { title: 'Einstellungen' },
+      },
+      {
+        path: 'hund/:id',
+        component: HundeBeschreibung,
+        meta: { title: 'Details' },
+      },
 
       // Der Reservierungs-Ablauf
-      { path: 'reservieren/zeit', component: Zeitwahl },
-      { path: 'reservieren/hund', component: Hundewahl },
-      { path: 'reservieren/ueberpruefen', component: Ueberpruefung },
-      { path: 'reservieren/erfolg', component: Erfolg },
+      {
+        path: 'reservieren/zeit',
+        component: Zeitwahl,
+        meta: { title: 'Zeit auswählen' },
+      },
+      {
+        path: 'reservieren/hund',
+        component: Hundewahl,
+        meta: { title: 'Hund auswählen' },
+      },
+      {
+        path: 'reservieren/ueberpruefen',
+        component: Ueberpruefung,
+        meta: { title: 'Überprüfen' },
+      },
+      {
+        path: 'reservieren/erfolg',
+        component: Erfolg,
+        meta: { title: 'Erfolgreich!' },
+      },
 
       // ADMIN-BEREICH
-      { path: 'admin', component: AdminStart },
-      { path: 'admin/mitglieder', component: AdminMitglieder },
-      { path: 'admin/hunde', component: AdminHunde },
-      { path: 'admin/reservierungen', component: AdminReservierungen },
-      { path: 'admin/statistik', component: AdminStatistik },
-      { path: 'admin/veranstaltungen', component: AdminVeranstaltungen },
-      { path: 'admin/veranstaltungen/hinzufuegen', component: AdminVeranstaltungHinzufuegen },
-      { path: 'admin/profileinstellungen', component: AdminProfileinstellungen },
+      {
+        path: 'admin',
+        component: AdminStart,
+        meta: { title: 'Tierheim Weiden' },
+      },
+      {
+        path: 'admin/mitglieder',
+        component: AdminMitglieder,
+        meta: { title: 'Mitgliederverwaltung' },
+      },
+      {
+        path: 'admin/hunde',
+        component: AdminHunde,
+        meta: { title: 'Hundeverwaltung' },
+      },
+      {
+        path: 'admin/reservierungen',
+        component: AdminReservierungen,
+        meta: { title: 'Reservierungsliste' },
+      },
+      {
+        path: 'admin/statistik',
+        component: AdminStatistik,
+        meta: { title: 'Statistiken' },
+      },
+      {
+        path: 'admin/veranstaltungen',
+        component: AdminVeranstaltungen,
+        meta: { title: 'Veranstaltungen' },
+      },
+      {
+        path: 'admin/veranstaltungen/hinzufuegen',
+        component: AdminVeranstaltungHinzufuegen,
+        meta: { title: 'Event hinzufügen' },
+      },
+      {
+        path: 'admin/profileinstellungen',
+        component: AdminProfileinstellungen,
+        meta: { title: 'Profileinstellungen' },
+      },
     ],
   },
 ]

@@ -16,7 +16,7 @@
         @click="goBack"
         class="absolute left-4 top-1/2 -translate-y-1/2 p-1 active:scale-95 transition-transform focus:outline-none"
       >
-        <!-- Ein cleaner Pfeil nach links, ähnlich deiner Skizze -->
+        <!-- Ein cleaner Pfeil nach links -->
         <svg
           xmlns="http://www.w3.org/2000/svg"
           fill="none"
@@ -45,7 +45,7 @@
       <div class="flex items-center gap-3">
         <span class="text-2xl">🐾</span>
         <h1 class="text-xl font-bold">
-          {{ isAdmin ? 'Tierheim Weiden (Admin)' : 'Tierheim Weiden' }}
+          {{ isAdmin ? 'Tierheim Weiden' : 'Tierheim Weiden' }}
         </h1>
       </div>
 
@@ -141,29 +141,28 @@ const goBack = () => {
   router.back()
 }
 
-// Berechnet die Überschrift für die mobile Top-Bar anhand der URL
+// Berechnet die Überschrift für die mobile Top-Bar dynamisch
 const mobileTitle = computed(() => {
+  // 1. Priorität: Wenn in der router.js ein meta.title gesetzt wurde, nimm diesen!
+  if (route.meta && route.meta.title) {
+    return route.meta.title
+  }
+
+  // 2. Priorität: Intelligentes Fallback basierend auf deiner URL-Struktur
   const path = route.path.toLowerCase()
 
-  if (path.endsWith('/benachrichtigungen') || path.endsWith('/nachrichten')) {
-    return 'Nachrichten'
-  }
-  if (path.endsWith('/tierheim')) {
-    return 'Tierheim'
-  }
-  if (path.endsWith('/einstellungen')) {
-    return 'Einstellungen'
-  }
-  if (path.endsWith('/reservierungsuebersicht') || path.endsWith('/reservierungen')) {
+  if (path.endsWith('/benachrichtigungen') || path.endsWith('/nachrichten')) return 'Nachrichten'
+  if (path.endsWith('/tierheim')) return 'Tierheim'
+  if (path.endsWith('/einstellungen')) return 'Einstellungen'
+  if (
+    path.endsWith('/reservierungsuebersicht') ||
+    path.endsWith('/reservierungen') ||
+    path.endsWith('/revuebersicht')
+  )
     return 'Reservierungsübersicht'
-  }
 
-  // Wenn der Pfad genau "/" ist (oder ein Admin-Gegenstück) -> Willkommen
-  if (path === '/' || path === '/admin') {
-    return 'Willkommen'
-  }
+  if (path === '/' || path === '/admin') return 'Willkommen'
 
-  // Fallback, falls du dich im Buchungs-Prozess oder auf einer Detailseite befindest
   if (path.includes('/reservieren')) return 'Reservierung'
   if (path.includes('/hund/')) return 'Details'
 
