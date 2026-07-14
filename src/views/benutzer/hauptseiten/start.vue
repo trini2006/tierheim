@@ -8,7 +8,7 @@
         <button
           @click="navigate('nachrichten')"
           :class="[
-            'flex items-center justify-between p-3 rounded-3xl shadow-sm border transition-colors w-full',
+            'flex items-center justify-between p-3 rounded-full shadow-sm border transition-colors w-full',
             isActive('nachrichten')
               ? 'bg-[#b8c9b4] border-emerald-700'
               : 'bg-[#D3DDD1] border-gray-200 hover:bg-[#c2cebf]',
@@ -76,7 +76,7 @@
         <button
           @click="navigate('reservierungen')"
           :class="[
-            'flex items-center justify-between p-3 rounded-3xl shadow-sm border transition-colors w-full',
+            'flex items-center justify-between p-3 rounded-full shadow-sm border transition-colors w-full',
             isActive('reservierungen')
               ? 'bg-[#b8c9b4] border-emerald-700'
               : 'bg-[#D3DDD1] border-gray-200 hover:bg-[#c2cebf]',
