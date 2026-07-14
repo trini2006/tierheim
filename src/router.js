@@ -19,6 +19,17 @@ import Hundewahl from './views/reservierung/hundewahl.vue'
 import Ueberpruefung from './views/reservierung/ueberpruefen.vue'
 import Erfolg from './views/reservierung/erfolgreichReserviert.vue'
 
+// Hauptseiten (Admin)
+import AdminStart from './views/admin/hauptseiten/start.vue'
+import AdminMitglieder from './views/admin/hauptseiten/mitglieder.vue'
+import AdminHunde from './views/admin/hauptseiten/hunde.vue'
+import AdminReservierungen from './views/admin/hauptseiten/reservierungen.vue'
+import AdminStatistik from './views/admin/hauptseiten/statistik.vue'
+import AdminVeranstaltungen from './views/admin/hauptseiten/veranstaltungen.vue'
+import AdminVeranstaltungHinzufuegen from './views/admin/hauptseiten/veranstaltunghinzufuegen.vue'
+import AdminProfileinstellungen from './views/admin/hauptseiten/profileinstellungen.vue'
+
+
 const routes = [
   {
     path: '/',
@@ -52,6 +63,16 @@ const routes = [
       { path: 'reservieren/hund', component: Hundewahl },
       { path: 'reservieren/ueberpruefen', component: Ueberpruefung },
       { path: 'reservieren/erfolg', component: Erfolg },
+
+      // ADMIN-BEREICH
+      { path: 'admin', component: AdminStart },
+      { path: 'admin/mitglieder', component: AdminMitglieder },
+      { path: 'admin/hunde', component: AdminHunde },
+      { path: 'admin/reservierungen', component: AdminReservierungen },
+      { path: 'admin/statistik', component: AdminStatistik },
+      { path: 'admin/veranstaltungen', component: AdminVeranstaltungen },
+      { path: 'admin/veranstaltungen/hinzufuegen', component: AdminVeranstaltungHinzufuegen },
+      { path: 'admin/profileinstellungen', component: AdminProfileinstellungen },
     ],
   },
 ]
