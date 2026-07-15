@@ -1,9 +1,22 @@
-<!---wird bei admin nicht angezeigt-->
 <template>
   <div class="w-full min-h-screen bg-white px-6 py-8 text-gray-800">
     <div class="w-full max-w-xl mx-auto space-y-10">
       
-      <!-- Sektion 1: Allgemein (Wichtig: Icon und Überschrift wie im Bild) -->
+      <!-- Sektion: Persönliches (nur sichtbar, wenn die vorherige Seite KEIN Admin-Pfad war) -->
+      <section v-if="!wasAdmin">
+        <div class="flex items-center justify-between mb-2">
+          <div class="flex items-center gap-3">
+            <span class="text-2xl">👤</span>
+            <h2 class="text-xl font-bold">Persönliches</h2>
+          </div>
+          <div class="w-4 h-4 bg-orange-500 rounded-full"></div>
+        </div>
+        <div class="px-2">
+          <p class="text-gray-600 text-sm">Mitgliednummer: 1234567890</p>
+        </div>
+      </section>
+
+      <!-- Sektion 1: Allgemein -->
       <section>
         <div class="flex items-center gap-3 mb-6">
           <span class="text-2xl">🔧</span>
@@ -58,7 +71,11 @@
 </template>
 
 <script setup>
-import { ref } from 'vue'
+import { ref, computed } from 'vue'
+import { previousPath } from '@/router.js' 
+
+// Prüft anhand der globalen Variable, ob die vorherige Route ein Admin-Pfad war
+const wasAdmin = computed(() => previousPath.value.includes('/admin'))
 
 const fontSize = ref('normal')
 const sound = ref(true)

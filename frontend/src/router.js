@@ -1,7 +1,8 @@
 // router.js
 import { createRouter, createWebHistory } from 'vue-router'
+import { ref } from 'vue' // Wichtig für den Pfad-Speicher
 
-// Layout (enthält die untere Navigation)
+// Layout
 import AppLayout from './views/layout.vue'
 
 // Hauptseiten Benutzer
@@ -27,6 +28,7 @@ import AdminReservierungen from './views/admin/hauptseiten/reservierungen.vue'
 import AdminStatistik from './views/admin/hauptseiten/statistik.vue'
 import AdminVeranstaltungen from './views/admin/hauptseiten/veranstaltungen.vue'
 import AdminVeranstaltungHinzufuegen from './views/admin/hauptseiten/veranstaltunghinzufuegen.vue'
+import AdminEinstellungen from './views/beides/systemEinstellungen.vue'
 import AdminProfileinstellungen from './views/admin/hauptseiten/profileinstellungen.vue'
 
 const routes = [
@@ -34,22 +36,16 @@ const routes = [
     path: '/',
     component: AppLayout,
     children: [
-      // STARTSEITE (Desktop Master-Detail-Zentrale)
       {
         path: '',
         component: Startseite,
         meta: { title: 'Willkommen' },
         children: [
-          // Zeigt am Anfang standardmäßig "Nächster Termin"
           { path: '', component: NaechsterTermin },
-          // Zeigt "Nachrichten" auf der rechten Desktopseite (unter /nachrichten)
           { path: 'nachrichten', component: Nachrichten },
-          // Zeigt "Reservierungsübersicht" auf der rechten Desktopseite (unter /reservierungen)
           { path: 'reservierungen', component: ReservierungsUebersicht },
         ],
       },
-
-      // SEPARATE MOBILE PFADE (Laden die Seiten im Vollbild auf dem Handy)
       {
         path: 'benachrichtigungen',
         component: Nachrichten,
@@ -60,8 +56,6 @@ const routes = [
         component: ReservierungsUebersicht,
         meta: { title: 'Reservierungsübersicht' },
       },
-
-      // Weitere Hauptseiten
       {
         path: 'tierheim',
         component: TierheimInfo,
@@ -77,8 +71,6 @@ const routes = [
         component: HundeBeschreibung,
         meta: { title: 'Details' },
       },
-
-      // Der Reservierungs-Ablauf
       {
         path: 'reservieren/zeit',
         component: Zeitwahl,
@@ -99,7 +91,6 @@ const routes = [
         component: Erfolg,
         meta: { title: 'Erfolgreich!' },
       },
-
       // ADMIN-BEREICH
       {
         path: 'admin',
@@ -137,6 +128,11 @@ const routes = [
         meta: { title: 'Event hinzufügen' },
       },
       {
+        path: 'admin/einstellungen',
+        component: AdminEinstellungen,
+        meta: { title: 'AdminEinstellungen' },
+      },
+      {
         path: 'admin/profileinstellungen',
         component: AdminProfileinstellungen,
         meta: { title: 'Profileinstellungen' },
@@ -148,6 +144,15 @@ const routes = [
 const router = createRouter({
   history: createWebHistory(),
   routes,
+})
+
+// NEU: Globaler Speicher für den vorherigen Pfad
+export const previousPath = ref('') 
+
+// Navigation Guard: Merkt sich den Pfad VOR jedem Wechsel
+router.beforeEach((to, from, next) => {
+  previousPath.value = from.path || '/'
+  next()
 })
 
 export default router

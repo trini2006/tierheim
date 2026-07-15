@@ -42,7 +42,7 @@
           </RouterLink>
 
           <RouterLink
-            :to="isAdmin ? '/beides/systemeinstellungen' : '/einstellungen'"
+            :to="isAdmin ? '/admin/einstellungen' : '/einstellungen'"
             class="p-2 rounded-full hover:bg-black/10 transition"
           >
             <svg class="w-9 h-9" fill="currentColor" viewBox="0 0 24 24">
@@ -92,7 +92,7 @@
         ><span class="text-xs">{{ isAdmin ? 'Hunde' : 'Tierheim' }}</span>
       </RouterLink>
       <RouterLink
-        :to="isAdmin ? '/beides/systemeinstellungen' : '/einstellungen'"
+        :to="isAdmin ? '/admin/einstellungen' : '/einstellungen'"
         class="flex flex-col items-center text-gray-600"
       >
         <span class="text-xl">⚙️</span><span class="text-xs">Einstellungen</span>
