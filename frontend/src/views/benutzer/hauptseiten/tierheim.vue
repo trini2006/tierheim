@@ -19,64 +19,61 @@
 
     <!-- ZWEISPALTIGES RASTER -->
     <div class="grid grid-cols-1 md:grid-cols-2 gap-10 lg:gap-16 items-start">
-      <!-- LINKE SPALTE: Kontaktdaten & Gassi-Zeiten (Mobile zentriert) -->
-      <div class="space-y-8 flex flex-col items-center md:items-start text-center md:text-left">
-        <!-- Kontaktdaten -->
-        <div class="w-full">
-          <h3 class="text-xl font-bold text-gray-900 mb-4 font-sans">Kontaktdaten</h3>
-          <div class="space-y-1 text-sm md:text-base text-gray-700">
-            <p class="font-medium">Schustermooslohe 94</p>
-            <p class="font-medium">92637 Weiden i. d. OPf.</p>
-            <p class="pt-2">0961 25780</p>
-            <p>0175 4715971 (Notfall)</p>
-            <p class="pt-2">
-              <a
-                href="https://tierheim-weiden.de"
-                target="_blank"
-                class="hover:underline text-emerald-800 font-semibold"
-              >
-                tierheim-weiden.de
-              </a>
-            </p>
-          </div>
+<!-- LINKE SPALTE: Kontaktdaten & Gassi-Zeiten -->
+<div class="space-y-10 flex flex-col items-center md:items-start text-center md:text-left">
+  
+  <!-- Kontaktdaten -->
+  <div class="w-full">
+    <h3 class="text-xl font-bold text-gray-900 mb-4 font-sans">Kontaktdaten</h3>
+    <div class="space-y-1 text-sm md:text-base text-gray-700">
+      <p class="font-medium">Schustermooslohe 94</p>
+      <p class="font-medium">92637 Weiden i. d. OPf.</p>
+      <p class="pt-2">0961 25780</p>
+      <p>0175 4715971 (Notfall)</p>
+      <p class="pt-2">
+        <a href="https://tierheim-weiden.de" target="_blank" class="hover:underline text-emerald-800 font-semibold">
+          tierheim-weiden.de
+        </a>
+      </p>
+    </div>
+  </div>
+
+  <!-- Gassi Zeiten: Jetzt direkt unter den Kontaktdaten -->
+  <div class="w-full">
+    <h3 class="text-xl font-bold text-gray-900 mb-4 font-sans">Gassi Zeiten</h3>
+    
+    <!-- Hier wurde die Ausrichtung auf md:justify-start geändert -->
+    <div class="flex justify-center md:justify-start">
+      <div class="text-sm md:text-base text-gray-700 space-y-0.5">
+        <div class="flex justify-start gap-4">
+          <span class="font-bold w-6">Mo</span>
+          <span class="whitespace-nowrap">10:00 - 14:00 Uhr</span>
         </div>
-
-        <!-- Gassi Zeiten: Enge Abstände -->
-        <div class="w-full">
-          <h3 class="text-xl font-bold text-gray-900 mb-4 font-sans text-center">Gassi Zeiten</h3>
-
-          <!-- Dieser div ist das Geheimnis: Er ist zentriert und gruppiert die Liste -->
-          <div class="flex justify-center">
-            <div class="text-sm md:text-base text-gray-700 space-y-0.5">
-              <div class="flex justify-start gap-4">
-                <span class="font-bold w-6">Mo</span>
-                <span class="whitespace-nowrap">10:00 - 14:00 Uhr</span>
-              </div>
-              <div class="flex justify-start gap-4">
-                <span class="font-bold w-6">Mi</span>
-                <span class="whitespace-nowrap">10:00 - 14:00 Uhr</span>
-              </div>
-              <div class="flex justify-start gap-4">
-                <span class="font-bold w-6">Fr</span>
-                <span class="whitespace-nowrap">10:00 - 14:00 Uhr</span>
-              </div>
-              <div class="flex justify-start gap-4">
-                <span class="font-bold w-6">Sa</span>
-                <span class="whitespace-nowrap">10:00 - 11:30 Uhr</span>
-              </div>
-            </div>
-          </div>
+        <div class="flex justify-start gap-4">
+          <span class="font-bold w-6">Mi</span>
+          <span class="whitespace-nowrap">10:00 - 14:00 Uhr</span>
         </div>
-
-        <!-- Button -->
-        <button
-          @click="goToReservations"
-          class="flex items-center gap-2 bg-[#94A684] hover:bg-[#839573] text-gray-900 font-bold px-6 py-3 rounded-full text-sm shadow-sm transition-all active:scale-95"
-        >
-          <span>📅</span>
-          <span>zu den Terminen</span>
-        </button>
+        <div class="flex justify-start gap-4">
+          <span class="font-bold w-6">Fr</span>
+          <span class="whitespace-nowrap">10:00 - 14:00 Uhr</span>
+        </div>
+        <div class="flex justify-start gap-4">
+          <span class="font-bold w-6">Sa</span>
+          <span class="whitespace-nowrap">10:00 - 11:30 Uhr</span>
+        </div>
       </div>
+    </div>
+  </div>
+
+  <!-- Button -->
+  <button
+    @click="goToReservations"
+    class="flex items-center gap-2 bg-[#94A684] hover:bg-[#839573] text-gray-900 font-bold px-6 py-3 rounded-full text-sm shadow-sm transition-all active:scale-95"
+  >
+    <span>📅</span>
+    <span>zu den Terminen</span>
+  </button>
+</div>
 
       <!-- RECHTE SPALTE: Unsere Hunde -->
       <div class="space-y-6 w-full flex flex-col items-center md:items-start">
