@@ -1,3 +1,6 @@
+<!--muss noch für admin gemacht werden, aber die vorherige
+      seiten sind noch nicht fertig-->
+
 <template>
   <div class="flex w-full h-full p-4 md:p-8">
     <!-- LINKS: Die Liste (auf Desktop sichtbar) -->

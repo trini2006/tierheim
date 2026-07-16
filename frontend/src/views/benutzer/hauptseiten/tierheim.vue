@@ -66,13 +66,12 @@
   </div>
 
   <!-- Button -->
-  <button
-    @click="goToReservations"
-    class="flex items-center gap-2 bg-[#94A684] hover:bg-[#839573] text-gray-900 font-bold px-6 py-3 rounded-full text-sm shadow-sm transition-all active:scale-95"
-  >
-    <span>📅</span>
-    <span>zu den Terminen</span>
-  </button>
+  <RouterLink 
+  to="/reservierung/zeitwahl" 
+  class="bg-[#536B53] text-white px-6 py-2 rounded-lg hover:bg-[#3d4f3d] transition"
+>
+  zu den Terminen
+</RouterLink>
 </div>
 
       <!-- RECHTE SPALTE: Unsere Hunde -->
