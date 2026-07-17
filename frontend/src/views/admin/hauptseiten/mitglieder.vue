@@ -54,7 +54,8 @@
     </div>
 
     <!-- RECHTER BEREICH: Mitglied bearbeiten / anlegen -->
-    <div class="w-full max-w-md mx-auto md:mx-0 mt-8 md:mt-0">
+    <!-- md:mt-12 schiebt den Container auch auf Tablet/Desktop etwas nach unten (vorher md:mt-0) -->
+    <div class="w-full max-w-md mx-auto md:mx-0 mt-8 md:mt-12">
       <div class="space-y-4">
         <!-- Mitgliedsnummer -->
         <div class="flex items-center gap-2">
@@ -117,13 +118,15 @@
           ></button>
         </div>
 
-        <!-- Anlegen Button -->
-        <button
-          @click="anlegen"
-          class="mt-2 px-6 py-2 rounded-full bg-[#D3DDD1] border border-gray-200 shadow-sm text-sm text-gray-800 hover:bg-[#c2cebf] transition-colors"
-        >
-          Anlegen
-        </button>
+        <!-- Anlegen Button: flex + justify-center zentriert den Button horizontal im rechten Container -->
+        <div class="flex justify-center">
+          <button
+            @click="anlegen"
+            class="mt-2 px-6 py-2 rounded-full bg-[#D3DDD1] border border-gray-200 shadow-sm text-sm text-gray-800 hover:bg-[#c2cebf] transition-colors"
+          >
+            Anlegen
+          </button>
+        </div>
       </div>
     </div>
   </div>
