@@ -56,10 +56,10 @@ public class Hund {
         this.geschlecht = geschlecht;
         this.alter = alter;
         this.rasse = rasse;
-        this.groesse = groesse;
+        this.groesse = groesse; // ToDO: In Enum umwandeln
         this.gewicht = gewicht;
         this.erfahrung = erfahrung;
-        this.strecke = strecke;
+        this.strecke = strecke; // ToDO: In Enum umwandeln
         this.gesperrtVon = gesperrtVon;
         this.gesperrtBis = gesperrtBis;
         this.istGesperrt = istGesperrt;
