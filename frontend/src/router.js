@@ -50,7 +50,7 @@ const routes = [
       // Reservierungs-Prozess
       { path: 'reservierung/zeitwahl', component: Zeitwahl, meta: { title: 'Zeit auswählen' } },
       { path: 'reservierung/hundewahl', component: Hundewahl, meta: { title: 'Hund auswählen' } },
-      { path: 'reservierung/ueberpruefen', component: Ueberpruefung, meta: { title: 'Überprüfen' } },
+      { path: 'reservierung/ueberpruefen', component: Ueberpruefung, meta: { title: 'Details Bestätigen' } },
       { path: 'reservierung/erfolgreichReserviert', component: Erfolg, meta: { title: 'Erfolgreich!' } },
       
       // Admin-Bereich

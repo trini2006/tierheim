@@ -1,47 +1,55 @@
 <template>
-  <div class="max-w-md mx-auto p-4 space-y-6">
+  <div class="max-w-md md:max-w-3xl mx-auto p-4 md:p-8 space-y-6 md:space-y-8">
+    
     <!-- KW Auswahl -->
-    <div class="flex gap-2 justify-center">
+    <div class="flex gap-2 md:gap-4 justify-center">
       <button 
         v-for="kw in weeks" 
         :key="kw.number" 
         @click="selectWeek(kw)"
-        :class="['px-4 py-2 rounded', selectedWeek.number === kw.number ? 'bg-[#536B53] text-white' : 'bg-gray-200']"
+        :class="['px-4 md:px-8 py-2 md:py-3 rounded md:rounded-lg text-sm md:text-lg font-medium transition', 
+                 selectedWeek.number === kw.number ? 'bg-[#536B53] text-white' : 'bg-gray-200 hover:bg-gray-300']"
       >
         KW {{ kw.number }}
       </button>
     </div>
 
-    <!-- Tag Auswahl mit dynamisch ausgegrauten Pfeilen -->
-    <div class="flex justify-between items-center bg-gray-100 p-2 rounded">
-      <button 
-        @click="changeDay(-1)" 
-        :disabled="isToday"
-        :class="{'opacity-30 cursor-not-allowed': isToday}"
-      >◀</button>
-      <span class="font-bold">{{ format(currentDate, 'EEEE dd.MM.', { locale: de }) }}</span>
-      <button 
-        @click="changeDay(1)" 
-        :disabled="isEndOfWeek"
-        :class="{'opacity-30 cursor-not-allowed': isEndOfWeek}"
-      >▶</button>
+    <!-- Tag Auswahl -->
+    <div class="flex justify-between items-center bg-gray-100 p-2 md:p-6 rounded md:rounded-xl text-lg md:text-xl">
+      <button @click="changeDay(-1)" :disabled="isToday" class="p-2">◀</button>
+      <span class="font-bold text-lg md:text-2xl">{{ format(currentDate, 'EEEE dd.MM.', { locale: de }) }}</span>
+      <button @click="changeDay(1)" :disabled="isEndOfWeek" class="p-2">▶</button>
     </div>
 
-    <!-- Zeitblöcke 10:00 - 14:00 Uhr -->
-    <div class="space-y-2">
-      <div v-for="(slot, index) in timeSlots" :key="slot.start" class="flex items-center gap-4">
-        <span class="text-xs w-28">{{ slot.start }} - {{ slot.end }} Uhr</span>
+    <!-- Flex-Row bleibt immer aktiv -->
+    <div class="flex items-end gap-4 md:gap-8">
+      
+      <!-- Zeitblöcke Liste -->
+      <div class="space-y-2 md:space-y-4 flex-grow">
+        <div v-for="(slot, index) in timeSlots" :key="slot.start" class="flex items-center gap-2 md:gap-4">
+          <!-- HIER WURDE DIE SCHRIFTGRÖSSE ANGEPASST -->
+          <span class="text-xs md:text-lg w-24 md:w-36 font-semibold">{{ slot.start }} - {{ slot.end }} Uhr</span>
+          
+          <button 
+            @click="toggleSlot(slot, index)"
+            :disabled="slot.booked || isPastTime(slot)"
+            :class="['flex-grow h-10 md:h-14 rounded md:rounded-xl transition-all duration-200', 
+              (slot.booked || isPastTime(slot)) ? 'bg-red-800 cursor-not-allowed' : 
+              selectedIndices.includes(index) ? 'bg-green-600' : 'bg-gray-300 hover:bg-gray-400']"
+          ></button>
+        </div>
+      </div>
+
+      <!-- Button -->
+      <div class="flex-shrink-0">
         <button 
-          @click="toggleSlot(slot, index)"
-          :disabled="slot.booked || isPastTime(slot)"
-          :class="['flex-grow h-10 rounded transition-colors', 
-            (slot.booked || isPastTime(slot)) ? 'bg-red-800 cursor-not-allowed' : 
-            selectedIndices.includes(index) ? 'bg-green-600' : 'bg-gray-300']"
-        ></button>
+          @click="saveAndContinue" 
+          class="text-4xl md:text-6xl hover:scale-110 transition-transform p-2 md:p-4"
+        >
+          ✅
+        </button>
       </div>
     </div>
-
-    <button @click="saveAndContinue" class="fixed bottom-20 right-8 text-5xl">✅</button>
   </div>
 </template>
 
@@ -55,7 +63,6 @@ const router = useRouter()
 const today = startOfToday()
 const currentDate = ref(today)
 
-// --- ZEITBLÖCKE GENERIEREN ---
 const generateSlots = () => {
   const starts = ['10:00', '10:30', '11:00', '11:30', '12:00', '12:30', '13:00', '13:30'];
   return starts.map(start => {
@@ -73,7 +80,6 @@ const generateSlots = () => {
 
 const timeSlots = ref(generateSlots());
 
-// --- KALENDER LOGIK ---
 const weeks = [0, 1, 2].map(i => ({ 
   number: getISOWeek(addWeeks(today, i)),
   startDate: startOfWeek(addWeeks(today, i), { weekStartsOn: 1 }) 
@@ -102,7 +108,6 @@ const changeDay = (dir) => {
   }
 };
 
-// --- AUSWAHL LOGIK ---
 const selectedIndices = ref([]);
 
 const isPastTime = (slot) => {
