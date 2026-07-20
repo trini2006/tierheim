@@ -27,7 +27,7 @@ import AdminHunde from './views/admin/hauptseiten/hunde.vue'
 import AdminReservierungen from './views/admin/hauptseiten/reservierungen.vue'
 import AdminStatistik from './views/admin/hauptseiten/statistik.vue'
 import AdminVeranstaltungen from './views/admin/hauptseiten/veranstaltungen.vue'
-import AdminVeranstaltungHinzufuegen from './views/admin/hauptseiten/veranstaltunganlegen.vue/index.js'
+import AdminVeranstaltungHinzufuegen from './views/admin/hauptseiten/veranstaltunganlegen.vue'
 import AdminEinstellungen from './views/beides/systemEinstellungen.vue'
 import AdminProfileinstellungen from './views/admin/hauptseiten/profileinstellungen.vue'
 
