@@ -1,6 +1,7 @@
 package projekt_tierheim.tierheim.db.GassiGehZeiten;
 
 import jakarta.persistence.*;
+import projekt_tierheim.tierheim.db.Tierheim.Tierheim;
 
 import java.time.LocalTime;
 
@@ -15,15 +16,18 @@ public class GassiGehZeiten {
     private Tage tag;
     private LocalTime von;
     private LocalTime bis;
-    private int idTierheim;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    private Tierheim tierheim;
 
     public GassiGehZeiten(){}
-    public GassiGehZeiten(int idTierheim, LocalTime bis, LocalTime von, Tage tag, int id) {
-        this.idTierheim = idTierheim;
-        this.bis = bis;
-        this.von = von;
-        this.tag = tag;
+
+    public GassiGehZeiten(int id, Tage tag, LocalTime von, LocalTime bis, Tierheim tierheim) {
         this.id = id;
+        this.tag = tag;
+        this.von = von;
+        this.bis = bis;
+        this.tierheim = tierheim;
     }
 
     public int getId() {
@@ -58,13 +62,11 @@ public class GassiGehZeiten {
         this.bis = bis;
     }
 
-    public int getIdTierheim() {
-        return idTierheim;
+    public Tierheim getTierheim() {
+        return tierheim;
     }
 
-    public void setIdTierheim(int idTierheim) {
-        this.idTierheim = idTierheim;
+    public void setTierheim(Tierheim tierheim) {
+        this.tierheim = tierheim;
     }
-
-
 }
