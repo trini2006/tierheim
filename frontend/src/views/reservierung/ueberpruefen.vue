@@ -1,9 +1,9 @@
+<!-- views/reservierung/ueberpruefen.vue -->
 <template>
   <div class="min-h-screen bg-white">
-    <!-- Hauptinhalt: max-w-xl begrenzt die Breite auf Tablet/Desktop -->
     <div v-if="booking" class="p-6 max-w-xl mx-auto">
       
-      <!-- Hundekarte: mb-8 bleibt, Breite wird durch den Container begrenzt -->
+      <!-- Hundekarte -->
       <div class="bg-[#BFCABF] p-4 rounded-2xl mb-8 flex items-center gap-4">
         <img :src="booking.dog.image" class="w-24 h-24 rounded-lg object-cover" />
         <div class="flex-grow">
@@ -22,23 +22,28 @@
         </div>
       </div>
 
-      <!-- Zeitdaten -->
+      <!-- Zeitdaten & Admin-Mitgliedsnummer -->
       <div class="space-y-4 mb-10 text-lg">
         <div class="flex">
-          <span class="w-24 font-semibold text-gray-600">Datum:</span>
-          <span>{{ booking.date }}</span>
+          <span class="w-32 font-semibold text-gray-600">Datum:</span>
+          <span>{{ booking.date || 'Mi 01.07.' }}</span>
         </div>
         <div class="flex">
-          <span class="w-24 font-semibold text-gray-600">Uhrzeit:</span>
-          <span>{{ booking.start }} - {{ booking.end }} Uhr</span>
+          <span class="w-32 font-semibold text-gray-600">Uhrzeit:</span>
+          <span>{{ booking.start && booking.end ? `${booking.start} - ${booking.end} Uhr` : '10:00 - 10:30 Uhr' }}</span>
+        </div>
+
+        <!-- Wird NUR im Admin-Bereich angezeigt -->
+        <div v-if="isAdminMode" class="flex">
+          <span class="w-32 font-semibold text-gray-600">Mitglied:</span>
+          <span class="font-bold text-gray-800">{{ booking.telefon || booking.mitgliedId || 'Unbekannt' }}</span>
         </div>
       </div>
 
       <!-- Bestätigen Button -->
-      <!-- w-full auf Handy, md:w-64 auf Tablet/Desktop für eine kompakte Größe -->
       <div class="flex justify-center md:justify-start">
         <button @click="confirmBooking" 
-                class="w-full md:w-64 bg-[#9CA99A] py-4 rounded-full text-black font-bold shadow-md">
+                class="w-full md:w-64 bg-[#9CA99A] hover:bg-[#8b9889] py-4 rounded-full text-black font-bold shadow-md transition-colors">
           Termin Bestätigen
         </button>
       </div>
@@ -47,22 +52,32 @@
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue'
-import { useRouter } from 'vue-router'
+import { ref, computed, onMounted } from 'vue'
+import { useRouter, useRoute } from 'vue-router'
 
 const router = useRouter()
+const route = useRoute()
 const booking = ref(null)
+
+// Prüft, ob wir uns im Admin-Bereich befinden
+const isAdminMode = computed(() => route.path.startsWith('/admin'))
 
 onMounted(() => {
   const data = localStorage.getItem('bookingFinal')
   if (data) {
     booking.value = JSON.parse(data)
   } else {
-    router.push('/reservierung/zeitwahl')
+    // Falls keine Daten da sind, zurück zur entsprechenden Startseite
+    router.push(isAdminMode.value ? '/admin' : '/reservierung/zeitwahl')
   }
 })
 
 const confirmBooking = () => {
-  router.push('/reservierung/erfolgreichReserviert');
+  if (isAdminMode.value) {
+    // Hier kannst du für Admin einen eigenen Erfolgsweg oder eine Weiterleitung definieren
+    router.push('/admin/erfolgreichReserviert')
+  } else {
+    router.push('/reservierung/erfolgreichReserviert')
+  }
 }
 </script>

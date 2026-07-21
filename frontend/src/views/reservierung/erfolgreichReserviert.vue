@@ -13,13 +13,23 @@
 
 <script setup>
 import { onMounted } from 'vue'
-import { useRouter } from 'vue-router'
+import { useRouter, useRoute } from 'vue-router'
 
 const router = useRouter()
+const route = useRoute()
 
 onMounted(() => {
   setTimeout(() => {
-    router.push('/')
+    // Aufräumen der gespeicherten Buchungsdaten
+    localStorage.removeItem('terminData')
+    localStorage.removeItem('bookingFinal')
+
+    // Automatische Weiterleitung je nach Admin- oder Benutzer-Pfad
+    if (route.path.startsWith('/admin')) {
+      router.push('/admin')
+    } else {
+      router.push('/')
+    }
   }, 2000)
 })
 </script>

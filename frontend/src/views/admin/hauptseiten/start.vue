@@ -50,12 +50,12 @@ const route = useRoute()
 const isIndexRoute = computed(() => route.path === '/admin')
 
 const menuItems = [
-  { name: 'Statistik', path: '/admin/statistik' },
-  { name: 'Reservierungen', path: '/admin/reservierungen' },
-  { name: 'Mitglieder', path: '/admin/mitglieder' },
+  { name: 'Statistik', path: '/admin/statistik' },  
   { name: 'Nachrichten', path: '/admin/nachrichten' },
   { name: 'Veranstaltungen', path: '/admin/veranstaltungen' },
-  { name: 'Hundeverwaltung', path: '/admin/hunde' }
+  { name: 'Reservierungen', path: '/admin/reservierungen' },
+  {name: 'Reservierung hinzufügen', path: '/admin/termin-mitglied'},
+  { name: 'Mitglieder', path: '/admin/mitglieder' },
 ]
 
 // Deine originalen Klassen für die Buttons
@@ -77,11 +77,17 @@ const hatHeuteTermine = computed(() => gassiGeherHeute.value.length > 0)
 async function ladeHeutigeTermine() {
   try {
     const res = await fetch('/api/admin/termine/heute')
-    if (res.ok) gassiGeherHeute.value = await res.json()
+    
+    const contentType = res.headers.get('content-type')
+    if (res.ok && contentType && contentType.includes('application/json')) {
+      gassiGeherHeute.value = await res.json()
+    } else {
+      gassiGeherHeute.value = []
+    }
   } catch (e) {
-    console.error('Fehler beim Laden:', e)
+    // Hier stand fälschlicherweise "danach" statt "catch"
+    gassiGeherHeute.value = []
   }
 }
-
 onMounted(ladeHeutigeTermine)
 </script>

@@ -1,19 +1,19 @@
 <template>
   <div class="max-w-md mx-auto p-4 space-y-6 pb-24">
     <!-- RANDOM HUND VORSCHLAG -->
-    <h2 class="text-xl font-bold">Unser Vorschlag</h2>
-    <div v-if="randomDog" @click="selectDog(randomDog)" class="bg-[#BFCABF] p-4 rounded-xl cursor-pointer">
-      <div class="flex gap-4">
-        <img :src="randomDog.image" class="w-24 h-24 rounded-lg object-cover" />
-        <div>
-          <h3 class="text-lg font-bold">{{ randomDog.name }}</h3>
-          <p class="text-sm">{{ randomDog.breed }} • {{ randomDog.age }} Jahre, {{ randomDog.gender }}</p>
-          <div class="flex gap-2 mt-2">
-            <span v-for="tag in randomDog.tags" :key="tag" class="bg-white/50 px-2 py-0.5 rounded-full text-xs">{{ tag }}</span>
-          </div>
-        </div>
+<h2 class="text-xl font-bold">Unser Vorschlag</h2>
+<div v-if="randomDog" @click="selectDog(randomDog)" class="bg-[#BFCABF] p-4 rounded-xl cursor-pointer hover:bg-[#b0bcaf] transition-colors">
+  <div class="flex gap-4">
+    <img :src="randomDog.image" class="w-24 h-24 rounded-lg object-cover pointer-events-none" />
+    <div>
+      <h3 class="text-lg font-bold">{{ randomDog.name }}</h3>
+      <p class="text-sm">{{ randomDog.breed }} • {{ randomDog.age }} Jahre, {{ randomDog.gender }}</p>
+      <div class="flex gap-2 mt-2">
+        <span v-for="tag in randomDog.tags" :key="tag" class="bg-white/50 px-2 py-0.5 rounded-full text-xs">{{ tag }}</span>
       </div>
     </div>
+  </div>
+</div>
 
     <!-- SUCHE -->
     <div class="relative">
@@ -22,19 +22,19 @@
     </div>
 
     <!-- LISTE FREIER HUNDE -->
-    <h2 class="text-xl font-bold">Freie Hunde</h2>
-    <div v-for="dog in filteredDogs" :key="dog.id" @click="selectDog(dog)" 
-         class="bg-[#BFCABF] p-4 rounded-xl cursor-pointer flex gap-4">
-      <img :src="dog.image" class="w-24 h-24 rounded-lg object-cover" />
-      <div class="flex-grow">
-        <h3 class="text-lg font-bold">{{ dog.name }}</h3>
-        <p class="text-sm">{{ dog.breed }} • {{ dog.age }} Jahre, {{ dog.gender }}</p>
-        <div class="flex gap-2 mt-2">
-          <span v-for="tag in dog.tags" :key="tag" class="bg-white/50 px-2 py-0.5 rounded-full text-xs">{{ tag }}</span>
-        </div>
-      </div>
-      <div :class="['w-4 h-4 rounded-full mt-2', dog.color]" />
+<h2 class="text-xl font-bold">Freie Hunde</h2>
+<div v-for="dog in filteredDogs" :key="dog.id" @click="selectDog(dog)" 
+     class="bg-[#BFCABF] p-4 rounded-xl cursor-pointer flex gap-4 hover:bg-[#b0bcaf] transition-colors">
+  <img :src="dog.image" class="w-24 h-24 rounded-lg object-cover pointer-events-none" />
+  <div class="flex-grow">
+    <h3 class="text-lg font-bold">{{ dog.name }}</h3>
+    <p class="text-sm">{{ dog.breed }} • {{ dog.age }} Jahre, {{ dog.gender }}</p>
+    <div class="flex gap-2 mt-2">
+      <span v-for="tag in dog.tags" :key="tag" class="bg-white/50 px-2 py-0.5 rounded-full text-xs">{{ tag }}</span>
     </div>
+  </div>
+  <div :class="['w-4 h-4 rounded-full mt-2', dog.color]" />
+</div>
 
     <!-- HILFE BUTTON -->
     <button class="fixed bottom-20 right-8 bg-gray-600 text-white w-12 h-12 rounded-full font-bold text-xl shadow-lg">?</button>
@@ -43,17 +43,18 @@
 
 <script setup>
 import { ref, computed, onMounted } from 'vue'
-import { useRouter } from 'vue-router'
+import { useRouter, useRoute } from 'vue-router'
 
 const router = useRouter()
+const route = useRoute()
+
 const searchQuery = ref('')
 const terminData = ref(null)
 
-// Beispiel-Datenbank
 const allDogs = [
-  { id: 1, name: 'Dark', breed: 'Mischling', age: 7, gender: 'Rüde', tags: ['ruhig', 'zurückhaltend'], color: 'bg-orange-500', image: 'https://via.placeholder.com/150' },
-  { id: 2, name: 'Richy', breed: 'Labrador', age: 4, gender: 'Rüde', tags: ['freundlich', 'Kinder'], color: 'bg-green-500', image: 'https://via.placeholder.com/150' },
-  { id: 3, name: 'Xina', breed: 'Bully-Mix', age: 6, gender: 'Hündin', tags: ['freundlich', 'Leinenzug'], color: 'bg-orange-500', image: 'https://via.placeholder.com/150' }
+  { id: 1, name: 'Dark', breed: 'Mischling', age: 7, gender: 'Rüde', tags: ['ruhig', 'zurückhaltend'], color: 'bg-orange-500', image: 'https://images.unsplash.com/photo-1543466835-00a7907e9de1' },
+  { id: 2, name: 'Richy', breed: 'Labrador', age: 4, gender: 'Rüde', tags: ['freundlich', 'Kinder'], color: 'bg-green-500', image: 'https://images.unsplash.com/photo-1552053831-71594a27632d' },
+  { id: 3, name: 'Xina', breed: 'Bully-Mix', age: 6, gender: 'Hündin', tags: ['freundlich', 'Leinenzug'], color: 'bg-orange-500', image: 'https://images.unsplash.com/photo-1583511655857-d19b40a7a54e' }
 ]
 
 onMounted(() => {
@@ -61,7 +62,6 @@ onMounted(() => {
   if (data) terminData.value = JSON.parse(data)
 })
 
-// Logik: Hier würden wir normalerweise gegen ein Backend filtern
 const filteredDogs = computed(() => {
   return allDogs.filter(dog => 
     dog.name.toLowerCase().includes(searchQuery.value.toLowerCase())
@@ -71,11 +71,18 @@ const filteredDogs = computed(() => {
 const randomDog = computed(() => allDogs[Math.floor(Math.random() * allDogs.length)])
 
 const selectDog = (dog) => {
-  // Übergibt den Hund zusammen mit den Zeit-Daten an die nächste Seite
   localStorage.setItem('bookingFinal', JSON.stringify({
     ...terminData.value,
     dog: dog
   }))
-  router.push('/reservierung/ueberpruefen')
+
+  // Sicherheits-Check, ob route und path existieren
+  const currentPath = route?.path || window.location.pathname
+
+  if (currentPath.startsWith('/admin')) {
+    router.push('/admin/ueberpruefen')
+  } else {
+    router.push('/reservierung/ueberpruefen')
+  }
 }
 </script>

@@ -20,6 +20,7 @@ import AdminStart from './views/admin/hauptseiten/start.vue'
 import AdminMitglieder from './views/admin/hauptseiten/mitglieder.vue'
 import AdminHunde from './views/admin/hauptseiten/hunde.vue'
 import AdminReservierungen from './views/admin/hauptseiten/reservierungen.vue'
+import TerminMitglied from './views/admin/hauptseiten/terminMitg.vue'
 import AdminStatistik from './views/admin/hauptseiten/statistik.vue'
 import AdminVeranstaltungen from './views/admin/hauptseiten/veranstaltungen.vue'
 import AdminVeranstaltungHinzufuegen from './views/admin/hauptseiten/veranstaltunganlegen.vue'
@@ -48,6 +49,10 @@ const routes = [
         { path: 'nachrichten', component: Nachrichten },
         { path: 'veranstaltungen', component: AdminVeranstaltungen }
       ]},
+      { path: 'admin/erfolgreichReserviert', component: Erfolg, meta: { title: 'Erfolgreich!' } },
+      { path: 'admin/ueberpruefen', component: Ueberpruefung, meta: { title: 'Details bestätigen' } },
+      {path: 'admin/hundewahl', component: Hundewahl, meta: {title: 'Hund auswählen'}},
+      {path: 'admin/termin-mitglied', component: TerminMitglied, meta: {title: 'Termin wählen'}},
       { path: 'admin/statistik', component: AdminStatistik, meta: { title: 'Statistik' } },
       { path: 'admin/reservierungen', component: AdminReservierungen, meta: { title: 'Reservierungen' } },
       { path: 'admin/mitglieder', component: AdminMitglieder, meta: { title: 'Mitgliederverwaltung' } },
