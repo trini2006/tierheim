@@ -10,6 +10,18 @@ import java.time.LocalDateTime;
 
 @Entity
 public class Hund {
+    // Enum
+    enum Strecke {
+        KURZ,
+        MITTEL,
+        LANG
+    }
+    enum Groesse {
+        KLEIN,
+        MITTEL,
+        GROSS
+    }
+
     // Attribute für alle Hunde
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -18,10 +30,10 @@ public class Hund {
     private boolean geschlecht; // 0 = Rüde, 1 = Hündin
     private int alter;
     private String rasse;
-    private int groesse; // 1 = klein, 2 = mittel, 3 = groß
+    private Groesse groesse;
     private int gewicht; // z.B. 20kg
     private boolean erfahrung; // 0 = Anfängerhund, 1 = Problemhund
-    private int strecke; // 1 = kurz, 2 = mittel, 3 = lang
+    private Strecke strecke;
 
     // Attribute zum Sperren von Hunden
     private LocalDate gesperrtVon;
@@ -37,7 +49,7 @@ public class Hund {
     public Hund() {}
 
     // Hund ohne Sperrgrund
-    public Hund(int id, String name, boolean geschlecht, int alter, String rasse, int groesse, int gewicht, boolean erfahrung, int strecke) {
+    public Hund(int id, String name, boolean geschlecht, int alter, String rasse, Groesse groesse, int gewicht, boolean erfahrung, Strecke strecke) {
         this.id = id;
         this.name = name;
         this.geschlecht = geschlecht;
@@ -50,16 +62,16 @@ public class Hund {
     }
 
     // Hund mit Sperrgrund
-    public Hund(int id, String name, boolean geschlecht, int alter, String rasse, int groesse, int gewicht, boolean erfahrung, int strecke, LocalDate gesperrtVon, LocalDate gesperrtBis, boolean istGesperrt, String sperrGrund, LocalDateTime erstelltAm, int erstelltVon) {
+    public Hund(int id, String name, boolean geschlecht, int alter, String rasse, Groesse groesse, int gewicht, boolean erfahrung, Strecke strecke, LocalDate gesperrtVon, LocalDate gesperrtBis, boolean istGesperrt, String sperrGrund, LocalDateTime erstelltAm, int erstelltVon) {
         this.id = id;
         this.name = name;
         this.geschlecht = geschlecht;
         this.alter = alter;
         this.rasse = rasse;
-        this.groesse = groesse; // ToDO: In Enum umwandeln
+        this.groesse = groesse;
         this.gewicht = gewicht;
         this.erfahrung = erfahrung;
-        this.strecke = strecke; // ToDO: In Enum umwandeln
+        this.strecke = strecke;
         this.gesperrtVon = gesperrtVon;
         this.gesperrtBis = gesperrtBis;
         this.istGesperrt = istGesperrt;
@@ -108,11 +120,11 @@ public class Hund {
         this.rasse = rasse;
     }
 
-    public int getGroesse() {
+    public Groesse getGroesse() {
         return groesse;
     }
 
-    public void setGroesse(int groesse) {
+    public void setGroesse(Groesse groesse) {
         this.groesse = groesse;
     }
 
@@ -132,11 +144,11 @@ public class Hund {
         this.erfahrung = erfahrung;
     }
 
-    public int getStrecke() {
+    public Strecke getStrecke() {
         return strecke;
     }
 
-    public void setStrecke(int strecke) {
+    public void setStrecke(Strecke strecke) {
         this.strecke = strecke;
     }
 
