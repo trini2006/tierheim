@@ -1,12 +1,13 @@
 package projekt_tierheim.tierheim.db.Hund;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
+import jakarta.persistence.*;
+import projekt_tierheim.tierheim.db.Label.Label;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.HashSet;
+import java.util.Objects;
+import java.util.Set;
 
 @Entity
 public class Hund {
@@ -44,6 +45,12 @@ public class Hund {
     // Log-Daten für z.B. Debugging
     private LocalDateTime erstelltAm;
     private int erstelltVon; // Id eines Mitarbeiters
+
+    @ManyToMany(cascade = CascadeType.REFRESH, fetch = FetchType.LAZY)
+    @JoinTable(name = "Hundelabel",
+            joinColumns = @JoinColumn(name = "idHundi"),
+            inverseJoinColumns = @JoinColumn(name = "idLabeli"))
+    protected Set<Label> labels = new HashSet<>();
 
     // DTO
     public Hund() {}
@@ -198,5 +205,22 @@ public class Hund {
 
     public void setErstelltVon(int erstelltVon) {
         this.erstelltVon = erstelltVon;
+    }
+
+    public Set<Label> getLabels(){return labels;}
+    public void setLabels(Set<Label> labels){this.labels = labels;}
+    public void addLabel(Label label){this.labels.add(label);}
+    public void removeLabel(Label label){this.labels.remove(label);}
+
+    @Override
+    public boolean equals(Object o) {
+        if (o == null || getClass() != o.getClass()) return false;
+        Hund hund = (Hund) o;
+        return getId() == hund.getId() && isGeschlecht() == hund.isGeschlecht() && getAlter() == hund.getAlter() && getGewicht() == hund.getGewicht() && isErfahrung() == hund.isErfahrung() && isIstGesperrt() == hund.isIstGesperrt() && getErstelltVon() == hund.getErstelltVon() && Objects.equals(getName(), hund.getName()) && Objects.equals(getRasse(), hund.getRasse()) && getGroesse() == hund.getGroesse() && getStrecke() == hund.getStrecke() && Objects.equals(getGesperrtVon(), hund.getGesperrtVon()) && Objects.equals(getGesperrtBis(), hund.getGesperrtBis()) && Objects.equals(getSperrGrund(), hund.getSperrGrund()) && Objects.equals(getErstelltAm(), hund.getErstelltAm()) && Objects.equals(getLabels(), hund.getLabels());
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(getId(), getName(), isGeschlecht(), getAlter(), getRasse(), getGroesse(), getGewicht(), isErfahrung(), getStrecke(), getGesperrtVon(), getGesperrtBis(), isIstGesperrt(), getSperrGrund(), getErstelltAm(), getErstelltVon(), getLabels());
     }
 }
