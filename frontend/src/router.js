@@ -26,6 +26,7 @@ import AdminVeranstaltungen from './views/admin/hauptseiten/veranstaltungen.vue'
 import AdminVeranstaltungHinzufuegen from './views/admin/hauptseiten/veranstaltunganlegen.vue'
 import AdminEinstellungen from './views/beides/systemEinstellungen.vue'
 import AdminProfileinstellungen from './views/admin/hauptseiten/profileinstellungen.vue'
+import AdminHundepflegen from './views/admin/hauptseiten/hundepflegen.vue'
 
 const routes = [
   {
@@ -49,6 +50,7 @@ const routes = [
         { path: 'nachrichten', component: Nachrichten },
         { path: 'veranstaltungen', component: AdminVeranstaltungen }
       ]},
+      { path: 'admin/hundepflegen', component: AdminHundepflegen, meta: { title: 'Hund pflegen' } },
       { path: 'admin/erfolgreichReserviert', component: Erfolg, meta: { title: 'Erfolgreich!' } },
       { path: 'admin/ueberpruefen', component: Ueberpruefung, meta: { title: 'Details bestätigen' } },
       {path: 'admin/hundewahl', component: Hundewahl, meta: {title: 'Hund auswählen'}},
