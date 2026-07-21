@@ -12,12 +12,12 @@ import java.util.Set;
 @Entity
 public class Hund {
     // Enum
-    enum Strecke {
+    private enum Strecke {
         KURZ,
         MITTEL,
         LANG
     }
-    enum Groesse {
+    private enum Groesse {
         KLEIN,
         MITTEL,
         GROSS
