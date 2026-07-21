@@ -1,11 +1,11 @@
 package projekt_tierheim.tierheim.db.Label;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
+import jakarta.persistence.*;
+import projekt_tierheim.tierheim.db.Hund.Hund;
 
+import java.util.HashSet;
 import java.util.Objects;
+import java.util.Set;
 
 @Entity
 public class Label {
@@ -17,6 +17,9 @@ public class Label {
     // Farbe fürs Label
     // 0 = normal, 1 = wichtig
     private boolean hinweis;
+
+    @ManyToMany(mappedBy = "labels")
+    private Set<Hund> hunde = new HashSet<>();
 
     public Label(){}
 
