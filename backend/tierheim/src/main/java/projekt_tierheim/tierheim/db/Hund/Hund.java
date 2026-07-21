@@ -11,12 +11,12 @@ import java.time.LocalDateTime;
 @Entity
 public class Hund {
     // Enum
-    enum Strecke {
+    private enum Strecke {
         KURZ,
         MITTEL,
         LANG
     }
-    enum Groesse {
+    private enum Groesse {
         KLEIN,
         MITTEL,
         GROSS
