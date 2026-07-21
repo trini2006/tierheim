@@ -1,11 +1,12 @@
 package projekt_tierheim.tierheim.db.Mitglied;
 
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Positive;
 
 public record MitgliedDTO(
-    @NotBlank @Positive int mitgliedsnummer,
+    @NotNull @Positive int mitgliedsnummer,
     @NotBlank String passwort, // ToDO Passwörter iwie verschlüsseln
-    @NotBlank boolean erfahrung
+    @NotNull boolean erfahrung
 )
 { }

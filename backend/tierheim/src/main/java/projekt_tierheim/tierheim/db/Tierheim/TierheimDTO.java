@@ -1,6 +1,7 @@
 package projekt_tierheim.tierheim.db.Tierheim;
 
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Positive;
 
 public record TierheimDTO(
@@ -14,9 +15,9 @@ public record TierheimDTO(
   String link,
   String bild,
   String bannerfarbe,
-  @NotBlank @Positive int zeitblock,
-  @NotBlank @Positive int ruhezeit,
-  @NotBlank @Positive int maxGassi,
-  @NotBlank @Positive int inGassi
+  @NotNull @Positive int zeitblock,
+  @NotNull @Positive int ruhezeit,
+  @NotNull @Positive int maxGassi,
+  @NotNull @Positive int inGassi
 )
 { }

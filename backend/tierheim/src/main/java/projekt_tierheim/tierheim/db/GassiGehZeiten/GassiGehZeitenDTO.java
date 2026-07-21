@@ -1,12 +1,12 @@
 package projekt_tierheim.tierheim.db.GassiGehZeiten;
 
-import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 
 import java.time.LocalTime;
 
 public record GassiGehZeitenDTO(
         // @NotBlank Tage tag, ToDO Enum
-        @NotBlank LocalTime von,
-        @NotBlank LocalTime bis
+        @NotNull LocalTime von,
+        @NotNull LocalTime bis
         )
 { }
