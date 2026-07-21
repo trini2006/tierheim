@@ -2,36 +2,15 @@
   <div>
     <h2 class="text-lg font-bold text-gray-800 mb-4">Veranstaltungen</h2>
 
-    <!-- Hinzufügen-Zeile: + öffnet/schließt das kleine Formular für eine neue Veranstaltung -->
+    <!-- Hinzufügen-Zeile: Der Plus-Button leitet jetzt direkt weiter -->
     <div class="flex items-center justify-between mb-3">
       <h3 class="text-sm tracking-wide uppercase text-gray-600">Hinzufügen</h3>
       <button
-        @click="formularOffen = !formularOffen"
+        @click="geheZuHinzufuegen"
         class="text-2xl leading-none text-gray-700 hover:text-gray-900"
         aria-label="Neue Veranstaltung hinzufügen"
       >
         +
-      </button>
-    </div>
-
-    <!-- Kleines Formular für eine neue Veranstaltung, nur sichtbar wenn formularOffen true ist -->
-    <div v-if="formularOffen" class="flex flex-col gap-2 mb-4 p-3 rounded-2xl bg-[#D3DDD1] border border-gray-200">
-      <input
-        v-model="neu.titel"
-        type="text"
-        placeholder="Titel der Veranstaltung"
-        class="text-sm bg-white/60 rounded-md px-2 py-1 focus:outline-none"
-      />
-      <input
-        v-model="neu.datum"
-        type="date"
-        class="text-sm bg-white/60 rounded-md px-2 py-1 focus:outline-none"
-      />
-      <button
-        @click="hinzufuegen"
-        class="self-end mt-1 px-4 py-1 rounded-full bg-emerald-800 text-white text-xs hover:bg-emerald-900 transition-colors"
-      >
-        Speichern
       </button>
     </div>
 
@@ -76,38 +55,23 @@
 
 <script setup>
 import { ref } from 'vue'
+import { useRouter } from 'vue-router'
 
-// Beispielhafte Daten; in echt via fetch/API aus dem Backend laden
+const router = useRouter()
+
 const veranstaltungen = ref([
   { id: 1, titel: 'Tag der offenen Tür', datum: '31.05.2026', kuerzel: 'Tag der offenen Tür' },
   { id: 2, titel: 'Arbeitseinsatz - Pool', datum: '30.07.2026', kuerzel: 'Arbeitseinsatz' },
 ])
 
-const formularOffen = ref(false)
-const neu = ref({ titel: '', datum: '' })
-
-const hinzufuegen = () => {
-  if (!neu.value.titel || !neu.value.datum) return
-
-  const neueId = veranstaltungen.value.length
-    ? Math.max(...veranstaltungen.value.map((v) => v.id)) + 1
-    : 1
-
-  veranstaltungen.value.push({
-    id: neueId,
-    titel: neu.value.titel,
-    datum: neu.value.datum,
-    kuerzel: neu.value.titel,
-  })
-
-  neu.value = { titel: '', datum: '' }
-  formularOffen.value = false
+// Funktion für den Plus-Button
+const geheZuHinzufuegen = () => {
+  router.push('/admin/veranstaltungen/hinzufuegen')
 }
 
 const bearbeiten = (veranstaltung) => {
-  neu.value = { titel: veranstaltung.titel, datum: veranstaltung.datum }
-  formularOffen.value = true
-  loeschen(veranstaltung.id)
+  // Wenn du möchtest, kannst du hier beim Bearbeiten ebenfalls zur Hinzufügen-Seite weiterleiten
+  router.push('/admin/veranstaltungen/hinzufuegen')
 }
 
 const loeschen = (id) => {
