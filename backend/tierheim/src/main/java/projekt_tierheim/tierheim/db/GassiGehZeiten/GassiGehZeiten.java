@@ -7,15 +7,13 @@ import java.time.LocalTime;
 
 @Entity
 public class GassiGehZeiten {
-    enum Tage {
-        MO, DI, MI, DO, FR, SA, SO
-    }
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
-    private Tage tag;
     private LocalTime von;
     private LocalTime bis;
+    @Enumerated(EnumType.STRING)
+    private Tage tag;
 
     @ManyToOne(fetch = FetchType.LAZY)
     private Tierheim tierheim;

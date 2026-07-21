@@ -11,18 +11,6 @@ import java.util.Set;
 
 @Entity
 public class Hund {
-    // Enum
-    private enum Strecke {
-        KURZ,
-        MITTEL,
-        LANG
-    }
-    private enum Groesse {
-        KLEIN,
-        MITTEL,
-        GROSS
-    }
-
     // Attribute für alle Hunde
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -31,9 +19,12 @@ public class Hund {
     private boolean geschlecht; // 0 = Rüde, 1 = Hündin
     private int alter;
     private String rasse;
-    private Groesse groesse;
     private int gewicht; // z.B. 20kg
-    private boolean erfahrung; // 0 = Anfängerhund, 1 = Problemhund
+    private boolean erfahrung;
+
+    @Enumerated(EnumType.STRING)
+    private Groesse groesse; // 0 = Anfängerhund, 1 = Problemhund
+    @Enumerated(EnumType.STRING)
     private Strecke strecke;
 
     // Attribute zum Sperren von Hunden
