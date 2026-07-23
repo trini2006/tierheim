@@ -29,6 +29,13 @@ public class Label {
         this.hinweis = hinweis;
     }
 
+    public static Label convertToLabel(LabelDTO labelDTO) {
+        Label label = new Label();
+        label.setBezeichnung(labelDTO.bezeichnung());
+        label.setHinweis(labelDTO.hinweis());
+        return label;
+    }
+
     public String getBezeichnung() {
         return bezeichnung;
     }
