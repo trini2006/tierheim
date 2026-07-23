@@ -1,6 +1,7 @@
 package projekt_tierheim.tierheim.db.Hund;
 
 import jakarta.persistence.*;
+import projekt_tierheim.tierheim.db.Admin.Admin;
 import projekt_tierheim.tierheim.db.Label.Label;
 
 import java.time.LocalDate;
@@ -16,38 +17,39 @@ public class Hund {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
     private String name;
-    private boolean geschlecht; // 0 = Rüde, 1 = Hündin
+    private boolean geschlecht; // false = Rüde, true = Hündin
     private int alter;
     private String rasse;
     private int gewicht; // z.B. 20kg
-    private boolean erfahrung;
+    private boolean erfahrung; // false = Anfängerhund, true = Problemhund
 
     @Enumerated(EnumType.STRING)
-    private Groesse groesse; // 0 = Anfängerhund, 1 = Problemhund
+    private Groesse groesse;
     @Enumerated(EnumType.STRING)
     private Strecke strecke;
 
     // Attribute zum Sperren von Hunden
     private LocalDate gesperrtVon;
     private LocalDate gesperrtBis;
-    private boolean istGesperrt; // 0 = ja, 1 = nein
+    private boolean istGesperrt; // true = ja, false = nein
     private String sperrGrund;
 
     // Log-Daten für z.B. Debugging
     private LocalDateTime erstelltAm;
-    private int erstelltVon; // Id eines Mitarbeiters
+    @ManyToOne(fetch = FetchType.LAZY)
+    private Admin erstelltVon;
 
+    // Labels für die Charakteristik
     @ManyToMany(cascade = CascadeType.REFRESH, fetch = FetchType.LAZY)
     @JoinTable(name = "Hundelabel",
             joinColumns = @JoinColumn(name = "idHundi"),
             inverseJoinColumns = @JoinColumn(name = "idLabeli"))
     protected Set<Label> labels = new HashSet<>();
 
-    // DTO
     public Hund() {}
 
     // Hund ohne Sperrgrund
-    public Hund(int id, String name, boolean geschlecht, int alter, String rasse, Groesse groesse, int gewicht, boolean erfahrung, Strecke strecke) {
+    public Hund(int id, String name, boolean geschlecht, int alter, String rasse, Groesse groesse, int gewicht, boolean erfahrung, Strecke strecke, Admin erstelltVon) {
         this.id = id;
         this.name = name;
         this.geschlecht = geschlecht;
@@ -57,25 +59,17 @@ public class Hund {
         this.gewicht = gewicht;
         this.erfahrung = erfahrung;
         this.strecke = strecke;
+        this.erstelltAm = LocalDateTime.now();
+        this.erstelltVon = erstelltVon;
+
     }
 
     // Hund mit Sperrgrund
-    public Hund(int id, String name, boolean geschlecht, int alter, String rasse, Groesse groesse, int gewicht, boolean erfahrung, Strecke strecke, LocalDate gesperrtVon, LocalDate gesperrtBis, boolean istGesperrt, String sperrGrund, LocalDateTime erstelltAm, int erstelltVon) {
-        this.id = id;
-        this.name = name;
-        this.geschlecht = geschlecht;
-        this.alter = alter;
-        this.rasse = rasse;
-        this.groesse = groesse;
-        this.gewicht = gewicht;
-        this.erfahrung = erfahrung;
-        this.strecke = strecke;
+    public Hund(LocalDate gesperrtVon, LocalDate gesperrtBis, boolean istGesperrt, String sperrGrund) {
         this.gesperrtVon = gesperrtVon;
         this.gesperrtBis = gesperrtBis;
         this.istGesperrt = istGesperrt;
         this.sperrGrund = sperrGrund;
-        this.erstelltAm = erstelltAm;
-        this.erstelltVon = erstelltVon;
     }
 
     public int getId() {
@@ -190,11 +184,11 @@ public class Hund {
         this.erstelltAm = erstelltAm;
     }
 
-    public int getErstelltVon() {
+    public Admin getErstelltVon() {
         return erstelltVon;
     }
 
-    public void setErstelltVon(int erstelltVon) {
+    public void setErstelltVon(Admin erstelltVon) {
         this.erstelltVon = erstelltVon;
     }
 
