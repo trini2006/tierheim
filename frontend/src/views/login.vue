@@ -49,7 +49,7 @@
   const loginPruefen = () => {
     // Beispiel-Datenbanktabellen (in deiner echten App kommen diese Daten aus deiner DB)
     const adminTabelle = [
-      { username: 'admin', passwort: 'geheimpassword' }
+      { username: 'admin', passwort: 'geheim' }
     ]
     
     const benutzerTabelle = [

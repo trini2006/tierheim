@@ -66,18 +66,40 @@
         </div>
       </section>
 
+      <!-- Trennlinie -->
+      <hr class="border-gray-200 my-6" />
+
+      <!-- Sektion 4: Abmelden / Logout -->
+      <section class="px-2">
+        <button 
+          @click="ausloggen"
+          class="w-full py-3 px-4 bg-red-50 hover:bg-red-100 text-red-700 font-semibold rounded-2xl border border-red-200 transition-colors flex items-center justify-center gap-2"
+        >
+          <span>🚪</span> Abmelden
+        </button>
+      </section>
+
     </div>
   </div>
 </template>
 
 <script setup>
 import { ref, computed } from 'vue'
+import { useRouter } from 'vue-router'
 import { previousPath } from '@/router.js' 
 
-// Prüft anhand der globalen Variable, ob die vorherige Route ein Admin-Pfad war
-const wasAdmin = computed(() => previousPath.value.includes('app//admin'))
+const router = useRouter()
+
+// Korrigierter Check (einfacher Slash statt doppeltem Slash)
+const wasAdmin = computed(() => previousPath.value.includes('app/admin'))
 
 const fontSize = ref('normal')
 const sound = ref(true)
 const reminder = ref(true)
+
+const ausloggen = () => {
+  // Löscht die gespeicherte Rolle und leitet zum Login zurück
+  localStorage.removeItem('userRole')
+  router.push('/')
+}
 </script>

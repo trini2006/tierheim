@@ -2,7 +2,6 @@ import { createRouter, createWebHistory } from 'vue-router'
 import { ref } from 'vue'
 
 import LoginView from './views/login.vue'
-
 import AppLayout from './views/layout.vue'
 
 import Startseite from './views/benutzer/hauptseiten/start.vue'
@@ -40,6 +39,7 @@ const routes = [
   {
     path: '/app',
     component: AppLayout,
+    meta: { requiresAuth: true }, // <--- Hier wird der Bereich geschützt!
     children: [
       { path: '', component: Startseite, meta: { title: 'Willkommen' } },
       { path: 'naechster-termin', component: NaechsterTermin, meta: { title: 'Nächster Termin' } },
@@ -81,9 +81,20 @@ const router = createRouter({
 
 export const previousPath = ref('') 
 
+// Navigation Guard: Überprüft jeden Seitenaufruf
 router.beforeEach((to, from, next) => {
   previousPath.value = from.path || '/'
-  next()
+
+  const isEingeloggt = localStorage.getItem('userRole') // Prüft ob eine Rolle hinterlegt ist
+
+  // Wenn die Zielseite einen Login erfordert (requiresAuth: true)...
+  if (to.meta.requiresAuth && !isEingeloggt) {
+    // ...und der User ist NICHT eingeloggt -> Zwangsumleitung zum Login (/)
+    next({ name: 'Login' })
+  } else {
+    // Ansonsten ganz normal fortfahren
+    next()
+  }
 })
 
 export default router
