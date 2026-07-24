@@ -136,7 +136,7 @@
     localStorage.setItem('terminData', JSON.stringify(daten))
 
     // Führe den Admin zur Admin-Hundewahl statt zur Benutzer-Hundewahl
-    router.push('/admin/hundewahl')
+    router.push('/app/admin/hundewahl')
   }
 }
   </script>

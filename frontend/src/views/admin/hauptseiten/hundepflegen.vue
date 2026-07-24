@@ -243,7 +243,7 @@
     popUfZaehler.value = true
     setTimeout(() => {
       popUfZaehler.value = false
-      router.push('/admin/hunde') // Passe den Pfad zu deiner Hunde-Übersicht an falls nötig
+      router.push('app//admin/hunde') // Passe den Pfad zu deiner Hunde-Übersicht an falls nötig
     }, 1500)
   }
   </script>

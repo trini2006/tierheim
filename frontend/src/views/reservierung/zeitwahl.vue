@@ -141,7 +141,7 @@ const saveAndContinue = () => {
       start: timeSlots.value[sorted[0]].start,
       end: timeSlots.value[sorted[sorted.length-1]].end
     }));
-    router.push('/reservierung/hundewahl');
+    router.push('/app/reservierung/hundewahl');
   }
 };
 </script>

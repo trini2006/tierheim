@@ -16,17 +16,18 @@
         </h1>
 
         <nav class="flex items-center gap-8">
-          <RouterLink
-            :to="isAdmin ? '/admin' : '/'"
-            class="p-2 rounded-full hover:bg-black/10 transition"
+          <!-- HOME / START BUTTON (Mit Klick-Handler zum Zurücksetzen) -->
+          <a
+            @click="goHome"
+            class="p-2 rounded-full hover:bg-black/10 transition cursor-pointer"
           >
             <svg class="w-9 h-9" fill="currentColor" viewBox="0 0 24 24">
               <path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z" />
             </svg>
-          </RouterLink>
+          </a>
 
           <RouterLink
-            :to="isAdmin ? '/admin/hunde' : '/tierheim'"
+            :to="isAdmin ? '/app/admin/hunde' : '/app/tierheim'"
             class="p-2 rounded-full hover:bg-black/10 transition"
           >
             <svg class="w-9 h-9" fill="currentColor" viewBox="0 0 24 24">
@@ -42,7 +43,7 @@
           </RouterLink>
 
           <RouterLink
-            :to="isAdmin ? '/admin/einstellungen' : '/einstellungen'"
+            :to="isAdmin ? '/app/admin/einstellungen' : '/app/einstellungen'"
             class="p-2 rounded-full hover:bg-black/10 transition"
           >
             <svg class="w-9 h-9" fill="currentColor" viewBox="0 0 24 24">
@@ -52,7 +53,7 @@
             </svg>
           </RouterLink>
 
-          <RouterLink v-if="isAdmin" to="/admin/profileinstellungen" class="ml-4">
+          <RouterLink v-if="isAdmin" to="/app/admin/profileinstellungen" class="ml-4">
             <div
               class="w-12 h-12 rounded-full border-2 border-white bg-green-700 flex items-center justify-center text-white font-bold hover:scale-105 transition-transform"
             >
@@ -74,25 +75,27 @@
     </div>
 
     <main class="flex-grow w-full max-w-7xl mx-auto p-4 pt-18 md:pt-8 pb-24">
-      <RouterView />
+      <!-- Wir geben eine Template-Ref 'routerViewRef' mit, damit wir auf Methoden der Startseite zugreifen können -->
+      <RouterView v-slot="{ Component }">
+        <component :is="Component" ref="routerViewRef" />
+      </RouterView>
     </main>
 
     <!-- MOBILE BOTTOM-BAR -->
     <nav
       class="md:hidden fixed bottom-0 left-0 right-0 h-16 bg-white border-t flex justify-around items-center z-50"
     >
-      <RouterLink :to="isAdmin ? '/admin' : '/'" class="flex flex-col items-center text-gray-600">
+      <a @click="goHome" class="flex flex-col items-center text-gray-600 cursor-pointer">
         <span class="text-xl">🏠</span><span class="text-xs">Start</span>
-      </RouterLink>
+      </a>
       <RouterLink
-        :to="isAdmin ? '/admin/hunde' : '/tierheim'"
+        :to="isAdmin ? '/app/admin/hunde' : '/app/tierheim'"
         class="flex flex-col items-center text-gray-600"
       >
-        <span class="text-xl">🐾</span
-        ><span class="text-xs">{{ isAdmin ? 'Hunde' : 'Tierheim' }}</span>
+        <span class="text-xl">🐾</span><span class="text-xs">{{ isAdmin ? 'Hunde' : 'Tierheim' }}</span>
       </RouterLink>
       <RouterLink
-        :to="isAdmin ? '/admin/einstellungen' : '/einstellungen'"
+        :to="isAdmin ? '/app/admin/einstellungen' : '/app/einstellungen'"
         class="flex flex-col items-center text-gray-600"
       >
         <span class="text-xl">⚙️</span><span class="text-xs">Einstellungen</span>
@@ -102,14 +105,30 @@
 </template>
 
 <script setup>
-import { computed } from 'vue'
-import { useRoute } from 'vue-router'
+import { ref, computed } from 'vue'
+import { useRoute, useRouter } from 'vue-router'
 
 const route = useRoute()
-const isAdmin = computed(() => route.path.toLowerCase().startsWith('/admin'))
+const router = useRouter()
+const routerViewRef = ref(null)
+
+const isAdmin = computed(() => route.path.toLowerCase().startsWith('/app/admin'))
 
 const mobileTitle = computed(() => {
   if (route.meta?.title) return route.meta.title
   return 'Tierheim Weiden'
 })
+
+// Intelligente Home-Funktion: Navigiert zur Startseite und setzt den Tab zurück
+const goHome = async () => {
+  const targetPath = isAdmin.value ? '/app/admin' : '/app'
+  
+  // 1. Erst zum Start-Pfad navigieren
+  await router.push(targetPath)
+
+  // 2. Falls die Startseite gerade aktiv ist, den Tab auf den Standard zurücksetzen
+  if (routerViewRef.value && typeof routerViewRef.value.resetToDefault === 'function') {
+    routerViewRef.value.resetToDefault()
+  }
+}
 </script>

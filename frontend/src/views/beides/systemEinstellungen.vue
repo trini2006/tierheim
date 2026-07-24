@@ -75,7 +75,7 @@ import { ref, computed } from 'vue'
 import { previousPath } from '@/router.js' 
 
 // Prüft anhand der globalen Variable, ob die vorherige Route ein Admin-Pfad war
-const wasAdmin = computed(() => previousPath.value.includes('/admin'))
+const wasAdmin = computed(() => previousPath.value.includes('app//admin'))
 
 const fontSize = ref('normal')
 const sound = ref(true)

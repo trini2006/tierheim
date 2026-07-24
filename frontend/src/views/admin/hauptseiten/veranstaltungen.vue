@@ -66,12 +66,12 @@ const veranstaltungen = ref([
 
 // Funktion für den Plus-Button
 const geheZuHinzufuegen = () => {
-  router.push('/admin/veranstaltungen/hinzufuegen')
+  router.push('/app/admin/veranstaltungen/hinzufuegen')
 }
 
 const bearbeiten = (veranstaltung) => {
   // Wenn du möchtest, kannst du hier beim Bearbeiten ebenfalls zur Hinzufügen-Seite weiterleiten
-  router.push('/admin/veranstaltungen/hinzufuegen')
+  router.push('/app/admin/veranstaltungen/hinzufuegen')
 }
 
 const loeschen = (id) => {

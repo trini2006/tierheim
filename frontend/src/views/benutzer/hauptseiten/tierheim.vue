@@ -67,7 +67,7 @@
 
   <!-- Button -->
   <RouterLink 
-  to="/reservierung/zeitwahl" 
+  to="/app/reservierung/zeitwahl" 
   class="bg-[#536B53] text-white px-6 py-2 rounded-lg hover:bg-[#3d4f3d] transition"
 >
   zu den Terminen
@@ -126,6 +126,6 @@ const hunde = ref([
   { id: 'xina', name: 'Xina' },
 ])
 
-const goToReservations = () => router.push('/')
-const viewDogDetails = (id) => router.push(`/hund/${id}`)
+const goToReservations = () => router.push('/app')
+const viewDogDetails = (id) => router.push(`/app/hund/${id}`)
 </script>

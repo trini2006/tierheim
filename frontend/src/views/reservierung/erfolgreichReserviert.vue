@@ -25,10 +25,10 @@ onMounted(() => {
     localStorage.removeItem('bookingFinal')
 
     // Automatische Weiterleitung je nach Admin- oder Benutzer-Pfad
-    if (route.path.startsWith('/admin')) {
-      router.push('/admin')
+    if (route.path.startsWith('/app/admin')) {
+      router.push('/app/admin')
     } else {
-      router.push('/')
+      router.push('/app')
     }
   }, 2000)
 })

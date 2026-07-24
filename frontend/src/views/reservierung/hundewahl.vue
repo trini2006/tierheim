@@ -79,10 +79,10 @@ const selectDog = (dog) => {
   // Sicherheits-Check, ob route und path existieren
   const currentPath = route?.path || window.location.pathname
 
-  if (currentPath.startsWith('/admin')) {
-    router.push('/admin/ueberpruefen')
+  if (currentPath.startsWith('/app/admin')) {
+    router.push('/app/admin/ueberpruefen')
   } else {
-    router.push('/reservierung/ueberpruefen')
+    router.push('/app/reservierung/ueberpruefen')
   }
 }
 </script>

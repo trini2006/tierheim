@@ -76,6 +76,8 @@ import Nachrichten from '../../beides/benachrichtigungen.vue'
 import ReservierungsUebersicht from './revuebersicht.vue'
 
 const router = useRouter()
+
+// Standardmäßig auf 'termin' (= Nächster Termin) gesetzt
 const activeTab = ref('termin')
 
 const currentComponent = computed(() => {
@@ -93,10 +95,19 @@ const computedHeader = computed(() => {
 const navigate = (subPath) => {
   const isMobile = window.matchMedia('(max-width: 767px)').matches
   if (isMobile) {
-    if (subPath === 'nachrichten') router.push('/nachrichten')
-    if (subPath === 'reservierungen') router.push('/reservierungen')
+    if (subPath === 'nachrichten') router.push('/app/nachrichten')
+    if (subPath === 'reservierungen') router.push('/app/reservierungen')
   } else {
     activeTab.value = subPath
   }
 }
+
+// Falls du in deiner `layout.vue` (oder der Navbar) beim Klick auf das Home-Logo 
+// ein Event oder eine Methode auslösen willst, kannst du diese Funktion exportieren 
+// oder per Event-Bus / Pinia steuern. Auf Desktop setzt das den Tab direkt zurück auf den Termin:
+const resetToDefault = () => {
+  activeTab.value = 'termin'
+}
+
+defineExpose({ resetToDefault })
 </script>

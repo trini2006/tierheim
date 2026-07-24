@@ -50,12 +50,12 @@ const route = useRoute()
 const isIndexRoute = computed(() => route.path === '/admin')
 
 const menuItems = [
-  { name: 'Statistik', path: '/admin/statistik' },  
-  { name: 'Nachrichten', path: '/admin/nachrichten' },
-  { name: 'Veranstaltungen', path: '/admin/veranstaltungen' },
-  { name: 'Reservierungen', path: '/admin/reservierungen' },
-  {name: 'Reservierung hinzufügen', path: '/admin/termin-mitglied'},
-  { name: 'Mitglieder', path: '/admin/mitglieder' },
+  { name: 'Statistik', path: '/app/admin/statistik' },  
+  { name: 'Nachrichten', path: '/app/admin/nachrichten' },
+  { name: 'Veranstaltungen', path: '/app/admin/veranstaltungen' },
+  { name: 'Reservierungen', path: '/app/admin/reservierungen' },
+  {name: 'Reservierung hinzufügen', path: '/app/admin/termin-mitglied'},
+  { name: 'Mitglieder', path: '/app/admin/mitglieder' },
 ]
 
 // Deine originalen Klassen für die Buttons

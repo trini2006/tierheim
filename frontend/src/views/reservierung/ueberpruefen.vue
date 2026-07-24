@@ -60,7 +60,7 @@ const route = useRoute()
 const booking = ref(null)
 
 // Prüft, ob wir uns im Admin-Bereich befinden
-const isAdminMode = computed(() => route.path.startsWith('/admin'))
+const isAdminMode = computed(() => route.path.startsWith('/app/admin'))
 
 onMounted(() => {
   const data = localStorage.getItem('bookingFinal')
@@ -68,16 +68,16 @@ onMounted(() => {
     booking.value = JSON.parse(data)
   } else {
     // Falls keine Daten da sind, zurück zur entsprechenden Startseite
-    router.push(isAdminMode.value ? '/admin' : '/reservierung/zeitwahl')
+    router.push(isAdminMode.value ? '/app/admin' : '/app/reservierung/zeitwahl')
   }
 })
 
 const confirmBooking = () => {
   if (isAdminMode.value) {
     // Hier kannst du für Admin einen eigenen Erfolgsweg oder eine Weiterleitung definieren
-    router.push('/admin/erfolgreichReserviert')
+    router.push('/app/admin/erfolgreichReserviert')
   } else {
-    router.push('/reservierung/erfolgreichReserviert')
+    router.push('/app/reservierung/erfolgreichReserviert')
   }
 }
 </script>

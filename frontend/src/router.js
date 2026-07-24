@@ -1,6 +1,8 @@
 import { createRouter, createWebHistory } from 'vue-router'
 import { ref } from 'vue'
 
+import LoginView from './views/login.vue'
+
 import AppLayout from './views/layout.vue'
 
 import Startseite from './views/benutzer/hauptseiten/start.vue'
@@ -31,6 +33,12 @@ import AdminHundepflegen from './views/admin/hauptseiten/hundepflegen.vue'
 const routes = [
   {
     path: '/',
+    name: 'Login',
+    component: LoginView,
+    meta: { title: 'Anmeldung' }
+  },
+  {
+    path: '/app',
     component: AppLayout,
     children: [
       { path: '', component: Startseite, meta: { title: 'Willkommen' } },
@@ -53,8 +61,8 @@ const routes = [
       { path: 'admin/hundepflegen', component: AdminHundepflegen, meta: { title: 'Hund pflegen' } },
       { path: 'admin/erfolgreichReserviert', component: Erfolg, meta: { title: 'Erfolgreich!' } },
       { path: 'admin/ueberpruefen', component: Ueberpruefung, meta: { title: 'Details bestätigen' } },
-      {path: 'admin/hundewahl', component: Hundewahl, meta: {title: 'Hund auswählen'}},
-      {path: 'admin/termin-mitglied', component: TerminMitglied, meta: {title: 'Termin wählen'}},
+      { path: 'admin/hundewahl', component: Hundewahl, meta: { title: 'Hund auswählen' } },
+      { path: 'admin/termin-mitglied', component: TerminMitglied, meta: { title: 'Termin wählen' } },
       { path: 'admin/statistik', component: AdminStatistik, meta: { title: 'Statistik' } },
       { path: 'admin/reservierungen', component: AdminReservierungen, meta: { title: 'Reservierungen' } },
       { path: 'admin/mitglieder', component: AdminMitglieder, meta: { title: 'Mitgliederverwaltung' } },

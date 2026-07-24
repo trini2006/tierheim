@@ -127,12 +127,12 @@ const gesperrteHunde = ref([
 
 const bearbeitenHund = (hund) => {
   localStorage.setItem('editHund', JSON.stringify(hund))
-  router.push('/admin/hundepflegen')
+  router.push('/app/admin/hundepflegen')
 }
 
 const geheZuPflegen = () => {
   localStorage.removeItem('editHund') // Damit das Formular garantiert leer ist
-  router.push('/admin/hundepflegen')
+  router.push('/app/admin/hundepflegen')
 }
 
 // Hund sperren: Verschiebt nach rechts und setzt den Punkt auf rot
