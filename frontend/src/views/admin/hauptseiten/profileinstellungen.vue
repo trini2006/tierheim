@@ -84,7 +84,12 @@
             <p>{{ form.kontakt.plzOrt }}</p>
             <p>{{ form.kontakt.telefon }}</p>
             <p>{{ form.kontakt.notfall }} (Notfall)</p>
-            <p>{{ form.kontakt.webseite }}</p>
+            <!-- Webseite als klickbarer Link, öffnet in neuem Tab -->
+            <p>
+              <a :href="webseiteUrl" target="_blank" rel="noopener noreferrer" class="text-blue-700 underline hover:text-blue-900">
+                {{ form.kontakt.webseite }}
+              </a>
+            </p>
           </div>
           <div v-else class="space-y-2">
             <input v-model="form.kontakt.strasse" type="text" placeholder="Straße, Hausnummer" class="w-full text-sm border-b border-gray-400 bg-transparent focus:outline-none" />
@@ -189,10 +194,18 @@
 </template>
 
 <script setup>
-import { ref, nextTick } from 'vue'
+import { ref, computed, nextTick } from 'vue'
 import { useRouter } from 'vue-router'
 
 const router = useRouter()
+
+// Baut aus form.kontakt.webseite eine klickbare URL — ergänzt "https://" automatisch,
+// falls dort nur "tierheim-weiden.de" ohne Protokoll hinterlegt ist
+const webseiteUrl = computed(() => {
+  const wert = form.value.kontakt.webseite?.trim() || ''
+  if (!wert) return ''
+  return /^https?:\/\//i.test(wert) ? wert : `https://${wert}`
+})
 
 // Beispielhafte Daten; in echt via fetch/API aus dem Backend laden
 const form = ref({
@@ -243,6 +256,6 @@ const speichern = () => {
   editiertKontakt.value = false
   editiertKalender.value = false
   editiertGassiZeiten.value = false
-  router.push('/admin')
+  router.push('/start')
 }
 </script>
