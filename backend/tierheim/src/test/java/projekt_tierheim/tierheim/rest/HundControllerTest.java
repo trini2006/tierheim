@@ -1,11 +1,14 @@
 package projekt_tierheim.tierheim.rest;
 
 import org.junit.jupiter.api.Test;
+import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
+import org.springframework.http.MediaType;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import projekt_tierheim.tierheim.db.Admin.Admin;
 import projekt_tierheim.tierheim.db.Hund.Groesse;
 import projekt_tierheim.tierheim.db.Hund.Hund;
@@ -13,10 +16,10 @@ import projekt_tierheim.tierheim.db.Hund.HundRepository;
 import projekt_tierheim.tierheim.db.Hund.Strecke;
 
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.util.List;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @SpringBootTest
 @AutoConfigureMockMvc
@@ -66,16 +69,34 @@ class HundControllerTest {
     @MockitoBean
     private HundRepository hundRepository;
 
-    // ToDO GET einzelnen Hund nach Id
     @Test
     void getHundById() throws Exception {
-
+        Mockito.when(hundRepository.findHundById(TEST_ID1)).thenReturn(getTestHund1());
+        mockMvc.perform(MockMvcRequestBuilders.get("/hund/" + TEST_ID1)
+                .accept(MediaType.APPLICATION_JSON))
+                .andExpectAll(
+                        status().isOk(),
+                        jsonPath("name").value(TEST_NAME1),
+                        jsonPath("geschlecht").value(TEST_GESCHLECHT1),
+                        jsonPath("erfahrung").value(TEST_ERFAHRUNG1),
+                        jsonPath("erstelltVon").value(TEST_ERSTELLTVON)
+                );
     }
 
-    // ToDO GET alle Hunde
     @Test
     void getAlleHunde() throws Exception{
-
+        Mockito.when(hundRepository.findAll()).thenReturn(getAlleTestHunde());
+        mockMvc.perform(MockMvcRequestBuilders.get("/hund/all")
+                .accept(MediaType.APPLICATION_JSON))
+                .andExpectAll(
+                        status().isOk(),
+                        jsonPath("$[0].name").value(TEST_NAME1),
+                        jsonPath("$[0].rasse").value(TEST_RASSE1),
+                        jsonPath("$[0].gewicht").value(TEST_GESCHLECHT1),
+                        jsonPath("$[1].name").value(TEST_NAME2),
+                        jsonPath("$[1].rasse").value(TEST_RASSE2),
+                        jsonPath("$[1].gewicht").value(TEST_GEWICHT2)
+                );
     }
 
     // ToDO GET (search) nach Hundenamen
@@ -86,7 +107,7 @@ class HundControllerTest {
 
     // ToDo POST neuer Hund
     @Test
-    void neuerHund() throws Exception {
+    void newHund() throws Exception {
 
     }
 
