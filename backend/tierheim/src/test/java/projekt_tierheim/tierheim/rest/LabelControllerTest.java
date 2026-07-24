@@ -84,7 +84,7 @@ class LabelControllerTest {
         jsonObject.put("bezeichnung", TEST_BEZEICHNUNG1);
         jsonObject.put("hinweis", TEST_HINWEIS1);
 
-        Mockito.when(labelRepository.save(Mockito.any(Label.class)))
+        Mockito.when(labelRepository.saveAndFlush(Mockito.any(Label.class)))
                 .thenReturn(getNormalLabel());
         mockMvc.perform(MockMvcRequestBuilders.post("/label")
                 .contentType(MediaType.APPLICATION_JSON)
@@ -101,14 +101,11 @@ class LabelControllerTest {
     @Test
     void updateLabel() throws Exception{
         JSONObject jsonObject = new JSONObject();
+        jsonObject.put("id", TEST_ID1);
         jsonObject.put("bezeichnung", "Verspielt");
+        jsonObject.put("hinweis", TEST_HINWEIS1);
 
-        Label updatedLabel = new Label();
-        updatedLabel.setId(TEST_ID1);
-        updatedLabel.setBezeichnung("Verspielt");
-        updatedLabel.setHinweis(TEST_HINWEIS1);
-
-        Mockito.when(labelRepository.findLabelById(TEST_ID1)).thenReturn(getNormalLabel());
+        Mockito.when(labelRepository.findLabelById(1)).thenReturn(getNormalLabel());
         Mockito.when(labelRepository.saveAndFlush(Mockito.any(Label.class))).thenReturn(updatedLabel);
 
         mockMvc.perform(MockMvcRequestBuilders.put("/label/" + TEST_ID1)

@@ -21,12 +21,23 @@ public class LabelController {
     @GetMapping("/{id}")
     public Label getLabel(@PathVariable int id){return labelRepository.findLabelById(id);}
 
-    @GetMapping("all")
+    @GetMapping("/all")
     public List<Label> getAllLabel(){return labelRepository.findAll();}
 
     @PostMapping()
-    public Label saveLabel(@RequestBody LabelDTO labelDTO){
+    public Label newLabel(@RequestBody LabelDTO labelDTO){
         Label label = Label.convertToLabel(labelDTO);
+        return labelRepository.saveAndFlush(label);
+    }
+
+    @PutMapping("/{id}")
+    public Label updateLabel(@PathVariable int id, @RequestBody LabelDTO labelDTO){
+        Label label = labelRepository.findLabelById(id);
+        if(label == null){
+            return null;
+        }
+        label.setBezeichnung(labelDTO.bezeichnung());
+        label.setHinweis(labelDTO.hinweis());
         return labelRepository.saveAndFlush(label);
     }
 }
