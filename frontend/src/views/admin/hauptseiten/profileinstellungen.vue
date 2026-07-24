@@ -243,6 +243,6 @@ const speichern = () => {
   editiertKontakt.value = false
   editiertKalender.value = false
   editiertGassiZeiten.value = false
-  router.push('/start')
+  router.push('/admin')
 }
 </script>
