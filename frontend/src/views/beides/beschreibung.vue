@@ -10,7 +10,7 @@
         <div
           v-for="h in hundeListe"
           :key="h.id"
-          @click="router.push(`/hund/${h.id}`)"
+          @click="router.push(`/app/hund/${h.id}`)"
           :class="['p-3 rounded-full cursor-pointer transition-all flex items-center justify-between', 
                   route.params.id === h.id ? 'bg-[#C5D0C5]' : 'bg-gray-100 hover:bg-gray-200']"
         >
