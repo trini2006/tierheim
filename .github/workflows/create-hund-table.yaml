@@ -29,7 +29,5 @@ jobs:
   foobar:
     runs-on: ubuntu-latest
     steps:
-      - name: Install psql
-        run: echo "test the west"
-
       - name: test the west
+        run: echo "test the west"
