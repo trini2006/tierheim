@@ -1,0 +1,28 @@
+name: Create Test Table
+
+on:
+  workflow_dispatch:
+
+jobs:
+  create-table:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Install psql
+        run: sudo apt-get install -y postgresql-client
+
+      - name: Create test table
+        env:
+          PGPASSWORD: ${{ secrets.DB_PASSWORD }}
+        run: |
+          psql \
+            "host=c4mf833jfd7vec.cluster-czz5s0kz4scl.eu-west-1.rds.amazonaws.com \
+             port=5432 \
+             dbname=d9odl6k9eqk8vi \
+             user=ue3gdc41rshpuc \
+             sslmode=require" \
+            -c "CREATE TABLE IF NOT EXISTS tierheim.hund (
+                  id         SERIAL PRIMARY KEY,
+                  name       TEXT,
+                  rasse      TEXT,
+                  created_at TIMESTAMP DEFAULT NOW()
+                );"
