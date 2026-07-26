@@ -1,4 +1,4 @@
-name: Create Test Table
+name: Create Hund Table
 
 on:
   workflow_dispatch:
@@ -10,7 +10,7 @@ jobs:
       - name: Install psql
         run: sudo apt-get install -y postgresql-client
 
-      - name: Create test table
+      - name: Create hund table
         env:
           PGPASSWORD: ${{ secrets.DB_PASSWORD }}
         run: |
@@ -26,3 +26,10 @@ jobs:
                   rasse      TEXT,
                   created_at TIMESTAMP DEFAULT NOW()
                 );"
+  foobar:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Install psql
+        run: echo "test the west"
+
+      - name: test the west
