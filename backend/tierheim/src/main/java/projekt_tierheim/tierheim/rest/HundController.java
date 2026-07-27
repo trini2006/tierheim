@@ -66,13 +66,7 @@ public class HundController {
         return hundRepository.saveAndFlush(hundAlt);
     }
 
-    @DeleteMapping("/{id}")
-    public void deleteHund(@PathVariable int id) {
-        Hund hund = hundRepository.findHundById(id);
-        hundRepository.delete(hund);
-    }
-
-    @PutMapping("/{id}")
+    @PutMapping("/{id}/label")
     public Hund addLabel(@PathVariable int hundId, @RequestParam int labelId) {
         Hund hund = hundRepository.findHundById(hundId);
         Label label = labelRepository.findLabelById(labelId);
@@ -84,4 +78,9 @@ public class HundController {
         return hund;
     }
 
+    @DeleteMapping("/{id}")
+    public void deleteHund(@PathVariable int id) {
+        Hund hund = hundRepository.findHundById(id);
+        hundRepository.delete(hund);
+    }
 }

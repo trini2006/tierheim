@@ -38,16 +38,12 @@ class HundControllerTest {
     public static Groesse TEST_GROESSE1 = Groesse.MITTEL;
     public static Strecke TEST_STRECKE1 = Strecke.LANG;
 
-    // Aris Test-Hund 2 - mit Sperrgrund
-    public static int TEST_ID2 = 2;
-    public static String TEST_NAME2 = "Aris";
-    public static boolean TEST_GESCHLECHT2 = false;
-    public static int TEST_ALTER2 = 2;
     public static String TEST_RASSE2 = "Husky";
-    public static int TEST_GEWICHT2 = 23;
-    public static boolean TEST_ERFAHRUNG2 = false;
-    public static Groesse TEST_GROESSE2 = Groesse.MITTEL;
-    public static Strecke TEST_STRECKE2 = Strecke.LANG;
+    public static Groesse TEST_GROESSE2 = Groesse.GROSS;
+    public static int TEST_GEWICHT2 = 40;
+    public static Strecke TEST_STRECKE2 = Strecke.KURZ;
+
+    // mit Sperrgrund
     public static LocalDate TEST_GESPERRTVON = LocalDate.of(2026, 7, 23);
     public static LocalDate TEST_GESPERRTBIS = LocalDate.of(2026, 7, 30);
     public static boolean TEST_ISTGESPERRT = true;
@@ -55,7 +51,7 @@ class HundControllerTest {
 
     public static Admin TEST_ERSTELLTVON = new Admin(1, 1234567890, "geheim123");
 
-    public static Hund getTestHund1() {
+    public static Hund getTestHund() {
         return new Hund(TEST_ID1, TEST_NAME1, TEST_GESCHLECHT1, TEST_ALTER1, TEST_RASSE1, TEST_GROESSE1, TEST_GEWICHT1, TEST_ERFAHRUNG1, TEST_STRECKE1, TEST_ERSTELLTVON);
     }
 
@@ -63,12 +59,12 @@ class HundControllerTest {
         return new Hund(TEST_ID1, TEST_NAME1, TEST_GESCHLECHT1, TEST_ALTER1, TEST_RASSE2, TEST_GROESSE2, TEST_GEWICHT2, TEST_ERFAHRUNG1, TEST_STRECKE2, TEST_ERSTELLTVON);
     }
 
-    public static Hund getTestHund2() {
-        return new Hund(TEST_ID2, TEST_NAME2, TEST_GESCHLECHT2, TEST_ALTER2, TEST_RASSE2, TEST_GROESSE2, TEST_GEWICHT2, TEST_ERFAHRUNG2, TEST_STRECKE2, TEST_ERSTELLTVON);
+    public static Hund getTestSperrHund() {
+        return new Hund(TEST_ID1, TEST_NAME1, TEST_GESCHLECHT1, TEST_ALTER1, TEST_RASSE1, TEST_GROESSE1, TEST_GEWICHT1, TEST_ERFAHRUNG1, TEST_STRECKE1, TEST_ERSTELLTVON);
     }
 
     public static List<Hund> getAlleTestHunde() {
-        return List.of(getTestHund1(), getTestHund2());
+        return List.of(getTestHund(), getTestSperrHund());
     }
 
     @Autowired
@@ -80,7 +76,7 @@ class HundControllerTest {
 
     @Test
     void getHundById() throws Exception {
-        Mockito.when(hundRepository.findHundById(TEST_ID1)).thenReturn(getTestHund1());
+        Mockito.when(hundRepository.findHundById(TEST_ID1)).thenReturn(getTestHund());
         mockMvc.perform(MockMvcRequestBuilders.get("/hund/" + TEST_ID1)
                 .accept(MediaType.APPLICATION_JSON))
                 .andExpectAll(
@@ -102,7 +98,7 @@ class HundControllerTest {
                         jsonPath("$[0].name").value(TEST_NAME1),
                         jsonPath("$[0].rasse").value(TEST_RASSE1),
                         jsonPath("$[0].gewicht").value(TEST_GEWICHT1),
-                        jsonPath("$[1].name").value(TEST_NAME2),
+                        jsonPath("$[1].name").value(TEST_NAME1),
                         jsonPath("$[1].rasse").value(TEST_RASSE2),
                         jsonPath("$[1].gewicht").value(TEST_GEWICHT2)
                 );
@@ -110,7 +106,7 @@ class HundControllerTest {
 
     @Test
     void getHundByName() throws Exception {
-        Mockito.when(hundRepository.findHundByNameIgnoreCase(TEST_NAME1)).thenReturn(List.of(getTestHund1()));
+        Mockito.when(hundRepository.findHundByNameIgnoreCase(TEST_NAME1)).thenReturn(List.of(getTestHund()));
         mockMvc.perform(MockMvcRequestBuilders.get("/hund/search?name=" + TEST_NAME1)
                 .accept(MediaType.APPLICATION_JSON))
                 .andExpectAll(
@@ -122,7 +118,7 @@ class HundControllerTest {
 
     @Test
     void newHund() throws Exception {
-        Mockito.when(hundRepository.saveAndFlush(Mockito.any(Hund.class))).thenReturn(getTestHund1());
+        Mockito.when(hundRepository.saveAndFlush(Mockito.any(Hund.class))).thenReturn(getTestHund());
         JSONObject hund = new JSONObject();
 
         hund.put("name", TEST_NAME1);
@@ -147,7 +143,7 @@ class HundControllerTest {
 
     @Test
     void deleteHund() throws Exception {
-        Mockito.when(hundRepository.findHundById(TEST_ID1)).thenReturn(getTestHund1());
+        Mockito.when(hundRepository.findHundById(TEST_ID1)).thenReturn(getTestHund());
         mockMvc.perform(MockMvcRequestBuilders.delete("/hund/" + TEST_ID1)
                 .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk());
@@ -163,7 +159,7 @@ class HundControllerTest {
 
     @Test
     void updateHund() throws Exception {
-        Mockito.when(hundRepository.findHundById(TEST_ID1)).thenReturn(getTestHund1());
+        Mockito.when(hundRepository.findHundById(TEST_ID1)).thenReturn(getTestHund());
         Mockito.when(hundRepository.saveAndFlush(Mockito.any(Hund.class))).thenReturn(updateTestHund());
 
         JSONObject hund = new JSONObject();
@@ -213,6 +209,33 @@ class HundControllerTest {
     // ToDO PUT Sperrgrund hinzufügen
     @Test
     void updateSperrgrund() throws Exception {
+        Mockito.when(hundRepository.findHundById(TEST_ID1)).thenReturn(getTestHund());
+        Mockito.when(hundRepository.saveAndFlush(Mockito.any(Hund.class))).thenReturn(getTestSperrHund());
 
+        JSONObject hund = new JSONObject();
+        hund.put("name", TEST_NAME1);
+        hund.put("geschlecht", TEST_GESCHLECHT1);
+        hund.put("jahre", TEST_ALTER1);
+        hund.put("rasse", TEST_RASSE1);
+        hund.put("gewicht", TEST_GEWICHT1);
+        hund.put("erfahrung", TEST_ERFAHRUNG1);
+        hund.put("groesse", TEST_GROESSE1);
+        hund.put("strecke", TEST_STRECKE1);
+
+        hund.put("gesperrtVon", TEST_GESPERRTVON);
+        hund.put("gesperrtBis", TEST_GESPERRTBIS);
+        hund.put("istGesperrt", TEST_ISTGESPERRT);
+        hund.put("sperrGrund", TEST_SPERRGRUND);
+
+        mockMvc.perform(MockMvcRequestBuilders.put("/hund/" + TEST_ID1)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(hund.toString()))
+                .andExpectAll(
+                        status().isOk(),
+                        jsonPath("id").value(TEST_ID1),
+                        jsonPath("name").value(TEST_NAME1),
+                        jsonPath("gesperrtVon").value(TEST_GESPERRTVON),
+                        jsonPath("sperrGrund").value(TEST_SPERRGRUND)
+                );
     }
 }
