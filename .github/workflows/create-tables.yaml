@@ -16,15 +16,22 @@ jobs:
         run: |
           psql "host=c4mf833jfd7vec.cluster-czz5s0kz4scl.eu-west-1.rds.amazonaws.com port=5432 dbname=d9odl6k9eqk8vi user=ue3gdc41rshpuc sslmode=require" <<EOF
 
-          CREATE TABLE IF NOT EXISTS Admin (
-              idAdmin SERIAL PRIMARY KEY,
-              personalnummer VARCHAR(255),
-              passwort VARCHAR(255)
-          );
-
           CREATE TABLE IF NOT EXISTS Tierheim (
               idTierheim SERIAL PRIMARY KEY,
-              name VARCHAR(255)
+              name VARCHAR(255),
+              strasse VARCHAR(255),
+              hausnummer VARCHAR(255),
+              plz VARCHAR(255),
+              ort VARCHAR(255),
+              telefonnummer VARCHAR(255),
+              notfallnummer VARCHAR(255),
+              website VARCHAR(255),
+              bild BYTEA,
+              bannerfarbe VARCHAR(255),
+              zeitblock int,
+              ruhezeit int,
+              maxGassi int,
+              minGassi int
           );
 
           CREATE TABLE IF NOT EXISTS Label (
@@ -33,11 +40,21 @@ jobs:
               hinweis TEXT
           );
 
+          CREATE TABLE IF NOT EXISTS Admin (
+              idAdmin SERIAL PRIMARY KEY,
+              personalnummer VARCHAR(255),
+              passwort VARCHAR(255),
+              idTierheim int,
+              FOREIGN KEY (idTierheim) REFERENCES Tierheim(idTierheim)
+          );
+
           CREATE TABLE IF NOT EXISTS Mitglied (
               idMitglied SERIAL PRIMARY KEY,
               mitgliedsnummer VARCHAR(255),
               passwort VARCHAR(255),
-              erfahrung VARCHAR(50)
+              erfahrung VARCHAR(255),
+              idTierheim int,
+              FOREIGN KEY (idTierheim) REFERENCES Tierheim(idTierheim)
           );
           EOF
         env:
@@ -57,48 +74,69 @@ jobs:
           CREATE TABLE IF NOT EXISTS Hund (
               idHund SERIAL PRIMARY KEY,
               name VARCHAR(255),
-              geschlecht VARCHAR(50),
+              geschlecht VARCHAR(255),
               alter INT,
               rasse VARCHAR(255),
               groesse VARCHAR(50),
-              gewicht VARCHAR(50),
-              strecke VARCHAR(50),
-              erfahrung VARCHAR(50),
+              gewicht VARCHAR(255),
+              strecke VARCHAR(255),
+              erfahrung VARCHAR(255),
               gesperrtVon DATE,
               gesperrtBis DATE,
               sperrGrund TEXT,
               istGesperrt BOOLEAN,
               erstelltAm TIMESTAMP,
-              erstelltVon VARCHAR(255)
+              erstelltVon VARCHAR(255),
+              FOREIGN KEY (erstelltVon) REFERENCES Admin(idAdmin)
           );
 
           CREATE TABLE IF NOT EXISTS Hundelabel (
-              idHundi INT, -- (FK) (Hund)
-              idLabel INT, -- (FK) (Label)
-              PRIMARY KEY (idHundi, idLabel),
-              FOREIGN KEY (idHundi) REFERENCES Hund(idHund),
+              idHund INT,
+              idLabel INT,
+              PRIMARY KEY (idHund, idLabel),
+              FOREIGN KEY (idHund) REFERENCES Hund(idHund),
               FOREIGN KEY (idLabel) REFERENCES Label(idLabel)
           );
 
           CREATE TABLE IF NOT EXISTS GassiGehZeiten (
               idGassiGehZeiten SERIAL PRIMARY KEY,
-              tage VARCHAR(50),
+              tage VARCHAR(255),
               von TIME,
               bis TIME,
-              idTierheim INT -- (FK) (Tierheim)
-              , FOREIGN KEY (idTierheim) REFERENCES Tierheim(idTierheim)
+              idTierheim INT,
+              FOREIGN KEY (idTierheim) REFERENCES Tierheim(idTierheim)
           );
 
           CREATE TABLE IF NOT EXISTS Reservierung (
               idReservierung SERIAL PRIMARY KEY,
-              idMitglied INT, -- (FK) (Mitglied)
-              idHund INT, -- (FK) (Hund)
+              idMitglied INT,
+              idHund INT,
               datum DATE,
               zeitAb TIME,
               zeitBis TIME,
               FOREIGN KEY (idMitglied) REFERENCES Mitglied(idMitglied),
               FOREIGN KEY (idHund) REFERENCES Hund(idHund)
           );
+
+          CREATE TABLE IF NOT EXISTS Veranstaltung (
+              idVeranstaltung int SERIAL PRIMARY KEY,
+              bild BYTEA,
+              titel VARCHAR(255),
+              datum DATE,
+              uhrzeit TIME,
+              abstimmungen BOOLEAN,
+              idTierheim INT,
+              FOREIGN KEY (idTierheim) REFERENCES Tierheim(idTierheim)
+          );
+
+          CREATE TABLE IF NOT EXISTS Veranstaltung_Teilnehmer (
+            idMitglied int,
+            idVeranstaltung int,
+            PRIMARY KEY (idMitglied, idVeranstaltung),
+            FOREIGN KEY (idMitglied) REFERENCES Mitglied(idMitglied),
+            FOREIGN KEY (idVeranstaltung) REFERENCES Veranstaltung(idVeranstaltung)
+          );
+
           EOF
         env:
           PGPASSWORD: ${{ secrets.DB_PASSWORD }}
