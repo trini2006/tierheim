@@ -103,5 +103,17 @@ class AdminControllerTest {
         updatedAdmin.setPasswort("NeuesPasswort1234");
 
         Mockito.when(adminRepository.findAdminById(TEST_ID1)).thenReturn(getAdmin1());
+        Mockito.when(adminRepository.saveAndFlush(Mockito.any(Admin.class))).thenReturn(updatedAdmin);
+
+        mockMvc.perform(MockMvcRequestBuilders.put("/admin/" + TEST_ID1)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(jsonObject.toString())
+                .accept(MediaType.APPLICATION_JSON))
+                .andExpectAll(
+                        status().isOk(),
+                        jsonPath("id").value(TEST_ID1),
+                        jsonPath("personalnummer").value(TEST_PERSONALNUMMER1),
+                        jsonPath("passwort").value("NeuesPasswort1234")
+                );
     }
 }
