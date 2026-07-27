@@ -1,13 +1,11 @@
 package projekt_tierheim.tierheim.db.Admin;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
+import jakarta.persistence.*;
 
 import java.util.Objects;
 
 @Entity
+@Table(name = "admin")
 public class Admin {
 
     @Id
@@ -22,6 +20,13 @@ public class Admin {
         this.id = id;
         this.personalnummer = personalnummer;
         this.passwort = passwort;
+    }
+
+    public static Admin convertToAdmin(AdminDTO adminDTO) {
+        Admin admin = new Admin();
+        admin.setPersonalnummer(adminDTO.personalnummer());
+        admin.setPasswort(adminDTO.passwort());
+        return admin;
     }
 
     public int getId() {
