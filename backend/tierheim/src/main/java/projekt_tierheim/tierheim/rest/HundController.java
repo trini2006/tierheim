@@ -1,5 +1,6 @@
 package projekt_tierheim.tierheim.rest;
 
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 import projekt_tierheim.tierheim.db.Hund.Hund;
@@ -37,9 +38,28 @@ public class HundController {
     }
 
     @PostMapping()
-    public Hund newHund(@RequestBody HundDTO hundDTO) {
+    public Hund newHund(@Valid @RequestBody HundDTO hundDTO) {
         Hund hund = Hund.convertToHund(hundDTO);
         return hundRepository.saveAndFlush(hund);
+    }
+
+    @PutMapping("/{id}")
+    public Hund updateHund(@PathVariable int id, @Valid @RequestBody HundDTO neuerHund)
+    {
+        Hund hundAlt = hundRepository.findHundById(id);
+        if(hundAlt == null) {
+            return null;
+        }
+        hundAlt.setName(neuerHund.name());
+        hundAlt.setGeschlecht(neuerHund.geschlecht());
+        hundAlt.setJahre(neuerHund.jahre());
+        hundAlt.setRasse(neuerHund.rasse());
+        hundAlt.setGroesse(neuerHund.groesse());
+        hundAlt.setGewicht(neuerHund.gewicht());
+        hundAlt.setErfahrung(neuerHund.erfahrung());
+        hundAlt.setStrecke(neuerHund.strecke());
+
+        return hundRepository.saveAndFlush(hundAlt);
     }
 
     @DeleteMapping("/{id}")
