@@ -19,7 +19,7 @@ public class LabelController {
     }
 
     @GetMapping("/{id}")
-    public Label getLabel(@PathVariable int id){return labelRepository.findLabelById(id);}
+    public Label getLabelById(@PathVariable int id){return labelRepository.findLabelById(id);}
 
     @GetMapping("/all")
     public List<Label> getAllLabel(){return labelRepository.findAll();}
