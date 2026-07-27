@@ -1,7 +1,9 @@
 name: Tabellen erstellen und Backend starten
 
 on:
-  #workflow_dispatch:
+  # workflow_dispatch: <-- Vorher noch deaktiviert, kannst du bei Bedarf wieder aktivieren
+  push:
+    branches: []
 
 jobs:
   create-base-tables:
@@ -48,7 +50,7 @@ jobs:
       - name: PostgreSQL Client installieren
         run: sudo apt-get update && sudo apt-get install -y postgresql-client
 
-      - name: Abhängige Tabellen anlegen
+      - name: Abhängige Tabellen mit Foreign Keys anlegen
         run: |
           psql "host=c4mf833jfd7vec.cluster-czz5s0kz4scl.eu-west-1.rds.amazonaws.com port=5432 dbname=d9odl6k9eqk8vi user=ue3gdc41rshpuc sslmode=require" <<EOF
 
@@ -71,9 +73,11 @@ jobs:
           );
 
           CREATE TABLE IF NOT EXISTS Hundelabel (
-              idHundi INT,
-              idLabel INT,
-              PRIMARY KEY (idHundi, idLabel)
+              idHundi INT, -- (FK) (Hund)
+              idLabel INT, -- (FK) (Label)
+              PRIMARY KEY (idHundi, idLabel),
+              FOREIGN KEY (idHundi) REFERENCES Hund(idHund),
+              FOREIGN KEY (idLabel) REFERENCES Label(idLabel)
           );
 
           CREATE TABLE IF NOT EXISTS GassiGehZeiten (
@@ -81,16 +85,19 @@ jobs:
               tage VARCHAR(50),
               von TIME,
               bis TIME,
-              idTierheim INT
+              idTierheim INT -- (FK) (Tierheim)
+              , FOREIGN KEY (idTierheim) REFERENCES Tierheim(idTierheim)
           );
 
           CREATE TABLE IF NOT EXISTS Reservierung (
               idReservierung SERIAL PRIMARY KEY,
-              idMitglied INT,
-              idHund INT,
+              idMitglied INT, -- (FK) (Mitglied)
+              idHund INT, -- (FK) (Hund)
               datum DATE,
               zeitAb TIME,
-              zeitBis TIME
+              zeitBis TIME,
+              FOREIGN KEY (idMitglied) REFERENCES Mitglied(idMitglied),
+              FOREIGN KEY (idHund) REFERENCES Hund(idHund)
           );
           EOF
         env:
