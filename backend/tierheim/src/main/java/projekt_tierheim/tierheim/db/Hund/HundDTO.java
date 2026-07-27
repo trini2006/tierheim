@@ -10,8 +10,8 @@ public record HundDTO(
         @NotNull boolean geschlecht,
         @NotNull @Positive int jahre,
         @NotBlank String rasse,
-        @NotBlank Groesse groesse,
+        @NotNull Groesse groesse,
         @NotNull @Positive int gewicht,
         @NotNull boolean erfahrung,
-        @NotBlank Strecke strecke)
+        @NotNull Strecke strecke)
 { }
