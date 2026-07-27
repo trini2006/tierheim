@@ -15,6 +15,8 @@ import projekt_tierheim.tierheim.db.Hund.Groesse;
 import projekt_tierheim.tierheim.db.Hund.Hund;
 import projekt_tierheim.tierheim.db.Hund.HundRepository;
 import projekt_tierheim.tierheim.db.Hund.Strecke;
+import projekt_tierheim.tierheim.db.Label.Label;
+import projekt_tierheim.tierheim.db.Label.LabelRepository;
 
 import java.time.LocalDate;
 import java.util.List;
@@ -73,6 +75,8 @@ class HundControllerTest {
     private MockMvc mockMvc;
     @MockitoBean
     private HundRepository hundRepository;
+    @MockitoBean
+    private LabelRepository labelRepository;
 
     @Test
     void getHundById() throws Exception {
@@ -184,10 +188,26 @@ class HundControllerTest {
                 );
     }
 
-    // ToDO PUT Label hinzufügen an Hund
     @Test
-    void updateLabelHund() throws Exception {
+    void addLabel() throws Exception {
+        Hund hund = hundRepository.findHundById(TEST_ID1);
+        Hund updateHund = hundRepository.findHundById(TEST_ID1);
+        Label label = new Label(1, "Freundlich", false);
+        updateHund.addLabel(label);
 
+        Mockito.when(labelRepository.findLabelById(TEST_ID1)).thenReturn(label);
+        Mockito.when(hundRepository.findHundById(TEST_ID1)).thenReturn(hund);
+        Mockito.when(hundRepository.saveAndFlush(Mockito.any(Hund.class))).thenReturn(updateHund);
+
+        mockMvc.perform(MockMvcRequestBuilders.post("/hund/" + TEST_ID1 + "/label")
+                .param("labelid", "1")
+                .accept(MediaType.APPLICATION_JSON))
+                .andExpectAll(
+                        status().isOk(),
+                        jsonPath("$.id").value(TEST_ID1),
+                        jsonPath("$.labels.length()").value(1),
+                        jsonPath("$.labels[0].bezeichnung").value("Freundlich")
+                );
     }
 
     // ToDO PUT Sperrgrund hinzufügen

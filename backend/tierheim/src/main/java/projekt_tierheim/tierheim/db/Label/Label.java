@@ -16,11 +16,11 @@ public class Label {
     private int id;
     private String bezeichnung;
     // Farbe fürs Label
-    // 0 = normal, 1 = wichtig
+    // false = normal, true = wichtig
     private boolean hinweis;
 
-    @ManyToMany(mappedBy = "labels")
-    private Set<Hund> hunde = new HashSet<>();
+//    @ManyToMany(mappedBy = "labels")
+//    private Set<Hund> hunde = new HashSet<>();
 
     public Label(){}
 
