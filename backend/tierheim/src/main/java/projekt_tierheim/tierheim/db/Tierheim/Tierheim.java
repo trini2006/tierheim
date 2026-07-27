@@ -3,7 +3,7 @@ package projekt_tierheim.tierheim.db.Tierheim;
 import jakarta.persistence.*;
 
 @Entity
-@Table(name = "Tierheim")
+@Table(name = "tierheim")
 public class Tierheim {
     // Allgemeine Informationen
     @Id

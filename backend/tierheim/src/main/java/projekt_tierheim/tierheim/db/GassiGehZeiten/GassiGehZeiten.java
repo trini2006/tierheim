@@ -6,7 +6,7 @@ import projekt_tierheim.tierheim.db.Tierheim.Tierheim;
 import java.time.LocalTime;
 
 @Entity
-@Table(name = "GassiGehZeiten")
+@Table(name = "gassiGehZeiten")
 public class GassiGehZeiten {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

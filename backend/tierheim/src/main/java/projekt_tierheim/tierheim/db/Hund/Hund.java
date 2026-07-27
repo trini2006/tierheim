@@ -11,7 +11,7 @@ import java.util.Objects;
 import java.util.Set;
 
 @Entity
-@Table(name = "Hund")
+@Table(name = "hund")
 public class Hund {
     // Attribute für alle Hunde
     @Id

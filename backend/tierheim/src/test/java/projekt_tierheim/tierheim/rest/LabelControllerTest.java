@@ -50,7 +50,6 @@ class LabelControllerTest {
     @MockitoBean
     private LabelRepository labelRepository;
 
-    // ToDO GET einzelnes Label
     @Test
     void getLabelById() throws Exception{
         Mockito.when(labelRepository.findLabelById(1)).thenReturn(getNormalLabel());
@@ -63,8 +62,6 @@ class LabelControllerTest {
                 );
     }
 
-
-    // ToDO GET alle Label
     @Test
     void getAllLabels() throws Exception{
         Mockito.when(labelRepository.findAll()).thenReturn(getAlleLabel());
@@ -77,7 +74,6 @@ class LabelControllerTest {
                 );
     }
 
-    // ToDO POST neues Label
     @Test
     void newLabel() throws Exception{
         JSONObject jsonObject = new JSONObject();
@@ -97,7 +93,6 @@ class LabelControllerTest {
                 );
     }
 
-    // ToDO PUT vorhandenes Label
     @Test
     void updateLabel() throws Exception{
         JSONObject jsonObject = new JSONObject();
@@ -124,7 +119,6 @@ class LabelControllerTest {
                 );
     }
 
-    // ToDO DELETE vorhandenes Label
     @Test
     void delete() throws Exception{
         mockMvc.perform(MockMvcRequestBuilders.delete("/label/" + TEST_ID1)

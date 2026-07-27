@@ -9,7 +9,7 @@ import java.time.LocalTime;
 import java.util.Objects;
 
 @Entity
-@Table(name = "Reservierung")
+@Table(name = "reservierung")
 public class Reservierung {
 
     @Id
