@@ -4,4 +4,6 @@ import org.springframework.data.jpa.repository.JpaRepository;
 
 public interface HundRepository extends JpaRepository<Hund, Integer> {
     Hund findHundById(int testId1);
+
+    Hund findHundByName(String testName1);
 }

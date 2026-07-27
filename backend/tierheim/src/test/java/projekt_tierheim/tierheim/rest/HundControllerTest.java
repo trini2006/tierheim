@@ -1,5 +1,6 @@
 package projekt_tierheim.tierheim.rest;
 
+import org.json.JSONObject;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -99,22 +100,51 @@ class HundControllerTest {
                 );
     }
 
-    // ToDO GET (search) nach Hundenamen
     @Test
     void getHundByName() throws Exception {
-
+        Mockito.when(hundRepository.findHundByName(TEST_NAME1)).thenReturn(getTestHund1());
+        mockMvc.perform(MockMvcRequestBuilders.get("/hund/search?name=" + TEST_NAME1)
+                .accept(MediaType.APPLICATION_JSON))
+                .andExpectAll(
+                        status().isOk(),
+                        jsonPath("name").value(TEST_NAME1),
+                        jsonPath("gewicht").value(TEST_GEWICHT1)
+                );
     }
 
-    // ToDo POST neuer Hund
     @Test
     void newHund() throws Exception {
+        Mockito.when(hundRepository.saveAndFlush(Mockito.any(Hund.class))).thenReturn(getTestHund1());
+        JSONObject hund = new JSONObject();
 
+        hund.put("name", TEST_NAME1);
+        hund.put("geschlecht", TEST_GESCHLECHT1);
+        hund.put("jahre", TEST_ALTER1);
+        hund.put("rasse", TEST_RASSE1);
+        hund.put("gewicht", TEST_GEWICHT1);
+        hund.put("erfahrung", TEST_ERFAHRUNG1);
+        hund.put("groesse", TEST_GROESSE1);
+        hund.put("strecke", TEST_STRECKE1);
+
+        mockMvc.perform(MockMvcRequestBuilders.post("/hund")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(hund.toString()))
+                .andExpectAll(
+                        status().isOk(),
+                        jsonPath("id").value(TEST_ID1),
+                        jsonPath("name").value(TEST_NAME1),
+                        jsonPath("groesse").value(TEST_GROESSE1)
+                );
     }
 
-    // ToDO DELETE vorhandener Hund
     @Test
     void deleteHund() throws Exception {
-
+        Mockito.when(hundRepository.findHundById(TEST_ID1)).thenReturn(getTestHund1());
+        mockMvc.perform(MockMvcRequestBuilders.delete("hund/" + TEST_ID1)
+                .accept(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk());
+        Mockito.verify(hundRepository, Mockito.times(1))
+                .delete(Mockito.any(Hund.class));
     }
 
     // ToDO DELETE Label von Hund
