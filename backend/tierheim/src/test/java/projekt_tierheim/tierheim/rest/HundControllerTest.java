@@ -144,7 +144,7 @@ class HundControllerTest {
     @Test
     void deleteHund() throws Exception {
         Mockito.when(hundRepository.findHundById(TEST_ID1)).thenReturn(getTestHund1());
-        mockMvc.perform(MockMvcRequestBuilders.delete("hund/" + TEST_ID1)
+        mockMvc.perform(MockMvcRequestBuilders.delete("/hund/" + TEST_ID1)
                 .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk());
         Mockito.verify(hundRepository, Mockito.times(1))

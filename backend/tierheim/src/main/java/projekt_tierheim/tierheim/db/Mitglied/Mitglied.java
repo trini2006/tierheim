@@ -1,13 +1,11 @@
 package projekt_tierheim.tierheim.db.Mitglied;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
+import jakarta.persistence.*;
 
 import java.util.Objects;
 
 @Entity
+@Table(name = "Mitglied")
 public class Mitglied {
 
     @Id

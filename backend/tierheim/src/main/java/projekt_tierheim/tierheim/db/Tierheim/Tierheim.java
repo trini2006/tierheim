@@ -1,11 +1,9 @@
 package projekt_tierheim.tierheim.db.Tierheim;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
+import jakarta.persistence.*;
 
 @Entity
+@Table(name = "Tierheim")
 public class Tierheim {
     // Allgemeine Informationen
     @Id
