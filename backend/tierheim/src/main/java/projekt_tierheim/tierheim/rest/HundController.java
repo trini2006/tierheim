@@ -29,11 +29,11 @@ public class HundController {
     }
 
     @GetMapping("/search")
-    public Hund getHundByName(@RequestParam String name) {
+    public List<Hund> getHundByName(@RequestParam String name) {
         if(name == null) {
             return null;
         }
-        return hundRepository.findHundByName(name);
+        return hundRepository.findHundByNameIgnoreCase(name);
     }
 
     @PostMapping()
