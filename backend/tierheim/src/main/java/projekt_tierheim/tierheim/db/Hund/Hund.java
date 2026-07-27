@@ -18,7 +18,7 @@ public class Hund {
     private int id;
     private String name;
     private boolean geschlecht; // false = Rüde, true = Hündin
-    private int alter;
+    private int jahre;
     private String rasse;
     private int gewicht; // z.B. 20kg
     private boolean erfahrung; // false = Anfängerhund, true = Problemhund
@@ -49,11 +49,11 @@ public class Hund {
     public Hund() {}
 
     // Hund ohne Sperrgrund
-    public Hund(int id, String name, boolean geschlecht, int alter, String rasse, Groesse groesse, int gewicht, boolean erfahrung, Strecke strecke, Admin erstelltVon) {
+    public Hund(int id, String name, boolean geschlecht, int jahre, String rasse, Groesse groesse, int gewicht, boolean erfahrung, Strecke strecke, Admin erstelltVon) {
         this.id = id;
         this.name = name;
         this.geschlecht = geschlecht;
-        this.alter = alter;
+        this.jahre = jahre;
         this.rasse = rasse;
         this.groesse = groesse;
         this.gewicht = gewicht;
@@ -96,12 +96,12 @@ public class Hund {
         this.geschlecht = geschlecht;
     }
 
-    public int getAlter() {
-        return alter;
+    public int getJahre() {
+        return jahre ;
     }
 
-    public void setAlter(int alter) {
-        this.alter = alter;
+    public void setJahre(int jahre) {
+        this.jahre = jahre;
     }
 
     public String getRasse() {
@@ -201,11 +201,23 @@ public class Hund {
     public boolean equals(Object o) {
         if (o == null || getClass() != o.getClass()) return false;
         Hund hund = (Hund) o;
-        return getId() == hund.getId() && isGeschlecht() == hund.isGeschlecht() && getAlter() == hund.getAlter() && getGewicht() == hund.getGewicht() && isErfahrung() == hund.isErfahrung() && isIstGesperrt() == hund.isIstGesperrt() && getErstelltVon() == hund.getErstelltVon() && Objects.equals(getName(), hund.getName()) && Objects.equals(getRasse(), hund.getRasse()) && getGroesse() == hund.getGroesse() && getStrecke() == hund.getStrecke() && Objects.equals(getGesperrtVon(), hund.getGesperrtVon()) && Objects.equals(getGesperrtBis(), hund.getGesperrtBis()) && Objects.equals(getSperrGrund(), hund.getSperrGrund()) && Objects.equals(getErstelltAm(), hund.getErstelltAm()) && Objects.equals(getLabels(), hund.getLabels());
+        return getId() == hund.getId() && isGeschlecht() == hund.isGeschlecht() && getJahre() == hund.getJahre() && getGewicht() == hund.getGewicht() && isErfahrung() == hund.isErfahrung() && isIstGesperrt() == hund.isIstGesperrt() && getErstelltVon() == hund.getErstelltVon() && Objects.equals(getName(), hund.getName()) && Objects.equals(getRasse(), hund.getRasse()) && getGroesse() == hund.getGroesse() && getStrecke() == hund.getStrecke() && Objects.equals(getGesperrtVon(), hund.getGesperrtVon()) && Objects.equals(getGesperrtBis(), hund.getGesperrtBis()) && Objects.equals(getSperrGrund(), hund.getSperrGrund()) && Objects.equals(getErstelltAm(), hund.getErstelltAm()) && Objects.equals(getLabels(), hund.getLabels());
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(getId(), getName(), isGeschlecht(), getAlter(), getRasse(), getGroesse(), getGewicht(), isErfahrung(), getStrecke(), getGesperrtVon(), getGesperrtBis(), isIstGesperrt(), getSperrGrund(), getErstelltAm(), getErstelltVon(), getLabels());
+        return Objects.hash(getId(), getName(), isGeschlecht(), getJahre(), getRasse(), getGroesse(), getGewicht(), isErfahrung(), getStrecke(), getGesperrtVon(), getGesperrtBis(), isIstGesperrt(), getSperrGrund(), getErstelltAm(), getErstelltVon(), getLabels());
+    }
+
+    public static Hund convertToHund(HundDTO hundDTO) {
+        Hund hund = new Hund();
+        hund.setName(hundDTO.name());
+        hund.setGeschlecht(hundDTO.geschlecht());
+        hund.setJahre(hundDTO.jahre());
+        hund.setRasse(hundDTO.rasse());
+        hund.setGroesse(hundDTO.groesse());
+        hund.setErfahrung(hundDTO.erfahrung());
+        hund.setStrecke(hundDTO.strecke());
+        return hund;
     }
 }

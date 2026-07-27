@@ -8,7 +8,7 @@ import jakarta.validation.constraints.Positive;
 public record HundDTO(
         @NotBlank String name,
         @NotNull boolean geschlecht,
-        @NotNull @Positive int alter,
+        @NotNull @Positive int jahre,
         @NotBlank String rasse,
         @NotBlank Groesse groesse,
         @NotNull @Positive int gewicht,
