@@ -33,4 +33,15 @@ public class AdminController {
         Admin admin = Admin.convertToAdmin(adminDTO);
         return adminRepository.saveAndFlush(admin);
     }
+
+    @PutMapping("/{id}")
+    public Admin updateAdmin(@PathVariable int id, @RequestBody AdminDTO adminDTO){
+        Admin admin = adminRepository.findAdminById(id);
+        if(admin == null){
+            return null;
+        }
+        admin.setPersonalnummer(adminDTO.personalnummer());
+        admin.setPasswort(adminDTO.passwort());
+        return adminRepository.saveAndFlush(admin);
+    }
 }
