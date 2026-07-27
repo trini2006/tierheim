@@ -15,6 +15,8 @@ import projekt_tierheim.tierheim.db.Hund.Groesse;
 import projekt_tierheim.tierheim.db.Hund.Hund;
 import projekt_tierheim.tierheim.db.Hund.HundRepository;
 import projekt_tierheim.tierheim.db.Hund.Strecke;
+import projekt_tierheim.tierheim.db.Label.Label;
+import projekt_tierheim.tierheim.db.Label.LabelRepository;
 
 import java.time.LocalDate;
 import java.util.List;
@@ -57,6 +59,10 @@ class HundControllerTest {
         return new Hund(TEST_ID1, TEST_NAME1, TEST_GESCHLECHT1, TEST_ALTER1, TEST_RASSE1, TEST_GROESSE1, TEST_GEWICHT1, TEST_ERFAHRUNG1, TEST_STRECKE1, TEST_ERSTELLTVON);
     }
 
+    public static Hund updateTestHund() {
+        return new Hund(TEST_ID1, TEST_NAME1, TEST_GESCHLECHT1, TEST_ALTER1, TEST_RASSE2, TEST_GROESSE2, TEST_GEWICHT2, TEST_ERFAHRUNG1, TEST_STRECKE2, TEST_ERSTELLTVON);
+    }
+
     public static Hund getTestHund2() {
         return new Hund(TEST_ID2, TEST_NAME2, TEST_GESCHLECHT2, TEST_ALTER2, TEST_RASSE2, TEST_GROESSE2, TEST_GEWICHT2, TEST_ERFAHRUNG2, TEST_STRECKE2, TEST_ERSTELLTVON);
     }
@@ -69,6 +75,8 @@ class HundControllerTest {
     private MockMvc mockMvc;
     @MockitoBean
     private HundRepository hundRepository;
+    @MockitoBean
+    private LabelRepository labelRepository;
 
     @Test
     void getHundById() throws Exception {
@@ -107,8 +115,8 @@ class HundControllerTest {
                 .accept(MediaType.APPLICATION_JSON))
                 .andExpectAll(
                         status().isOk(),
-                        jsonPath("name").value(TEST_NAME1),
-                        jsonPath("gewicht").value(TEST_GEWICHT1)
+                        jsonPath("$[0].name").value(TEST_NAME1),
+                        jsonPath("$[0].gewicht").value(TEST_GEWICHT1)
                 );
     }
 
@@ -153,16 +161,53 @@ class HundControllerTest {
 
     }
 
-    // ToDO PUT aktualisiere vorhandener Hund
     @Test
     void updateHund() throws Exception {
+        Mockito.when(hundRepository.findHundById(TEST_ID1)).thenReturn(getTestHund1());
+        Mockito.when(hundRepository.saveAndFlush(Mockito.any(Hund.class))).thenReturn(updateTestHund());
 
+        JSONObject hund = new JSONObject();
+        hund.put("name", TEST_NAME1);
+        hund.put("geschlecht", TEST_GESCHLECHT1);
+        hund.put("jahre", TEST_ALTER1);
+        hund.put("rasse", TEST_RASSE2);
+        hund.put("gewicht", TEST_GEWICHT2);
+        hund.put("erfahrung", TEST_ERFAHRUNG1);
+        hund.put("groesse", TEST_GROESSE2);
+        hund.put("strecke", TEST_STRECKE2);
+
+        mockMvc.perform(MockMvcRequestBuilders.put("/hund/" + TEST_ID1)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(hund.toString()))
+                .andExpectAll(
+                        status().isOk(),
+                        jsonPath("id").value(TEST_ID1),
+                        jsonPath("name").value(TEST_NAME1),
+                        jsonPath("gewicht").value(TEST_GEWICHT2),
+                        jsonPath("rasse").value(TEST_RASSE2)
+                );
     }
 
-    // ToDO PUT Label hinzufügen an Hund
     @Test
-    void updateLabelHund() throws Exception {
+    void addLabel() throws Exception {
+        Hund hund = hundRepository.findHundById(TEST_ID1);
+        Hund updateHund = hundRepository.findHundById(TEST_ID1);
+        Label label = new Label(1, "Freundlich", false);
+        updateHund.addLabel(label);
 
+        Mockito.when(labelRepository.findLabelById(TEST_ID1)).thenReturn(label);
+        Mockito.when(hundRepository.findHundById(TEST_ID1)).thenReturn(hund);
+        Mockito.when(hundRepository.saveAndFlush(Mockito.any(Hund.class))).thenReturn(updateHund);
+
+        mockMvc.perform(MockMvcRequestBuilders.post("/hund/" + TEST_ID1 + "/label")
+                .param("labelid", "1")
+                .accept(MediaType.APPLICATION_JSON))
+                .andExpectAll(
+                        status().isOk(),
+                        jsonPath("$.id").value(TEST_ID1),
+                        jsonPath("$.labels.length()").value(1),
+                        jsonPath("$.labels[0].bezeichnung").value("Freundlich")
+                );
     }
 
     // ToDO PUT Sperrgrund hinzufügen
