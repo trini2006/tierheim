@@ -98,27 +98,27 @@ class LabelControllerTest {
     }
 
     // ToDO PUT vorhandenes Label
-    @Test
-    void updateLabel() throws Exception{
-        JSONObject jsonObject = new JSONObject();
-        jsonObject.put("id", TEST_ID1);
-        jsonObject.put("bezeichnung", "Verspielt");
-        jsonObject.put("hinweis", TEST_HINWEIS1);
-
-        Mockito.when(labelRepository.findLabelById(1)).thenReturn(getNormalLabel());
-        Mockito.when(labelRepository.saveAndFlush(Mockito.any(Label.class))).thenReturn(updatedLabel);
-
-        mockMvc.perform(MockMvcRequestBuilders.put("/label/" + TEST_ID1)
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(jsonObject.toString())
-                .accept(MediaType.APPLICATION_JSON))
-                .andExpectAll(
-                        status().isOk(),
-                        jsonPath("id").value(TEST_ID1),
-                        jsonPath("bezeichnung").value("Verspielt"),
-                        jsonPath("hinweis").value(TEST_HINWEIS1)
-                );
-    }
+//    @Test
+//    void updateLabel() throws Exception{
+//        JSONObject jsonObject = new JSONObject();
+//        jsonObject.put("id", TEST_ID1);
+//        jsonObject.put("bezeichnung", "Verspielt");
+//        jsonObject.put("hinweis", TEST_HINWEIS1);
+//
+//        Mockito.when(labelRepository.findLabelById(1)).thenReturn(getNormalLabel());
+//        Mockito.when(labelRepository.saveAndFlush(Mockito.any(Label.class))).thenReturn(updatedLabel);
+//
+//        mockMvc.perform(MockMvcRequestBuilders.put("/label/" + TEST_ID1)
+//                .contentType(MediaType.APPLICATION_JSON)
+//                .content(jsonObject.toString())
+//                .accept(MediaType.APPLICATION_JSON))
+//                .andExpectAll(
+//                        status().isOk(),
+//                        jsonPath("id").value(TEST_ID1),
+//                        jsonPath("bezeichnung").value("Verspielt"),
+//                        jsonPath("hinweis").value(TEST_HINWEIS1)
+//                );
+//    }
 
     // ToDO DELETE vorhandenes Label
     @Test

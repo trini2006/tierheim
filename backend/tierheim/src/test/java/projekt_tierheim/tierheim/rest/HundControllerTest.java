@@ -92,7 +92,7 @@ class HundControllerTest {
                         status().isOk(),
                         jsonPath("$[0].name").value(TEST_NAME1),
                         jsonPath("$[0].rasse").value(TEST_RASSE1),
-                        jsonPath("$[0].gewicht").value(TEST_GESCHLECHT1),
+                        jsonPath("$[0].gewicht").value(TEST_GEWICHT1),
                         jsonPath("$[1].name").value(TEST_NAME2),
                         jsonPath("$[1].rasse").value(TEST_RASSE2),
                         jsonPath("$[1].gewicht").value(TEST_GEWICHT2)
