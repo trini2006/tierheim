@@ -1,0 +1,116 @@
+name: Tabellen erstellen und Backend starten
+
+on:
+  workflow_dispatch:
+
+jobs:
+  create-base-tables:
+    runs-on: ubuntu-latest
+    steps:
+      - name: PostgreSQL Client installieren
+        run: sudo apt-get update && sudo apt-get install -y postgresql-client
+
+      - name: Basis-Tabellen bedingt anlegen
+        run: |
+          psql "host=c4mf833jfd7vec.cluster-czz5s0kz4scl.eu-west-1.rds.amazonaws.com port=5432 dbname=d9odl6k9eqk8vi user=ue3gdc41rshpuc sslmode=require" <<EOF
+
+          CREATE TABLE IF NOT EXISTS Admin (
+              idAdmin SERIAL PRIMARY KEY,
+              personalnummer VARCHAR(255),
+              passwort VARCHAR(255)
+          );
+
+          CREATE TABLE IF NOT EXISTS Tierheim (
+              idTierheim SERIAL PRIMARY KEY,
+              name VARCHAR(255)
+          );
+
+          CREATE TABLE IF NOT EXISTS Label (
+              idLabel SERIAL PRIMARY KEY,
+              bezeichnung VARCHAR(255),
+              hinweis TEXT
+          );
+
+          CREATE TABLE IF NOT EXISTS Mitglied (
+              idMitglied SERIAL PRIMARY KEY,
+              mitgliedsnummer VARCHAR(255),
+              passwort VARCHAR(255),
+              erfahrung VARCHAR(50)
+          );
+          EOF
+        env:
+          PGPASSWORD: ${{ secrets.DB_PASSWORD }}
+
+  create-dependent-tables:
+    runs-on: ubuntu-latest
+    needs: create-base-tables
+    steps:
+      - name: PostgreSQL Client installieren
+        run: sudo apt-get update && sudo apt-get install -y postgresql-client
+
+      - name: Abhängige Tabellen anlegen
+        run: |
+          psql "host=c4mf833jfd7vec.cluster-czz5s0kz4scl.eu-west-1.rds.amazonaws.com port=5432 dbname=d9odl6k9eqk8vi user=ue3gdc41rshpuc sslmode=require" <<EOF
+
+          CREATE TABLE IF NOT EXISTS Hund (
+              idHund SERIAL PRIMARY KEY,
+              name VARCHAR(255),
+              geschlecht VARCHAR(50),
+              alter INT,
+              rasse VARCHAR(255),
+              groesse VARCHAR(50),
+              gewicht VARCHAR(50),
+              strecke VARCHAR(50),
+              erfahrung VARCHAR(50),
+              gesperrtVon DATE,
+              gesperrtBis DATE,
+              sperrGrund TEXT,
+              istGesperrt BOOLEAN,
+              erstelltAm TIMESTAMP,
+              erstelltVon VARCHAR(255)
+          );
+
+          CREATE TABLE IF NOT EXISTS Hundelabel (
+              idHundi INT,
+              idLabel INT,
+              PRIMARY KEY (idHundi, idLabel)
+          );
+
+          CREATE TABLE IF NOT EXISTS GassiGehZeiten (
+              idGassiGehZeiten SERIAL PRIMARY KEY,
+              tage VARCHAR(50),
+              von TIME,
+              bis TIME,
+              idTierheim INT
+          );
+
+          CREATE TABLE IF NOT EXISTS Reservierung (
+              idReservierung SERIAL PRIMARY KEY,
+              idMitglied INT,
+              idHund INT,
+              datum DATE,
+              zeitAb TIME,
+              zeitBis TIME
+          );
+          EOF
+        env:
+          PGPASSWORD: ${{ secrets.DB_PASSWORD }}
+
+  run-java-backend:
+    runs-on: ubuntu-latest
+    needs: [create-base-tables, create-dependent-tables]
+    steps:
+      - name: Repository auschecken
+        uses: actions/checkout@v4
+
+      - name: Java JDK einrichten
+        uses: actions/setup-java@v4
+        with:
+          distribution: "temurin"
+          java-version: "17"
+
+      - name: Java Backend starten (mit Secret)
+        run: |
+          mvn clean compile exec:java
+        env:
+          DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
