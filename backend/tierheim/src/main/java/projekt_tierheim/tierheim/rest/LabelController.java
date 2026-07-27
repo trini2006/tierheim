@@ -40,4 +40,9 @@ public class LabelController {
         label.setHinweis(labelDTO.hinweis());
         return labelRepository.saveAndFlush(label);
     }
+
+    @DeleteMapping("/{id}")
+    public void deleteLabel(@PathVariable int id){
+        labelRepository.deleteById(id);
+    }
 }
