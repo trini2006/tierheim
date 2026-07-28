@@ -44,4 +44,9 @@ public class AdminController {
         admin.setPasswort(adminDTO.passwort());
         return adminRepository.saveAndFlush(admin);
     }
+
+    @DeleteMapping("/{id}")
+    public void deleteAdmin(@PathVariable int id){
+        adminRepository.deleteById(id);
+    }
 }

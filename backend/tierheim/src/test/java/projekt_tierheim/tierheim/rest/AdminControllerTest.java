@@ -116,4 +116,14 @@ class AdminControllerTest {
                         jsonPath("passwort").value("NeuesPasswort1234")
                 );
     }
+
+    @Test
+    void deleteAdmin() throws Exception{
+        mockMvc.perform(MockMvcRequestBuilders.delete("/admin/" + TEST_ID1)
+                .accept(MediaType.APPLICATION_JSON))
+                .andExpectAll(
+                        status().isOk()
+                );
+        Mockito.verify(adminRepository, Mockito.times(1)).deleteById(TEST_ID1);
+    }
 }
