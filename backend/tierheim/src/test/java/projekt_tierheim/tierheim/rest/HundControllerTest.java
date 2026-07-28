@@ -137,7 +137,7 @@ class HundControllerTest {
                         status().isOk(),
                         jsonPath("id").value(TEST_ID1),
                         jsonPath("name").value(TEST_NAME1),
-                        jsonPath("groesse").value(TEST_GROESSE1)
+                        jsonPath("groesse").value(TEST_GROESSE1.name())
                 );
     }
 
