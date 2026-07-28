@@ -15,8 +15,6 @@ import projekt_tierheim.tierheim.db.Label.Label;
 import projekt_tierheim.tierheim.db.Label.LabelRepository;
 
 import java.util.List;
-
-import static org.junit.jupiter.api.Assertions.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -120,7 +118,7 @@ class LabelControllerTest {
     }
 
     @Test
-    void delete() throws Exception{
+    void deleteLabel() throws Exception{
         mockMvc.perform(MockMvcRequestBuilders.delete("/label/" + TEST_ID1)
                 .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk());
