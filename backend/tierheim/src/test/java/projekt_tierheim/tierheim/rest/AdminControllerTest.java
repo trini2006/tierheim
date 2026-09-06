@@ -49,9 +49,9 @@ class AdminControllerTest {
     private AdminRepository adminRepository;
 
     @Test
-    void getAdminById() throws Exception{
-        Mockito.when(adminRepository.findAdminById(TEST_ID1)).thenReturn(getAdmin1());
-        mockMvc.perform(MockMvcRequestBuilders.get("/admin/" + TEST_ID1)
+    void getAdminByPersonalnummer() throws Exception{
+        Mockito.when(adminRepository.findAdminByPersonalnummer(TEST_PERSONALNUMMER1)).thenReturn(getAdmin1());
+        mockMvc.perform(MockMvcRequestBuilders.get("/admin/" + TEST_PERSONALNUMMER1)
                 .accept(MediaType.APPLICATION_JSON))
                 .andExpectAll(
                         status().isOk(),
@@ -95,6 +95,7 @@ class AdminControllerTest {
     @Test
     void updateAdmin() throws Exception{
         JSONObject jsonObject = new JSONObject();
+        jsonObject.put("personalnummer", TEST_PERSONALNUMMER1);
         jsonObject.put("passwort", "NeuesPasswort1234");
 
         Admin updatedAdmin = new Admin();
@@ -102,10 +103,10 @@ class AdminControllerTest {
         updatedAdmin.setPersonalnummer(TEST_PERSONALNUMMER1);
         updatedAdmin.setPasswort("NeuesPasswort1234");
 
-        Mockito.when(adminRepository.findAdminById(TEST_ID1)).thenReturn(getAdmin1());
+        Mockito.when(adminRepository.findAdminByPersonalnummer(TEST_PERSONALNUMMER1)).thenReturn(getAdmin1());
         Mockito.when(adminRepository.saveAndFlush(Mockito.any(Admin.class))).thenReturn(updatedAdmin);
 
-        mockMvc.perform(MockMvcRequestBuilders.put("/admin/" + TEST_ID1)
+        mockMvc.perform(MockMvcRequestBuilders.put("/admin/" + TEST_PERSONALNUMMER1)
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(jsonObject.toString())
                 .accept(MediaType.APPLICATION_JSON))
@@ -119,11 +120,11 @@ class AdminControllerTest {
 
     @Test
     void deleteAdmin() throws Exception{
-        mockMvc.perform(MockMvcRequestBuilders.delete("/admin/" + TEST_ID1)
+        mockMvc.perform(MockMvcRequestBuilders.delete("/admin/" + TEST_PERSONALNUMMER1)
                 .accept(MediaType.APPLICATION_JSON))
                 .andExpectAll(
                         status().isOk()
                 );
-        Mockito.verify(adminRepository, Mockito.times(1)).deleteById(TEST_ID1);
+        Mockito.verify(adminRepository, Mockito.times(1)).deleteByPersonalnummer(TEST_PERSONALNUMMER1);
     }
 }

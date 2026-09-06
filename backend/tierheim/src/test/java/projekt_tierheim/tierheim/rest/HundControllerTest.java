@@ -1,5 +1,6 @@
 package projekt_tierheim.tierheim.rest;
 
+import jakarta.persistence.GenerationType;
 import org.json.JSONObject;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
@@ -52,7 +53,9 @@ class HundControllerTest {
     public static Admin TEST_ERSTELLTVON = new Admin(1, 1234567890, "geheim123");
 
     public static Hund getTestHund() {
-        return new Hund(TEST_ID1, TEST_NAME1, TEST_GESCHLECHT1, TEST_ALTER1, TEST_RASSE1, TEST_GROESSE1, TEST_GEWICHT1, TEST_ERFAHRUNG1, TEST_STRECKE1, TEST_ERSTELLTVON);
+        Hund hund = new Hund(TEST_ID1, TEST_NAME1, TEST_GESCHLECHT1, TEST_ALTER1, TEST_RASSE1, TEST_GROESSE1, TEST_GEWICHT1, TEST_ERFAHRUNG1, TEST_STRECKE1, TEST_ERSTELLTVON);
+        hund.setIstGesperrt(false);
+        return hund;
     }
 
     public static Hund updateTestHund() {
@@ -60,7 +63,12 @@ class HundControllerTest {
     }
 
     public static Hund getTestSperrHund() {
-        return new Hund(TEST_ID1, TEST_NAME1, TEST_GESCHLECHT1, TEST_ALTER1, TEST_RASSE1, TEST_GROESSE1, TEST_GEWICHT1, TEST_ERFAHRUNG1, TEST_STRECKE1, TEST_ERSTELLTVON);
+        Hund hund = getTestHund();
+        hund.setIstGesperrt(TEST_ISTGESPERRT); // true
+        hund.setGesperrtVon(TEST_GESPERRTVON);
+        hund.setGesperrtBis(TEST_GESPERRTBIS);
+        hund.setSperrGrund(TEST_SPERRGRUND);
+        return hund;
     }
 
     public static List<Hund> getAlleTestHunde() {
@@ -151,12 +159,6 @@ class HundControllerTest {
                 .delete(Mockito.any(Hund.class));
     }
 
-    // ToDO DELETE Label von Hund
-    @Test
-    void deleteLabelVonHund() throws Exception {
-
-    }
-
     @Test
     void updateHund() throws Exception {
         Mockito.when(hundRepository.findHundById(TEST_ID1)).thenReturn(getTestHund());
@@ -184,10 +186,49 @@ class HundControllerTest {
                 );
     }
 
+    // HUND SPERREN
+    @Test
+    void sperrgrundHinzufuegen() throws Exception {
+        Mockito.when(hundRepository.findHundById(TEST_ID1)).thenReturn(getTestHund());
+        Mockito.when(hundRepository.saveAndFlush(Mockito.any(Hund.class))).thenReturn(getTestSperrHund());
+
+        JSONObject hund = new JSONObject();
+        hund.put("gesperrtVon", TEST_GESPERRTVON);
+        hund.put("gesperrtBis", TEST_GESPERRTBIS);
+        hund.put("istGesperrt", TEST_ISTGESPERRT);
+        hund.put("sperrGrund", TEST_SPERRGRUND);
+
+        mockMvc.perform(MockMvcRequestBuilders.put("/hund/sperren/" + TEST_ID1)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(hund.toString()))
+                .andExpectAll(
+                        status().isOk(),
+                        jsonPath("id").value(TEST_ID1),
+                        jsonPath("name").value(TEST_NAME1),
+                        jsonPath("gesperrtVon").value(TEST_GESPERRTVON.toString()),
+                        jsonPath("sperrGrund").value(TEST_SPERRGRUND)
+                );
+    }
+
+    @Test
+    void sperrgrundEntfernen() throws Exception {
+        Mockito.when(hundRepository.findHundById(TEST_ID1)).thenReturn(getTestSperrHund());
+        Mockito.when(hundRepository.saveAndFlush(Mockito.any(Hund.class))).thenReturn(getTestHund());
+
+        mockMvc.perform(MockMvcRequestBuilders.put("/hund/entsperren/" + TEST_ID1))
+                .andExpectAll(
+                        status().isOk(),
+                        jsonPath("id").value(TEST_ID1),
+                        jsonPath("name").value(TEST_NAME1),
+                        jsonPath("istGesperrt").value(false)
+                );
+    }
+
+    // LABELS
     @Test
     void addLabel() throws Exception {
-        Hund hund = hundRepository.findHundById(TEST_ID1);
-        Hund updateHund = hundRepository.findHundById(TEST_ID1);
+        Hund hund = getTestHund();
+        Hund updateHund = getTestHund();
         Label label = new Label(1, "Freundlich", false);
         updateHund.addLabel(label);
 
@@ -196,7 +237,7 @@ class HundControllerTest {
         Mockito.when(hundRepository.saveAndFlush(Mockito.any(Hund.class))).thenReturn(updateHund);
 
         mockMvc.perform(MockMvcRequestBuilders.post("/hund/" + TEST_ID1 + "/label")
-                .param("labelid", "1")
+                .param("labelId", "1")
                 .accept(MediaType.APPLICATION_JSON))
                 .andExpectAll(
                         status().isOk(),
@@ -206,36 +247,11 @@ class HundControllerTest {
                 );
     }
 
-    // ToDO PUT Sperrgrund hinzufügen
+    // ToDO DELETE Label von Hund
     @Test
-    void updateSperrgrund() throws Exception {
-        Mockito.when(hundRepository.findHundById(TEST_ID1)).thenReturn(getTestHund());
-        Mockito.when(hundRepository.saveAndFlush(Mockito.any(Hund.class))).thenReturn(getTestSperrHund());
+    void deleteLabelVonHund() throws Exception {
 
-        JSONObject hund = new JSONObject();
-        hund.put("name", TEST_NAME1);
-        hund.put("geschlecht", TEST_GESCHLECHT1);
-        hund.put("jahre", TEST_ALTER1);
-        hund.put("rasse", TEST_RASSE1);
-        hund.put("gewicht", TEST_GEWICHT1);
-        hund.put("erfahrung", TEST_ERFAHRUNG1);
-        hund.put("groesse", TEST_GROESSE1);
-        hund.put("strecke", TEST_STRECKE1);
-
-        hund.put("gesperrtVon", TEST_GESPERRTVON);
-        hund.put("gesperrtBis", TEST_GESPERRTBIS);
-        hund.put("istGesperrt", TEST_ISTGESPERRT);
-        hund.put("sperrGrund", TEST_SPERRGRUND);
-
-        mockMvc.perform(MockMvcRequestBuilders.put("/hund/" + TEST_ID1)
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(hund.toString()))
-                .andExpectAll(
-                        status().isOk(),
-                        jsonPath("id").value(TEST_ID1),
-                        jsonPath("name").value(TEST_NAME1),
-                        jsonPath("gesperrtVon").value(TEST_GESPERRTVON),
-                        jsonPath("sperrGrund").value(TEST_SPERRGRUND)
-                );
     }
+
+
 }

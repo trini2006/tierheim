@@ -63,13 +63,15 @@ public class Hund {
         this.erstelltAm = LocalDateTime.now();
         this.erstelltVon = erstelltVon;
 
+        this.istGesperrt = false;
+
     }
 
     // Hund mit Sperrgrund
-    public Hund(LocalDate gesperrtVon, LocalDate gesperrtBis, boolean istGesperrt, String sperrGrund) {
+    public Hund(LocalDate gesperrtVon, LocalDate gesperrtBis, String sperrGrund) {
         this.gesperrtVon = gesperrtVon;
         this.gesperrtBis = gesperrtBis;
-        this.istGesperrt = istGesperrt;
+        this.istGesperrt = true;
         this.sperrGrund = sperrGrund;
     }
 
@@ -219,6 +221,16 @@ public class Hund {
         hund.setGroesse(hundDTO.groesse());
         hund.setErfahrung(hundDTO.erfahrung());
         hund.setStrecke(hundDTO.strecke());
+        hund.setIstGesperrt(false);
+        return hund;
+    }
+
+    public static Hund convertToSperren(SperrHundDTO sperrHundDTO) {
+        Hund hund = new Hund();
+        hund.setGesperrtVon(sperrHundDTO.gesperrtVon());
+        hund.setGesperrtBis(sperrHundDTO.gesperrtBis());
+        hund.setIstGesperrt(true);
+        hund.setSperrGrund(sperrHundDTO.sperrGrund());
         return hund;
     }
 }

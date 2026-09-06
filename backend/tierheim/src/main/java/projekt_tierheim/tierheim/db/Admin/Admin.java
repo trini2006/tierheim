@@ -11,6 +11,7 @@ public class Admin {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
+    @Column(unique = true)
     private int personalnummer;
     private String passwort;
 
