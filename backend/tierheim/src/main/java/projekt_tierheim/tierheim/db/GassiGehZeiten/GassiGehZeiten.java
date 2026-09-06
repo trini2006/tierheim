@@ -68,4 +68,12 @@ public class GassiGehZeiten {
     public void setTierheim(Tierheim tierheim) {
         this.tierheim = tierheim;
     }
+
+    public static GassiGehZeiten convertToGassiGehZeiten(GassiGehZeitenDTO zeitDTO) {
+        GassiGehZeiten zeit = new GassiGehZeiten();
+        zeit.setTag(zeitDTO.tag());
+        zeit.setVon(zeitDTO.von());
+        zeit.setBis(zeitDTO.bis());
+        return zeit;
+    }
 }

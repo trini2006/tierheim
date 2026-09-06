@@ -1,5 +1,6 @@
 package projekt_tierheim.tierheim.rest;
 
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 import projekt_tierheim.tierheim.db.Admin.Admin;
@@ -20,7 +21,7 @@ public class AdminController {
 
     // Mitarbeiter nach Personalnummer zu suchen, macht mehr Sinn, als nach einer zufällig vergebenen id
     @GetMapping("/{personalnummer}")
-    public Admin getAdminByPersonalnummer(@PathVariable int personalnummer){
+    public Admin getAdminByPersonalnummer(@PathVariable("personalnummer") int personalnummer){
         return adminRepository.findAdminByPersonalnummer(personalnummer);
     }
 
@@ -30,13 +31,13 @@ public class AdminController {
     }
 
     @PostMapping()
-    public Admin newAdmin(@RequestBody AdminDTO adminDTO){
+    public Admin newAdmin(@Valid @RequestBody AdminDTO adminDTO){
         Admin admin = Admin.convertToAdmin(adminDTO);
         return adminRepository.saveAndFlush(admin);
     }
 
     @PutMapping("/{personalnummer}")
-    public Admin updateAdmin(@PathVariable int personalnummer, @RequestBody AdminDTO adminDTO){
+    public Admin updateAdmin(@PathVariable("personalnummer") int personalnummer, @Valid @RequestBody AdminDTO adminDTO){
         Admin admin = adminRepository.findAdminByPersonalnummer(personalnummer);
         if(admin == null){
             return null;
@@ -47,7 +48,7 @@ public class AdminController {
     }
 
     @DeleteMapping("/{personalnummer}")
-    public void deleteAdmin(@PathVariable int personalnummer){
+    public void deleteAdmin(@PathVariable("personalnummer") int personalnummer){
         adminRepository.deleteByPersonalnummer(personalnummer);
     }
 }
