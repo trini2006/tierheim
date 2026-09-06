@@ -108,8 +108,8 @@ public class HundController {
 
     // LABEL
     // ToDO Frontend und Backend müssen mit möglichen 404 ungehen können
-    @PostMapping("/{id}/label")
-    public Hund addLabel(@PathVariable("id") int hundId, @RequestParam int labelId) {
+    @PostMapping("/{id}/label/{labelId}")
+    public Hund addLabel(@PathVariable("id") int hundId, @PathVariable("labelId") int labelId) {
         Hund hund = hundRepository.findHundById(hundId);
         Label label = labelRepository.findLabelById(labelId);
 
@@ -123,5 +123,21 @@ public class HundController {
             return hundRepository.saveAndFlush(hund);
         }
         return hund;
+    }
+
+    @DeleteMapping("/{id}/label/{labelId}")
+    public Hund deleteLabel(@PathVariable("id") int hundId,  @PathVariable("labelId") int labelId) {
+        Hund hund = hundRepository.findHundById(hundId);
+        Label label = labelRepository.findLabelById(labelId);
+
+        if(hund == null || label == null) {
+            return null;
+        }
+        // theroretisch eigentlich unmöglich
+        if(!hund.getLabels().contains(label)) {
+            return null;
+        }
+        hund.removeLabel(label);
+        return hundRepository.saveAndFlush(hund);
     }
 }

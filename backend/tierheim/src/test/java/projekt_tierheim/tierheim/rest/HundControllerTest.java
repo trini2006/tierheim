@@ -236,8 +236,7 @@ class HundControllerTest {
         Mockito.when(hundRepository.findHundById(TEST_ID1)).thenReturn(hund);
         Mockito.when(hundRepository.saveAndFlush(Mockito.any(Hund.class))).thenReturn(updateHund);
 
-        mockMvc.perform(MockMvcRequestBuilders.post("/hund/" + TEST_ID1 + "/label")
-                .param("labelId", "1")
+        mockMvc.perform(MockMvcRequestBuilders.post("/hund/" + TEST_ID1 + "/label/" + TEST_ID1)
                 .accept(MediaType.APPLICATION_JSON))
                 .andExpectAll(
                         status().isOk(),
@@ -250,8 +249,18 @@ class HundControllerTest {
     // ToDO DELETE Label von Hund
     @Test
     void deleteLabelVonHund() throws Exception {
+        Hund hund = getTestHund();
+        Label label = new Label(1, "Freundlich", false);
+        hund.addLabel(label);
+        Mockito.when(labelRepository.findLabelById(TEST_ID1)).thenReturn(label);
+        Mockito.when(hundRepository.findHundById(TEST_ID1)).thenReturn(hund);
+        Mockito.when(hundRepository.saveAndFlush(Mockito.any(Hund.class))).thenReturn(hund);
 
+        mockMvc.perform(MockMvcRequestBuilders.delete("/hund/" + TEST_ID1 + "/label/" + TEST_ID1))
+                .andExpectAll(
+                        status().isOk(),
+                        jsonPath("$.id").value(TEST_ID1),
+                        jsonPath("$.labels.length()").value(0)
+                );
     }
-
-
 }
