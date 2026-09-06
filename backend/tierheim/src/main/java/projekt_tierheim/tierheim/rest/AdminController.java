@@ -18,9 +18,10 @@ public class AdminController {
         this.adminRepository = adminRepository;
     }
 
-    @GetMapping("/{id}")
-    public Admin getAdminById(@PathVariable int id){
-        return adminRepository.findAdminById(id);
+    // Mitarbeiter nach Personalnummer zu suchen, macht mehr Sinn, als nach einer zufällig vergebenen id
+    @GetMapping("/{personalnummer}")
+    public Admin getAdminByPersonalnummer(@PathVariable int personalnummer){
+        return adminRepository.findAdminByPersonalnummer(personalnummer);
     }
 
     @GetMapping("/all")
@@ -34,9 +35,9 @@ public class AdminController {
         return adminRepository.saveAndFlush(admin);
     }
 
-    @PutMapping("/{id}")
-    public Admin updateAdmin(@PathVariable int id, @RequestBody AdminDTO adminDTO){
-        Admin admin = adminRepository.findAdminById(id);
+    @PutMapping("/{personalnummer}")
+    public Admin updateAdmin(@PathVariable int personalnummer, @RequestBody AdminDTO adminDTO){
+        Admin admin = adminRepository.findAdminByPersonalnummer(personalnummer);
         if(admin == null){
             return null;
         }
@@ -45,8 +46,8 @@ public class AdminController {
         return adminRepository.saveAndFlush(admin);
     }
 
-    @DeleteMapping("/{id}")
-    public void deleteAdmin(@PathVariable int id){
-        adminRepository.deleteById(id);
+    @DeleteMapping("/{personalnummer}")
+    public void deleteAdmin(@PathVariable int personalnummer){
+        adminRepository.deleteByPersonalnummer(personalnummer);
     }
 }
