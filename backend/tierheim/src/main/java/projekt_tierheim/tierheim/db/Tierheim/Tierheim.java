@@ -16,6 +16,7 @@ public class Tierheim {
     private String ort;
     private String telefonnummer;
     private String notfallnummer;
+    private String email;
     private String link; // z.B. Webseite des Tierheims, Mitgliedsformular
 
     // Aussehen
@@ -30,7 +31,7 @@ public class Tierheim {
 
     public Tierheim() {}
 
-    public Tierheim(int id, String name, String strasse, String hausnummer, String plz, String ort, String telefonnummer, String notfallnummer, String link, String bild, String bannerfarbe, int zeitblock, int ruhezeit, int maxGassi, int minGassi) {
+    public Tierheim(int id, String name, String strasse, String hausnummer, String plz, String ort, String telefonnummer, String notfallnummer, String email, String link, String bild, String bannerfarbe, int zeitblock, int ruhezeit, int maxGassi, int minGassi) {
         this.id = id;
         this.name = name;
         this.strasse = strasse;
@@ -39,6 +40,7 @@ public class Tierheim {
         this.ort = ort;
         this.telefonnummer = telefonnummer;
         this.notfallnummer = notfallnummer;
+        this.email = email;
         this.link = link;
         this.bild = bild;
         this.bannerfarbe = bannerfarbe;
@@ -112,13 +114,16 @@ public class Tierheim {
         this.notfallnummer = notfallnummer;
     }
 
-    public String getLink() {
-        return link;
+    public String getEmail() {
+        return email;
     }
 
-    public void setLink(String link) {
-        this.link = link;
+    public void setEmail(String email) {
+        this.email = email;
     }
+
+    public String getLink() { return link; }
+    public void setLink(String link) { this.link = link; }
 
     public String getBild() {
         return bild;
@@ -166,5 +171,28 @@ public class Tierheim {
 
     public void setMinGassi(int minGassi) {
         this.minGassi = minGassi;
+    }
+
+    public static Tierheim convertToTierheim(TierheimDTO tierheimDTO)
+    {
+        Tierheim tierheim = new Tierheim();
+        tierheim.setName(tierheimDTO.name());
+        tierheim.setStrasse(tierheimDTO.strasse());
+        tierheim.setHausnummer(tierheimDTO.hausnummer());
+        tierheim.setPlz(tierheimDTO.plz());
+        tierheim.setOrt(tierheimDTO.ort());
+        tierheim.setTelefonnummer(tierheimDTO.telefonnummer());
+        tierheim.setNotfallnummer(tierheimDTO.notfallnummer());
+        tierheim.setEmail(tierheimDTO.email());
+        tierheim.setLink(tierheimDTO.link());
+        tierheim.setBild(tierheimDTO.bild());
+        tierheim.setBannerfarbe(tierheimDTO.bannerfarbe());
+
+        tierheim.setZeitblock(tierheimDTO.zeitblock() != null ? tierheimDTO.zeitblock() : 30);
+        tierheim.setRuhezeit(tierheimDTO.ruhezeit() != null ? tierheimDTO.ruhezeit() : 60);
+        tierheim.setMaxGassi(tierheimDTO.maxGassi() != null ? tierheimDTO.maxGassi() : 120);
+        tierheim.setMinGassi(tierheimDTO.minGassi() != null ?  tierheimDTO.minGassi() : 30);
+
+        return tierheim;
     }
 }

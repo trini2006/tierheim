@@ -12,12 +12,13 @@ public record TierheimDTO(
   @NotBlank String ort,
   @NotBlank String telefonnummer,
   String notfallnummer,
+  String email,
   String link,
   String bild,
   String bannerfarbe,
-  @NotNull @Positive int zeitblock,
-  @NotNull @Positive int ruhezeit,
-  @NotNull @Positive int maxGassi,
-  @NotNull @Positive int inGassi
+  @Positive Integer zeitblock,
+  @Positive Integer ruhezeit,
+  @Positive Integer maxGassi,
+  @Positive Integer minGassi
 )
 { }
