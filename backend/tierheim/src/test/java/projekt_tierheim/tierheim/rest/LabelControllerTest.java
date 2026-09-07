@@ -124,4 +124,16 @@ class LabelControllerTest {
                 .andExpect(status().isOk());
         Mockito.verify(labelRepository, Mockito.times(1)).deleteById(TEST_ID1);
     }
+
+    @Test
+    void getLabelByName() throws Exception {
+        Mockito.when(labelRepository.findLabelByBezeichnungIgnoreCase(TEST_BEZEICHNUNG1)).thenReturn(List.of(getNormalLabel()));
+        mockMvc.perform(MockMvcRequestBuilders.get("/label/search?bezeichnung=" + TEST_BEZEICHNUNG1)
+                .accept(MediaType.APPLICATION_JSON))
+                .andExpectAll(
+                        status().isOk(),
+                        jsonPath("$[0].bezeichnung").value(TEST_BEZEICHNUNG1),
+                        jsonPath("$[0].hinweis").value(TEST_HINWEIS1)
+                );
+    }
 }

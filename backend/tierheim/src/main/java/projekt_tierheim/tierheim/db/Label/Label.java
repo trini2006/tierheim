@@ -14,10 +14,10 @@ public class Label {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
+    @Column(unique = true)
     private String bezeichnung;
     // Farbe fürs Label
-    // false = normal, true = wichtig
-    private boolean hinweis;
+    private boolean hinweis; // false = normal, true = wichtig
 
 //    @ManyToMany(mappedBy = "labels")
 //    private Set<Hund> hunde = new HashSet<>();

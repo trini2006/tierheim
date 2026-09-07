@@ -246,7 +246,6 @@ class HundControllerTest {
                 );
     }
 
-    // ToDO DELETE Label von Hund
     @Test
     void deleteLabelVonHund() throws Exception {
         Hund hund = getTestHund();
