@@ -13,7 +13,7 @@ public class Mitglied {
     private int id;
     private int mitgliedsnummer;
     private String passwort;
-    private boolean erfahrung; // 0 = Gruen, 1 = Gelb/Orange
+    private boolean erfahrung; // false = Gruen, true = Gelb/Orange
 
     public Mitglied() {
     }
@@ -55,6 +55,14 @@ public class Mitglied {
 
     public void setErfahrung(boolean erfahrung) {
         this.erfahrung = erfahrung;
+    }
+
+    public static Mitglied convertToMitglied(MitgliedDTO mitgliedDTO) {
+        Mitglied mitglied = new Mitglied();
+        mitglied.setMitgliedsnummer(mitgliedDTO.mitgliedsnummer());
+        mitglied.setPasswort(mitgliedDTO.passwort());
+        mitglied.setErfahrung(mitgliedDTO.erfahrung());
+        return mitglied;
     }
 
     @Override
