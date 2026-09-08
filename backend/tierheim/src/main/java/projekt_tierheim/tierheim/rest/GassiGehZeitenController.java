@@ -26,26 +26,26 @@ public class GassiGehZeitenController {
     }
 
     // Alle Zeiten für einen Tag
-    // ToDO Müsste eigentlich eine Liste sein
-    @GetMapping("/{tag}")
-    public GassiGehZeiten getZeitByTag(@PathVariable("tag") String tag) {
-        Enum<Tage> EnumTag = Enum.valueOf(Tage.class, tag.toUpperCase());
-        return gassiGehZeitenRepository.findGassiGehZeitenByTag(EnumTag);
+    @GetMapping("/tag/{tag}")
+    public List<GassiGehZeiten> getZeitByTag(@PathVariable("tag") Tage tag) {
+        return gassiGehZeitenRepository.findGassiGehZeitenByTag(tag);
     }
 
-    @PostMapping
+    @GetMapping("/{id}")
+    public GassiGehZeiten getGassiGehZeit(@PathVariable("id") int id) {
+        return gassiGehZeitenRepository.findGassiGehZeitenById(id);
+    }
+
+    @PostMapping("/new")
     public GassiGehZeiten newZeit(@Valid @RequestBody GassiGehZeitenDTO zeitDTO)
     {
         GassiGehZeiten gassiZeiten = GassiGehZeiten.convertToGassiGehZeiten(zeitDTO);
         return gassiGehZeitenRepository.saveAndFlush(gassiZeiten);
     }
 
-    // ToDO Zeiten müssen irgendwie eindeutig identifizierbar sein
-    // z.B. an einem Mo können Vor- und Nachmittags Spaziergänge stattfinden
-    @PutMapping("/{tag}")
-    public GassiGehZeiten updateZeit(@PathVariable("tag") String tag, @Valid @RequestBody GassiGehZeitenDTO zeitDTO) {
-        Enum<Tage> EnumTag = Enum.valueOf(Tage.class, tag.toUpperCase());
-        GassiGehZeiten zeit = gassiGehZeitenRepository.findGassiGehZeitenByTag(EnumTag);
+    @PutMapping("/{id}")
+    public GassiGehZeiten updateZeit(@PathVariable("id") int id, @Valid @RequestBody GassiGehZeitenDTO zeitDTO) {
+        GassiGehZeiten zeit = gassiGehZeitenRepository.findGassiGehZeitenById(id);
         if(zeit == null) {
             return null;
         }
@@ -55,9 +55,8 @@ public class GassiGehZeitenController {
         return gassiGehZeitenRepository.saveAndFlush(zeit);
     }
 
-    // ToDO Zeiten müssen eindeutig identifizierbar sein
-    @DeleteMapping("/{tag}")
-    public void deleteZeit(@PathVariable("tag") String tag) {
-
+    @DeleteMapping("/{id}")
+    public void deleteZeit(@PathVariable("id") int id) {
+        gassiGehZeitenRepository.deleteById(id);
     }
 }

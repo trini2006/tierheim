@@ -135,7 +135,6 @@ class ReservierungControllerTest {
                 );
     }
 
-    // ToDO Storniere alle Reservierungen
     @Test
     public void storniereAlleReservierungen()  throws Exception {
         List<Reservierung> stornierteReservierungen = List.of(getTestReservierung(), getTestReservierung());
