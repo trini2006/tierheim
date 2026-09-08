@@ -16,6 +16,7 @@ import projekt_tierheim.tierheim.db.Hund.Strecke;
 import projekt_tierheim.tierheim.db.Mitglied.Mitglied;
 import projekt_tierheim.tierheim.db.Reservierung.Reservierung;
 import projekt_tierheim.tierheim.db.Reservierung.ReservierungRepository;
+import projekt_tierheim.tierheim.db.Reservierung.Reservierungsstatus;
 
 import java.time.LocalDate;
 import java.time.LocalTime;
@@ -67,7 +68,8 @@ class ReservierungControllerTest {
                         Mockito.any(LocalDate.class),
                         Mockito.any(LocalDate.class),
                         Mockito.eq(TEST_ID1),
-                        Mockito.eq(TEST_ID1)))
+                        Mockito.eq(TEST_ID1),
+                        Mockito.any(Reservierungsstatus.class)))
                 .thenReturn(List.of(getTestReservierung(), getTestReservierung()));
         mockMvc.perform(MockMvcRequestBuilders.get("/reservierung/all?mitgliedId=" + TEST_ID1 + "&hundId=" + TEST_ID1)
                 .accept(MediaType.APPLICATION_JSON))
@@ -78,24 +80,6 @@ class ReservierungControllerTest {
                         jsonPath("$[0].datum").value(TEST_DATUM1.toString()),
                         jsonPath("$[1].idReservierung").value(TEST_ID1)
                 );
-    }
-
-    // ToDO Get alle Reservierungen von Mitglied (in einem bestimmten Zeitraum)
-    @Test
-    public void getAlleReservierungenMitglied() throws Exception {
-
-    }
-
-    // ToDO Get alle Reservierungen von Hund (in einem bestimmten Zeitraum)
-    @Test
-    public void getAlleReservierungenHund() throws Exception {
-
-    }
-
-    // ToDO Get alle Reservierungen in einem bestimmten Zeitraum
-    @Test
-    public void getAlleReservierungenZeitraum() throws Exception {
-
     }
 
     // ToDO Post Erstelle eine neue Reservierung von einem bestimmten Hund und Mitglied

@@ -15,12 +15,14 @@ public interface ReservierungRepository extends JpaRepository<Reservierung, Inte
         SELECT r FROM Reservierung r
             WHERE r.datum BETWEEN :von AND :bis
                 AND (:mitgliedId IS NULL OR r.mitglied.id = :mitgliedId)
-                AND (:hundId IS NULL OR r.hund.id = :hundId) 
+                AND (:hundId IS NULL OR r.hund.id = :hundId)
+                AND (:status IS NULL OR r.status = :status)
     """)
     List<Reservierung> findGefiltert(
       @Param("von") LocalDate von,
       @Param("bis") LocalDate bis,
       @Param("mitgliedId") Integer mitgliedId,
-      @Param("hundId") Integer hundId
+      @Param("hundId") Integer hundId,
+      @Param("status") Reservierungsstatus status
     );
 }

@@ -32,7 +32,7 @@ public class Hund {
     // Attribute zum Sperren von Hunden
     private LocalDate gesperrtVon;
     private LocalDate gesperrtBis;
-    private boolean istGesperrt; // true = ja, false = nein
+    private boolean istGesperrt = false; // true = ja, false = nein
     private String sperrGrund;
 
     // Log-Daten für z.B. Debugging
@@ -62,9 +62,6 @@ public class Hund {
         this.strecke = strecke;
         this.erstelltAm = LocalDateTime.now();
         this.erstelltVon = erstelltVon;
-
-        this.istGesperrt = false;
-
     }
 
     // Hund mit Sperrgrund
@@ -78,7 +75,6 @@ public class Hund {
     public int getId() {
         return id;
     }
-
     public void setId(int id) {
         this.id = id;
     }
@@ -86,7 +82,6 @@ public class Hund {
     public String getName() {
         return name;
     }
-
     public void setName(String name) {
         this.name = name;
     }
@@ -94,7 +89,6 @@ public class Hund {
     public boolean isGeschlecht() {
         return geschlecht;
     }
-
     public void setGeschlecht(boolean geschlecht) {
         this.geschlecht = geschlecht;
     }
@@ -102,7 +96,6 @@ public class Hund {
     public int getJahre() {
         return jahre ;
     }
-
     public void setJahre(int jahre) {
         this.jahre = jahre;
     }
@@ -110,7 +103,6 @@ public class Hund {
     public String getRasse() {
         return rasse;
     }
-
     public void setRasse(String rasse) {
         this.rasse = rasse;
     }
@@ -118,7 +110,6 @@ public class Hund {
     public Groesse getGroesse() {
         return groesse;
     }
-
     public void setGroesse(Groesse groesse) {
         this.groesse = groesse;
     }
@@ -126,7 +117,6 @@ public class Hund {
     public int getGewicht() {
         return gewicht;
     }
-
     public void setGewicht(int gewicht) {
         this.gewicht = gewicht;
     }
@@ -134,7 +124,6 @@ public class Hund {
     public boolean isErfahrung() {
         return erfahrung;
     }
-
     public void setErfahrung(boolean erfahrung) {
         this.erfahrung = erfahrung;
     }
@@ -142,7 +131,6 @@ public class Hund {
     public Strecke getStrecke() {
         return strecke;
     }
-
     public void setStrecke(Strecke strecke) {
         this.strecke = strecke;
     }
@@ -150,7 +138,6 @@ public class Hund {
     public LocalDate getGesperrtVon() {
         return gesperrtVon;
     }
-
     public void setGesperrtVon(LocalDate gesperrtVon) {
         this.gesperrtVon = gesperrtVon;
     }
@@ -158,7 +145,6 @@ public class Hund {
     public LocalDate getGesperrtBis() {
         return gesperrtBis;
     }
-
     public void setGesperrtBis(LocalDate gesperrtBis) {
         this.gesperrtBis = gesperrtBis;
     }
@@ -166,7 +152,6 @@ public class Hund {
     public boolean isIstGesperrt() {
         return istGesperrt;
     }
-
     public void setIstGesperrt(boolean istGesperrt) {
         this.istGesperrt = istGesperrt;
     }
@@ -174,7 +159,6 @@ public class Hund {
     public String getSperrGrund() {
         return sperrGrund;
     }
-
     public void setSperrGrund(String sperrGrund) {
         this.sperrGrund = sperrGrund;
     }
@@ -182,7 +166,6 @@ public class Hund {
     public LocalDateTime getErstelltAm() {
         return erstelltAm;
     }
-
     public void setErstelltAm(LocalDateTime erstelltAm) {
         this.erstelltAm = erstelltAm;
     }
@@ -190,7 +173,6 @@ public class Hund {
     public Admin getErstelltVon() {
         return erstelltVon;
     }
-
     public void setErstelltVon(Admin erstelltVon) {
         this.erstelltVon = erstelltVon;
     }
@@ -221,10 +203,11 @@ public class Hund {
         hund.setGroesse(hundDTO.groesse());
         hund.setErfahrung(hundDTO.erfahrung());
         hund.setStrecke(hundDTO.strecke());
-        hund.setIstGesperrt(false);
+        hund.setIstGesperrt(false); // evtl. redundant
         return hund;
     }
 
+    // evtl. überflüssig
     public static Hund convertToSperren(SperrHundDTO sperrHundDTO) {
         Hund hund = new Hund();
         hund.setGesperrtVon(sperrHundDTO.gesperrtVon());

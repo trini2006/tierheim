@@ -1,10 +1,12 @@
 package projekt_tierheim.tierheim.db.Reservierung;
 
 import jakarta.persistence.*;
+import org.springframework.context.annotation.EnableMBeanExport;
 import projekt_tierheim.tierheim.db.Hund.Hund;
 import projekt_tierheim.tierheim.db.Mitglied.Mitglied;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.Objects;
 
@@ -26,6 +28,12 @@ public class Reservierung {
     private LocalTime zeitAb;
     private LocalTime zeitBis;
 
+    // STORNIERUNG
+    @Enumerated(EnumType.STRING)
+    private Reservierungsstatus status = Reservierungsstatus.AKTIV;
+    private String stornierungsgrund; // ToDO evtl. redundant wegen Sperrgrund in Hund
+    private LocalDateTime storniertAm;
+
     public Reservierung() {}
 
     public Reservierung(int idReservierung, Mitglied mitglied, Hund hund, LocalDate datum, LocalTime zeitAb, LocalTime zeitBis) {
@@ -40,7 +48,6 @@ public class Reservierung {
     public int getIdReservierung() {
         return idReservierung;
     }
-
     public void setIdReservierung(int idReservierung) {
         this.idReservierung = idReservierung;
     }
@@ -48,7 +55,6 @@ public class Reservierung {
     public Mitglied getMitglied() {
         return mitglied;
     }
-
     public void setMitglied(Mitglied mitglied) {
         this.mitglied = mitglied;
     }
@@ -56,7 +62,6 @@ public class Reservierung {
     public Hund getHund() {
         return hund;
     }
-
     public void setHund(Hund hund) {
         this.hund = hund;
     }
@@ -64,7 +69,6 @@ public class Reservierung {
     public LocalDate getDatum() {
         return datum;
     }
-
     public void setDatum(LocalDate datum) {
         this.datum = datum;
     }
@@ -72,7 +76,6 @@ public class Reservierung {
     public LocalTime getZeitAb() {
         return zeitAb;
     }
-
     public void setZeitAb(LocalTime zeitAb) {
         this.zeitAb = zeitAb;
     }
@@ -80,10 +83,18 @@ public class Reservierung {
     public LocalTime getZeitBis() {
         return zeitBis;
     }
-
     public void setZeitBis(LocalTime zeitBis) {
         this.zeitBis = zeitBis;
     }
+
+    public Reservierungsstatus getStatus() { return status; }
+    public void setStatus(Reservierungsstatus status) { this.status = status; }
+
+    public String getStornierungsgrund() { return stornierungsgrund; }
+    public void setStornierungsgrund(String stornierungsgrund) {  this.stornierungsgrund = stornierungsgrund; }
+
+    public LocalDateTime getStorniertAm() { return storniertAm; }
+    public void setStorniertAm(LocalDateTime storniertAm) { this.storniertAm = storniertAm; }
 
     @Override
     public boolean equals(Object o) {
