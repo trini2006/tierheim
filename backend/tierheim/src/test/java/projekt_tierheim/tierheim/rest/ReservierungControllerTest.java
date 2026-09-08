@@ -1,5 +1,6 @@
 package projekt_tierheim.tierheim.rest;
 
+import org.json.JSONObject;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -12,8 +13,10 @@ import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import projekt_tierheim.tierheim.db.Admin.Admin;
 import projekt_tierheim.tierheim.db.Hund.Groesse;
 import projekt_tierheim.tierheim.db.Hund.Hund;
+import projekt_tierheim.tierheim.db.Hund.HundRepository;
 import projekt_tierheim.tierheim.db.Hund.Strecke;
 import projekt_tierheim.tierheim.db.Mitglied.Mitglied;
+import projekt_tierheim.tierheim.db.Mitglied.MitgliedRepository;
 import projekt_tierheim.tierheim.db.Reservierung.Reservierung;
 import projekt_tierheim.tierheim.db.Reservierung.ReservierungRepository;
 import projekt_tierheim.tierheim.db.Reservierung.Reservierungsstatus;
@@ -52,6 +55,11 @@ class ReservierungControllerTest {
     public static LocalTime TEST_ZEITAB1 = LocalTime.of(12, 0);
     public static LocalTime TEST_ZEITBIS1 = LocalTime.of(14, 0);
 
+    public static Reservierungsstatus TEST_STATUS1 = Reservierungsstatus.AKTIV;
+
+    // STORNIERUNG
+    // noch nicht gebraucht
+
     public static Reservierung getTestReservierung() {
         return new Reservierung(TEST_ID1, TEST_MITGLIED1, TEST_HUND1, TEST_DATUM1, TEST_ZEITAB1, TEST_ZEITBIS1);
     }
@@ -60,6 +68,10 @@ class ReservierungControllerTest {
     MockMvc mockMvc;
     @MockitoBean
     ReservierungRepository reservierungRepository;
+    @MockitoBean
+    HundRepository hundRepository;
+    @MockitoBean
+    MitgliedRepository mitgliedRepository;
 
     @Test
     public void getAlleReservierungen() throws Exception {
@@ -82,16 +94,39 @@ class ReservierungControllerTest {
                 );
     }
 
-    // ToDO Post Erstelle eine neue Reservierung von einem bestimmten Hund und Mitglied
     @Test
     public void newReservierung() throws Exception {
+        Mockito.when(hundRepository.findHundById(TEST_ID1)).thenReturn(TEST_HUND1);
+        Mockito.when(mitgliedRepository.findMitgliedById(TEST_ID1)).thenReturn(TEST_MITGLIED1);
+        Mockito.when(reservierungRepository.saveAndFlush(Mockito.any(Reservierung.class))).thenReturn(getTestReservierung());
 
+        JSONObject reservierung = new JSONObject();
+        reservierung.put("mitgliedId",  TEST_ID1);
+        reservierung.put("hundId", TEST_ID1);
+        reservierung.put("datum", TEST_DATUM1);
+        reservierung.put("zeitAb", TEST_ZEITAB1);
+        reservierung.put("zeitBis", TEST_ZEITBIS1);
+
+        mockMvc.perform(MockMvcRequestBuilders.post("/reservierung/new")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(reservierung.toString())
+                .accept(MediaType.APPLICATION_JSON))
+                .andExpectAll(
+                        status().isOk(),
+                        jsonPath("mitglied.mitgliedsnummer").value(TEST_MITGLIED1.getMitgliedsnummer()),
+                        jsonPath("idReservierung").value(TEST_ID1),                        jsonPath("status").value(TEST_STATUS1.toString())
+                );
     }
 
-    // ToDO Delete Storniere eine/ alle Reservierung(en)
+    // ToDO Storniere eine Reservierung
     @Test
-    public void deleteReservierung() throws Exception {
+    public void storniereReservierung() throws Exception {
 
     }
 
+    // ToDO Storniere alle Reservierungen
+    @Test
+    public void storniereAlleReservierungen()  throws Exception {
+
+    }
 }

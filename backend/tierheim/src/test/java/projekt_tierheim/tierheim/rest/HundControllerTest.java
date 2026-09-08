@@ -128,7 +128,6 @@ class HundControllerTest {
     void newHund() throws Exception {
         Mockito.when(hundRepository.saveAndFlush(Mockito.any(Hund.class))).thenReturn(getTestHund());
         JSONObject hund = new JSONObject();
-
         hund.put("name", TEST_NAME1);
         hund.put("geschlecht", TEST_GESCHLECHT1);
         hund.put("jahre", TEST_ALTER1);
