@@ -5,9 +5,14 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
 import java.time.LocalDate;
+import java.time.LocalTime;
 import java.util.List;
 
 public interface ReservierungRepository extends JpaRepository<Reservierung, Integer> {
+
+    Reservierung findReservierungById(int id);
+    List<Reservierung> findReservierungByHundAndStatus(int hundId, Reservierungsstatus reservierungsstatus);
+
     // """ > Java Text Blocks (String-Verkettung)
     // r FROM Reservierung > nicht die Tabelle reservierung ist gemeint, sondern die Entität Reservierung (Java Objekt)
     // r ist ein Platzhaltername > repräsentiert im Query eine einzelne Reservierung
@@ -26,6 +31,5 @@ public interface ReservierungRepository extends JpaRepository<Reservierung, Inte
       @Param("status") Reservierungsstatus status
     );
 
-    Reservierung findReservierungById(int id);
-    List<Reservierung> findReservierungByHundAndStatus(int hundId, Reservierungsstatus reservierungsstatus);
+    List<Reservierung> findByHundIdAndDatumAndStatus(int id, LocalDate datum, Reservierungsstatus reservierungsstatus);
 }

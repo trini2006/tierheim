@@ -3,6 +3,7 @@ package projekt_tierheim.tierheim.db.Hund;
 import jakarta.persistence.*;
 import projekt_tierheim.tierheim.db.Admin.Admin;
 import projekt_tierheim.tierheim.db.Label.Label;
+import projekt_tierheim.tierheim.db.Tierheim.Tierheim;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -35,6 +36,10 @@ public class Hund {
     private boolean istGesperrt = false; // true = ja, false = nein
     private String sperrGrund;
 
+    // Zu welchem Tierheim gehört der Hund
+    @ManyToOne(fetch = FetchType.LAZY)
+    private Tierheim tierheim;
+
     // Log-Daten für z.B. Debugging
     private LocalDateTime erstelltAm;
     @ManyToOne(fetch = FetchType.LAZY)
@@ -50,7 +55,7 @@ public class Hund {
     public Hund() {}
 
     // Hund ohne Sperrgrund
-    public Hund(int id, String name, boolean geschlecht, int jahre, String rasse, Groesse groesse, int gewicht, boolean erfahrung, Strecke strecke, Admin erstelltVon) {
+    public Hund(int id, String name, boolean geschlecht, int jahre, String rasse, Groesse groesse, int gewicht, boolean erfahrung, Strecke strecke, Admin erstelltVon, Tierheim tierheim) {
         this.id = id;
         this.name = name;
         this.geschlecht = geschlecht;
@@ -62,6 +67,7 @@ public class Hund {
         this.strecke = strecke;
         this.erstelltAm = LocalDateTime.now();
         this.erstelltVon = erstelltVon;
+        this.tierheim = tierheim;
     }
 
     // Hund mit Sperrgrund
@@ -177,8 +183,12 @@ public class Hund {
         this.erstelltVon = erstelltVon;
     }
 
+    public Tierheim getTierheim() { return tierheim; }
+    public void setTierheim(Tierheim tierheim) { this.tierheim = tierheim; }
+
     public Set<Label> getLabels(){return labels;}
     public void setLabels(Set<Label> labels){this.labels = labels;}
+
     public void addLabel(Label label){this.labels.add(label);}
     public void removeLabel(Label label){this.labels.remove(label);}
 
@@ -194,7 +204,7 @@ public class Hund {
         return Objects.hash(getId(), getName(), isGeschlecht(), getJahre(), getRasse(), getGroesse(), getGewicht(), isErfahrung(), getStrecke(), getGesperrtVon(), getGesperrtBis(), isIstGesperrt(), getSperrGrund(), getErstelltAm(), getErstelltVon(), getLabels());
     }
 
-    public static Hund convertToHund(HundDTO hundDTO) {
+    public static Hund convertToHund(HundDTO hundDTO, Tierheim tierheim) {
         Hund hund = new Hund();
         hund.setName(hundDTO.name());
         hund.setGeschlecht(hundDTO.geschlecht());
@@ -203,7 +213,7 @@ public class Hund {
         hund.setGroesse(hundDTO.groesse());
         hund.setErfahrung(hundDTO.erfahrung());
         hund.setStrecke(hundDTO.strecke());
-        hund.setIstGesperrt(false); // evtl. redundant
+        hund.setTierheim(tierheim);
         return hund;
     }
 

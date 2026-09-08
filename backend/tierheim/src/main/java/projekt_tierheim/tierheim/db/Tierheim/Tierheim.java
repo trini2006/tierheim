@@ -31,6 +31,16 @@ public class Tierheim {
 
     public Tierheim() {}
 
+    public Tierheim(int id, String name, String strasse, String hausnummer, String plz, String ort, String telefonnummer) {
+        this.id = id;
+        this.name = name;
+        this.strasse = strasse;
+        this.hausnummer = hausnummer;
+        this.plz = plz;
+        this.ort = ort;
+        this.telefonnummer = telefonnummer;
+    }
+
     public Tierheim(int id, String name, String strasse, String hausnummer, String plz, String ort, String telefonnummer, String notfallnummer, String email, String link, String bild, String bannerfarbe, int zeitblock, int ruhezeit, int maxGassi, int minGassi) {
         this.id = id;
         this.name = name;

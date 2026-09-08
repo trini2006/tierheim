@@ -10,6 +10,8 @@ import projekt_tierheim.tierheim.db.Hund.HundRepository;
 import projekt_tierheim.tierheim.db.Hund.SperrHundDTO;
 import projekt_tierheim.tierheim.db.Label.Label;
 import projekt_tierheim.tierheim.db.Label.LabelRepository;
+import projekt_tierheim.tierheim.db.Tierheim.Tierheim;
+import projekt_tierheim.tierheim.db.Tierheim.TierheimRepository;
 
 import java.util.List;
 
@@ -18,11 +20,13 @@ import java.util.List;
 public class HundController {
     private final HundRepository hundRepository;
     private final LabelRepository labelRepository;
+    private final TierheimRepository tierheimRepository;
 
     @Autowired
-    public HundController(HundRepository hundRepository, LabelRepository labelRepository) {
+    public HundController(HundRepository hundRepository, LabelRepository labelRepository, TierheimRepository tierheimRepository) {
         this.hundRepository = hundRepository;
         this.labelRepository = labelRepository;
+        this.tierheimRepository = tierheimRepository;
     }
 
     @GetMapping("/{id}")
@@ -45,7 +49,11 @@ public class HundController {
 
     @PostMapping()
     public Hund newHund(@Valid @RequestBody HundDTO hundDTO) {
-        Hund hund = Hund.convertToHund(hundDTO);
+        Tierheim tierheim = tierheimRepository.findTierheimById(hundDTO.tierheimId());
+        if(tierheim == null) {
+            return null;
+        }
+        Hund hund = Hund.convertToHund(hundDTO, tierheim);
         return hundRepository.saveAndFlush(hund);
     }
 
@@ -56,6 +64,7 @@ public class HundController {
         if(hundAlt == null) {
             return null;
         }
+
         hundAlt.setName(neuerHund.name());
         hundAlt.setGeschlecht(neuerHund.geschlecht());
         hundAlt.setJahre(neuerHund.jahre());

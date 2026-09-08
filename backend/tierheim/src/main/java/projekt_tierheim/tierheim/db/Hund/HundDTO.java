@@ -4,7 +4,7 @@ import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Positive;
 
-// Zum Bearbeiten eines vorhandenen Hundes ohne Sperrgrund
+// Zum Erstellen/ Bearbeiten eines vorhandenen Hundes ohne Sperrgrund
 public record HundDTO(
         @NotBlank String name,
         @NotNull boolean geschlecht,
@@ -13,5 +13,6 @@ public record HundDTO(
         @NotNull Groesse groesse,
         @NotNull @Positive int gewicht,
         @NotNull boolean erfahrung,
-        @NotNull Strecke strecke)
+        @NotNull Strecke strecke,
+        @NotNull Integer tierheimId)
 { }

@@ -18,6 +18,7 @@ import projekt_tierheim.tierheim.db.Hund.HundRepository;
 import projekt_tierheim.tierheim.db.Hund.Strecke;
 import projekt_tierheim.tierheim.db.Label.Label;
 import projekt_tierheim.tierheim.db.Label.LabelRepository;
+import projekt_tierheim.tierheim.db.Tierheim.Tierheim;
 
 import java.time.LocalDate;
 import java.util.List;
@@ -28,6 +29,14 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @SpringBootTest
 @AutoConfigureMockMvc
 class HundControllerTest {
+    // TIERHEIM
+    public static String TEST_NAME = "Tierschutzverein Weiden u. U. e.V.";
+    public static String TEST_STRASSE1 = "Schustermooslohe";
+    public static String TEST_HAUSNUMMER1 = "96";
+    public static String TEST_PLZ1 = "92637";
+    public static String TEST_ORT1 = "Weiden i. d. Oberpfalz";
+    public static String TEST_TELEFONNR1 = "0961 25780";
+
     // Wambo Test-Hund 1
     public static int TEST_ID1 = 1;
     public static String TEST_NAME1 = "Wambo";
@@ -51,15 +60,16 @@ class HundControllerTest {
     public static String TEST_SPERRGRUND = "Probewohnen";
 
     public static Admin TEST_ERSTELLTVON = new Admin(1, 1234567890, "geheim123");
+    public static Tierheim TEST_TIERHEIM1 = new Tierheim(TEST_ID1, TEST_NAME, TEST_STRASSE1, TEST_HAUSNUMMER1, TEST_PLZ1, TEST_ORT1, TEST_TELEFONNR1);
 
     public static Hund getTestHund() {
-        Hund hund = new Hund(TEST_ID1, TEST_NAME1, TEST_GESCHLECHT1, TEST_ALTER1, TEST_RASSE1, TEST_GROESSE1, TEST_GEWICHT1, TEST_ERFAHRUNG1, TEST_STRECKE1, TEST_ERSTELLTVON);
+        Hund hund = new Hund(TEST_ID1, TEST_NAME1, TEST_GESCHLECHT1, TEST_ALTER1, TEST_RASSE1, TEST_GROESSE1, TEST_GEWICHT1, TEST_ERFAHRUNG1, TEST_STRECKE1, TEST_ERSTELLTVON, TEST_TIERHEIM1);
         hund.setIstGesperrt(false);
         return hund;
     }
 
     public static Hund updateTestHund() {
-        return new Hund(TEST_ID1, TEST_NAME1, TEST_GESCHLECHT1, TEST_ALTER1, TEST_RASSE2, TEST_GROESSE2, TEST_GEWICHT2, TEST_ERFAHRUNG1, TEST_STRECKE2, TEST_ERSTELLTVON);
+        return new Hund(TEST_ID1, TEST_NAME1, TEST_GESCHLECHT1, TEST_ALTER1, TEST_RASSE2, TEST_GROESSE2, TEST_GEWICHT2, TEST_ERFAHRUNG1, TEST_STRECKE2, TEST_ERSTELLTVON, TEST_TIERHEIM1);
     }
 
     public static Hund getTestSperrHund() {

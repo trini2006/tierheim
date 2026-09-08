@@ -11,6 +11,7 @@ import projekt_tierheim.tierheim.db.Reservierung.Reservierung;
 import projekt_tierheim.tierheim.db.Reservierung.ReservierungDTO;
 import projekt_tierheim.tierheim.db.Reservierung.ReservierungRepository;
 import projekt_tierheim.tierheim.db.Reservierung.Reservierungsstatus;
+import projekt_tierheim.tierheim.service.ReservierungService;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -24,11 +25,14 @@ public class ReservierungController {
     private final HundRepository hundRepository;
     private final MitgliedRepository mitgliedRepository;
 
+    private final ReservierungService reservierungService;
+
     @Autowired
-    public ReservierungController(ReservierungRepository reservierungRepository, HundRepository hundRepository, MitgliedRepository mitgliedRepository) {
+    public ReservierungController(ReservierungRepository reservierungRepository, HundRepository hundRepository, MitgliedRepository mitgliedRepository, ReservierungService reservierungService) {
         this.reservierungRepository = reservierungRepository;
         this.hundRepository = hundRepository;
         this.mitgliedRepository = mitgliedRepository;
+        this.reservierungService = reservierungService;
     }
 
     // Es können nur Aktive, nur Stornierte oder Alle Reservierungen für
@@ -53,21 +57,7 @@ public class ReservierungController {
 
     @PostMapping("/new")
     public Reservierung newReservierung(@Valid @RequestBody ReservierungDTO reservierungDTO) {
-        Mitglied mitglied = mitgliedRepository.findMitgliedById(reservierungDTO.mitgliedId());
-        Hund hund = hundRepository.findHundById(reservierungDTO.hundId());
-
-        if(mitglied == null || hund == null) {
-            return null;
-        }
-
-        Reservierung reservierung = new Reservierung();
-        reservierung.setMitglied(mitglied);
-        reservierung.setHund(hund);
-        reservierung.setDatum(reservierungDTO.datum());
-        reservierung.setZeitAb(reservierungDTO.zeitAb());
-        reservierung.setZeitBis(reservierungDTO.zeitBis());
-
-        return reservierungRepository.saveAndFlush(reservierung);
+        return reservierungService.erstelleReservierung(reservierungDTO);
     }
 
     @DeleteMapping("/{reservierungId}")
