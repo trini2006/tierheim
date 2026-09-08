@@ -13,6 +13,7 @@ import projekt_tierheim.tierheim.db.Reservierung.ReservierungRepository;
 import projekt_tierheim.tierheim.db.Reservierung.Reservierungsstatus;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.List;
 
@@ -70,12 +71,29 @@ public class ReservierungController {
     }
 
     @DeleteMapping("/{reservierungId}")
-    public void storniereReservierung(@PathVariable("reservierungsId") int reservierungsId) {
+    public Reservierung storniereReservierung(@PathVariable("reservierungId") int reservierungsId, @RequestParam(required = true) String grund) {
+        Reservierung reservierung = reservierungRepository.findReservierungById(reservierungsId);
+        if(reservierung == null) {
+            return null;
+        }
+        reservierung.setStatus(Reservierungsstatus.STORNIERT);
+        reservierung.setStornierungsgrund(grund);
+        reservierung.setStorniertAm(LocalDateTime.now());
 
+        return reservierungRepository.saveAndFlush(reservierung);
     }
 
     @DeleteMapping("/hund/{hundId}/alle")
-    public void storniereAlleReservierung(@PathVariable("hundId") int hundId) {
-
+    public List<Reservierung> storniereAlleReservierung(@PathVariable("hundId") int hundId, @RequestParam(required = true) String grund) {
+        List<Reservierung> reservierungen = reservierungRepository.findReservierungByHundAndStatus(hundId, Reservierungsstatus.AKTIV);
+        if(reservierungen == null || reservierungen.isEmpty()) {
+            return null;
+        }
+        for(Reservierung r : reservierungen) {
+            r.setStatus(Reservierungsstatus.STORNIERT);
+            r.setStornierungsgrund(grund);
+            r.setStorniertAm(LocalDateTime.now());
+        }
+        return reservierungRepository.saveAllAndFlush(reservierungen);
     }
 }

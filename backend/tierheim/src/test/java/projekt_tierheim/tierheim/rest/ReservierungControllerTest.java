@@ -118,15 +118,41 @@ class ReservierungControllerTest {
                 );
     }
 
-    // ToDO Storniere eine Reservierung
     @Test
     public void storniereReservierung() throws Exception {
+        Reservierung storniertReservierung = getTestReservierung();
+        storniertReservierung.setStatus(Reservierungsstatus.STORNIERT);
 
+        Mockito.when(reservierungRepository.findReservierungById(TEST_ID1)).thenReturn(getTestReservierung());
+        Mockito.when(reservierungRepository.saveAndFlush(Mockito.any(Reservierung.class))).thenReturn(storniertReservierung);
+
+        mockMvc.perform(MockMvcRequestBuilders.delete("/reservierung/" + TEST_ID1)
+                        .param("grund", "Testgrund")
+                        .accept(MediaType.APPLICATION_JSON))
+                .andExpectAll(
+                        status().isOk(),
+                        jsonPath("status").value(Reservierungsstatus.STORNIERT.toString())
+                );
     }
 
     // ToDO Storniere alle Reservierungen
     @Test
     public void storniereAlleReservierungen()  throws Exception {
+        List<Reservierung> stornierteReservierungen = List.of(getTestReservierung(), getTestReservierung());
+        for(Reservierung r : stornierteReservierungen) {
+            r.setStatus(Reservierungsstatus.STORNIERT);
+        }
 
+        Mockito.when(reservierungRepository.findReservierungByHundAndStatus(TEST_ID1, Reservierungsstatus.AKTIV)).thenReturn(List.of(getTestReservierung(), getTestReservierung()));
+        Mockito.when(reservierungRepository.saveAllAndFlush(Mockito.any(List.class))).thenReturn(stornierteReservierungen);
+
+        mockMvc.perform(MockMvcRequestBuilders.delete("/reservierung/hund/" + TEST_ID1 + "/alle")
+                        .param("grund", "Testgrund")
+                        .accept(MediaType.APPLICATION_JSON))
+                .andExpectAll(
+                        status().isOk(),
+                        jsonPath("$[0].status").value(Reservierungsstatus.STORNIERT.toString()),
+                        jsonPath("$[1].status").value(Reservierungsstatus.STORNIERT.toString())
+                );
     }
 }

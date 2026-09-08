@@ -25,4 +25,7 @@ public interface ReservierungRepository extends JpaRepository<Reservierung, Inte
       @Param("hundId") Integer hundId,
       @Param("status") Reservierungsstatus status
     );
+
+    Reservierung findReservierungById(int id);
+    List<Reservierung> findReservierungByHundAndStatus(int hundId, Reservierungsstatus reservierungsstatus);
 }
