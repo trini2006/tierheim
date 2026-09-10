@@ -127,61 +127,29 @@ public class Hund {
         this.gewicht = gewicht;
     }
 
-    public boolean isErfahrung() {
-        return erfahrung;
-    }
-    public void setErfahrung(boolean erfahrung) {
-        this.erfahrung = erfahrung;
-    }
+    public boolean getErfahrung() { return erfahrung; }
+    public void setErfahrung(boolean erfahrung) { this.erfahrung = erfahrung; }
 
-    public Strecke getStrecke() {
-        return strecke;
-    }
-    public void setStrecke(Strecke strecke) {
-        this.strecke = strecke;
-    }
+    public Strecke getStrecke() { return strecke; }
+    public void setStrecke(Strecke strecke) { this.strecke = strecke; }
 
-    public LocalDate getGesperrtVon() {
-        return gesperrtVon;
-    }
-    public void setGesperrtVon(LocalDate gesperrtVon) {
-        this.gesperrtVon = gesperrtVon;
-    }
+    public LocalDate getGesperrtVon() { return gesperrtVon; }
+    public void setGesperrtVon(LocalDate gesperrtVon) { this.gesperrtVon = gesperrtVon; }
 
-    public LocalDate getGesperrtBis() {
-        return gesperrtBis;
-    }
-    public void setGesperrtBis(LocalDate gesperrtBis) {
-        this.gesperrtBis = gesperrtBis;
-    }
+    public LocalDate getGesperrtBis() { return gesperrtBis; }
+    public void setGesperrtBis(LocalDate gesperrtBis) { this.gesperrtBis = gesperrtBis; }
 
-    public boolean isIstGesperrt() {
-        return istGesperrt;
-    }
-    public void setIstGesperrt(boolean istGesperrt) {
-        this.istGesperrt = istGesperrt;
-    }
+    public boolean isIstGesperrt() { return istGesperrt; }
+    public void setIstGesperrt(boolean istGesperrt) { this.istGesperrt = istGesperrt; }
 
-    public String getSperrGrund() {
-        return sperrGrund;
-    }
-    public void setSperrGrund(String sperrGrund) {
-        this.sperrGrund = sperrGrund;
-    }
+    public String getSperrGrund() { return sperrGrund; }
+    public void setSperrGrund(String sperrGrund) { this.sperrGrund = sperrGrund; }
 
-    public LocalDateTime getErstelltAm() {
-        return erstelltAm;
-    }
-    public void setErstelltAm(LocalDateTime erstelltAm) {
-        this.erstelltAm = erstelltAm;
-    }
+    public LocalDateTime getErstelltAm() { return erstelltAm; }
+    public void setErstelltAm(LocalDateTime erstelltAm) { this.erstelltAm = erstelltAm; }
 
-    public Admin getErstelltVon() {
-        return erstelltVon;
-    }
-    public void setErstelltVon(Admin erstelltVon) {
-        this.erstelltVon = erstelltVon;
-    }
+    public Admin getErstelltVon() { return erstelltVon; }
+    public void setErstelltVon(Admin erstelltVon) { this.erstelltVon = erstelltVon; }
 
     public Tierheim getTierheim() { return tierheim; }
     public void setTierheim(Tierheim tierheim) { this.tierheim = tierheim; }
@@ -196,12 +164,12 @@ public class Hund {
     public boolean equals(Object o) {
         if (o == null || getClass() != o.getClass()) return false;
         Hund hund = (Hund) o;
-        return getId() == hund.getId() && isGeschlecht() == hund.isGeschlecht() && getJahre() == hund.getJahre() && getGewicht() == hund.getGewicht() && isErfahrung() == hund.isErfahrung() && isIstGesperrt() == hund.isIstGesperrt() && getErstelltVon() == hund.getErstelltVon() && Objects.equals(getName(), hund.getName()) && Objects.equals(getRasse(), hund.getRasse()) && getGroesse() == hund.getGroesse() && getStrecke() == hund.getStrecke() && Objects.equals(getGesperrtVon(), hund.getGesperrtVon()) && Objects.equals(getGesperrtBis(), hund.getGesperrtBis()) && Objects.equals(getSperrGrund(), hund.getSperrGrund()) && Objects.equals(getErstelltAm(), hund.getErstelltAm()) && Objects.equals(getLabels(), hund.getLabels());
+        return getId() == hund.getId() && isGeschlecht() == hund.isGeschlecht() && getJahre() == hund.getJahre() && getGewicht() == hund.getGewicht() && getErfahrung() == hund.getErfahrung() && isIstGesperrt() == hund.isIstGesperrt() && getErstelltVon() == hund.getErstelltVon() && Objects.equals(getName(), hund.getName()) && Objects.equals(getRasse(), hund.getRasse()) && getGroesse() == hund.getGroesse() && getStrecke() == hund.getStrecke() && Objects.equals(getGesperrtVon(), hund.getGesperrtVon()) && Objects.equals(getGesperrtBis(), hund.getGesperrtBis()) && Objects.equals(getSperrGrund(), hund.getSperrGrund()) && Objects.equals(getErstelltAm(), hund.getErstelltAm()) && Objects.equals(getLabels(), hund.getLabels());
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(getId(), getName(), isGeschlecht(), getJahre(), getRasse(), getGroesse(), getGewicht(), isErfahrung(), getStrecke(), getGesperrtVon(), getGesperrtBis(), isIstGesperrt(), getSperrGrund(), getErstelltAm(), getErstelltVon(), getLabels());
+        return Objects.hash(getId(), getName(), isGeschlecht(), getJahre(), getRasse(), getGroesse(), getGewicht(), getErfahrung(), getStrecke(), getGesperrtVon(), getGesperrtBis(), isIstGesperrt(), getSperrGrund(), getErstelltAm(), getErstelltVon(), getLabels());
     }
 
     public static Hund convertToHund(HundDTO hundDTO, Tierheim tierheim) {

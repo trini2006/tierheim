@@ -46,6 +46,7 @@ public class ReservierungService {
 
         pruefeVerfuegbarkeit(hund, reservierungDTO.datum(), reservierungDTO.zeitAb(),  reservierungDTO.zeitBis());
         pruefeDauer(reservierungDTO.zeitAb(), reservierungDTO.zeitBis(), hund);
+        pruefeErfahrung(hund, mitglied);
 
         Reservierung reservierung = new Reservierung();
         reservierung.setMitglied(mitglied);
@@ -103,6 +104,13 @@ public class ReservierungService {
         }
         else if( dauer < tierheim.getMinGassi()) {
             throw new IllegalArgumentException("Die Dauer dieses Spaziergangs ist zu kurz");
+        }
+    }
+
+    // Prüfung des Erfahrungslevels
+    private void pruefeErfahrung(Hund hund, Mitglied mitglied) {
+        if(hund.getErfahrung() != mitglied.getErfahrung()) {
+            throw new IllegalArgumentException("Dieser Hund erfordert den Besuch eines Lehrgangs für schwierige Hunde");
         }
     }
 }

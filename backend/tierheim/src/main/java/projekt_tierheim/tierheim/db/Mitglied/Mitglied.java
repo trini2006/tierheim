@@ -28,7 +28,6 @@ public class Mitglied {
     public int getId() {
         return id;
     }
-
     public void setId(int id) {
         this.id = id;
     }
@@ -36,7 +35,6 @@ public class Mitglied {
     public int getMitgliedsnummer() {
         return mitgliedsnummer;
     }
-
     public void setMitgliedsnummer(int mitgliedsnummer) {
         this.mitgliedsnummer = mitgliedsnummer;
     }
@@ -44,15 +42,13 @@ public class Mitglied {
     public String getPasswort() {
         return passwort;
     }
-
     public void setPasswort(String passwort) {
         this.passwort = passwort;
     }
 
-    public boolean isErfahrung() {
+    public boolean getErfahrung() {
         return erfahrung;
     }
-
     public void setErfahrung(boolean erfahrung) {
         this.erfahrung = erfahrung;
     }
