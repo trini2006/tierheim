@@ -22,9 +22,9 @@
           class="flex items-center justify-between p-3 rounded-full bg-[#D3DDD1] border border-gray-200 shadow-sm"
         >
           <div class="flex items-center gap-3">
-            <img :src="hund.bild" class="w-10 h-10 rounded-full object-cover" />
+            <img :src="hund.bild || '/placeholder-dog.png'" class="w-10 h-10 rounded-full object-cover" />
             <div class="flex items-center gap-2">
-              <span class="w-3 h-3 rounded-full" :class="hund.statusPunkt"></span>
+              <span class="w-3 h-3 rounded-full" :class="getDotClass(hund)"></span>
               <span class="font-bold text-gray-800 text-sm">{{ hund.name }}</span>
             </div>
           </div>
@@ -66,12 +66,14 @@
           class="flex items-center justify-between p-3 rounded-full bg-[#D3DDD1] border border-gray-200 shadow-sm"
         >
           <div class="flex items-center gap-3">
-            <img :src="hund.bild" class="w-10 h-10 rounded-full object-cover" />
+            <img :src="hund.bild || '/placeholder-dog.png'" class="w-10 h-10 rounded-full object-cover" />
             <div class="flex items-center gap-2">
-              <span class="w-3 h-3 rounded-full" :class="hund.statusPunkt"></span>
+              <span class="w-3 h-3 rounded-full" :class="getDotClass(hund)"></span>
               <div>
                 <span class="font-bold text-gray-800 text-sm block leading-tight">{{ hund.name }}</span>
-                <span class="text-[11px] text-gray-600 block leading-tight" v-if="hund.info">{{ hund.info }}</span>
+                <span class="text-[11px] text-gray-600 block leading-tight" v-if="hund.sperrGrund || hund.info">
+                  {{ hund.sperrGrund || hund.info }}
+                </span>
               </div>
             </div>
           </div>
@@ -114,13 +116,20 @@ const router = useRouter()
 const aktiveHunde = ref([])
 const gesperrteHunde = ref([])
 
-// Hunde laden
+// Hilfsfunktion: dynamische Punktfarbe je nach Status
+const getDotClass = (hund) => {
+  if (hund.istGesperrt) return 'bg-red-500'
+  return 'bg-green-500'
+}
+
+// Hunde aus dem Backend laden
 const ladeHunde = async () => {
   try {
     const res = await fetch('/api/hund/all')
-    if (!res.ok) throw new Error('Fehler beim Laden')
+    if (!res.ok) throw new Error('Fehler beim Laden der Hunde')
     const hunde = await res.json()
     
+    // Sortieren nach Gesperrt / Aktiv
     aktiveHunde.value = hunde.filter(h => !h.istGesperrt)
     gesperrteHunde.value = hunde.filter(h => h.istGesperrt)
   } catch (err) {
@@ -128,13 +137,12 @@ const ladeHunde = async () => {
   }
 }
 
+// Navigation mit Übergabe der Hund-ID
 const bearbeitenHund = (hund) => {
-  localStorage.setItem('editHund', JSON.stringify(hund))
-  router.push({ name: 'Hundepflegen' })
+  router.push({ name: 'Hundepflegen', params: { id: hund.id } })
 }
 
 const geheZuPflegen = () => {
-  localStorage.removeItem('editHund')
   router.push({ name: 'Hundepflegen' })
 }
 
@@ -148,7 +156,7 @@ const sperreHund = async (id) => {
     })
     if (res.ok) await ladeHunde()
   } catch (err) {
-    console.error(err)
+    console.error('Fehler beim Sperren:', err)
   }
 }
 
@@ -157,7 +165,7 @@ const entsperreHund = async (id) => {
     const res = await fetch(`/api/hund/entsperren/${id}`, { method: 'PUT' })
     if (res.ok) await ladeHunde()
   } catch (err) {
-    console.error(err)
+    console.error('Fehler beim Entsperren:', err)
   }
 }
 
@@ -166,7 +174,7 @@ const loescheHund = async (id) => {
     const res = await fetch(`/api/hund/${id}`, { method: 'DELETE' })
     if (res.ok) await ladeHunde()
   } catch (err) {
-    console.error(err)
+    console.error('Fehler beim Löschen:', err)
   }
 }
 
@@ -175,8 +183,7 @@ const loescheGesperrtenHund = (id) => loescheHund(id)
 onMounted(() => {
   ladeHunde()
 })
-
-
+</script>
 
 
 
@@ -239,4 +246,3 @@ const loescheGesperrtenHund = (id) => {
   gesperrteHunde.value = gesperrteHunde.value.filter(h => h.id !== id)
 } */
 
-</script>
