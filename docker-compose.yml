@@ -1,0 +1,9 @@
+services:
+  postgres:
+    image: postgres:16
+    container_name: thWenApp-db
+    environment:
+      POSTGRES_PASSWORD: geheim
+      POSTGRES_DB: thWenApp
+    ports:
+      - "5432:5432"
