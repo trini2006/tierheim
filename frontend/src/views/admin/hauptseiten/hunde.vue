@@ -106,7 +106,81 @@
 </template>
 
 <script setup>
-import { ref } from 'vue'
+import { ref, onMounted } from 'vue'
+import { useRouter } from 'vue-router'
+
+const router = useRouter()
+
+const aktiveHunde = ref([])
+const gesperrteHunde = ref([])
+
+// Hunde laden
+const ladeHunde = async () => {
+  try {
+    const res = await fetch('/api/hund/all')
+    if (!res.ok) throw new Error('Fehler beim Laden')
+    const hunde = await res.json()
+    
+    aktiveHunde.value = hunde.filter(h => !h.istGesperrt)
+    gesperrteHunde.value = hunde.filter(h => h.istGesperrt)
+  } catch (err) {
+    console.error('Fehler beim Laden der Hunde:', err)
+  }
+}
+
+const bearbeitenHund = (hund) => {
+  localStorage.setItem('editHund', JSON.stringify(hund))
+  router.push('/app/admin/hundepflegen')
+}
+
+const geheZuPflegen = () => {
+  localStorage.removeItem('editHund')
+  router.push('/app/admin/hundepflegen')
+}
+
+const sperreHund = async (id) => {
+  try {
+    const sperrDaten = { gesperrtVon: null, gesperrtBis: null, sperrGrund: 'Gesperrt' }
+    const res = await fetch(`/api/hund/sperren/${id}`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(sperrDaten)
+    })
+    if (res.ok) await ladeHunde()
+  } catch (err) {
+    console.error(err)
+  }
+}
+
+const entsperreHund = async (id) => {
+  try {
+    const res = await fetch(`/api/hund/entsperren/${id}`, { method: 'PUT' })
+    if (res.ok) await ladeHunde()
+  } catch (err) {
+    console.error(err)
+  }
+}
+
+const loescheHund = async (id) => {
+  try {
+    const res = await fetch(`/api/hund/${id}`, { method: 'DELETE' })
+    if (res.ok) await ladeHunde()
+  } catch (err) {
+    console.error(err)
+  }
+}
+
+const loescheGesperrtenHund = (id) => loescheHund(id)
+
+onMounted(() => {
+  ladeHunde()
+})
+
+
+
+
+
+/* import { ref } from 'vue'
 import { useRouter } from 'vue-router'
 
 const router = useRouter()
@@ -163,6 +237,6 @@ const loescheHund = (id) => {
 // Gesperrten Hund löschen
 const loescheGesperrtenHund = (id) => {
   gesperrteHunde.value = gesperrteHunde.value.filter(h => h.id !== id)
-}
+} */
 
 </script>
