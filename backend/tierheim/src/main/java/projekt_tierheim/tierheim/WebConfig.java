@@ -10,8 +10,10 @@ public class WebConfig implements WebMvcConfigurer {
     @Override
     public void addCorsMappings(CorsRegistry registry){
         registry.addMapping("/**")
-                .allowedOrigins("*")
-                .allowedMethods("*")
+                .allowedOrigins("http://localhost:5173") // Standard Vite-Port > Vue
+                .allowedMethods("GET", "POST", "PUT", "DELETE", "OPTIONS")
                 .allowedHeaders("*");
+        // Erlaubt Cookies/ Auth-Headers mitzuschickem > Login
+        //.allowCredentials(true)
     }
 }

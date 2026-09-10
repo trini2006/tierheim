@@ -6,6 +6,6 @@ import jakarta.validation.constraints.Positive;
 
 public record AdminDTO(
         @NotNull @Positive int personalnummer,
-        @NotBlank String passwort // ToDO Passwörter iwie verschlüsseln
+        @NotBlank String passwort
 )
 { }
