@@ -16,7 +16,7 @@ public class Reservierung {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private int idReservierung;
+    private int id;
 
     @ManyToOne(fetch = FetchType.LAZY)
     private Mitglied mitglied;
@@ -36,8 +36,8 @@ public class Reservierung {
 
     public Reservierung() {}
 
-    public Reservierung(int idReservierung, Mitglied mitglied, Hund hund, LocalDate datum, LocalTime zeitAb, LocalTime zeitBis) {
-        this.idReservierung = idReservierung;
+    public Reservierung(int id, Mitglied mitglied, Hund hund, LocalDate datum, LocalTime zeitAb, LocalTime zeitBis) {
+        this.id = id;
         this.mitglied = mitglied;
         this.hund = hund;
         this.datum = datum;
@@ -45,11 +45,11 @@ public class Reservierung {
         this.zeitBis = zeitBis;
     }
 
-    public int getIdReservierung() {
-        return idReservierung;
+    public int getId() {
+        return id;
     }
-    public void setIdReservierung(int idReservierung) {
-        this.idReservierung = idReservierung;
+    public void setId(int id) {
+        this.id = id;
     }
 
     public Mitglied getMitglied() {
@@ -101,11 +101,11 @@ public class Reservierung {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         Reservierung that = (Reservierung) o;
-        return idReservierung == that.idReservierung && Objects.equals(mitglied, that.mitglied) && Objects.equals(hund, that.hund) && Objects.equals(datum, that.datum) && Objects.equals(zeitAb, that.zeitAb) && Objects.equals(zeitBis, that.zeitBis);
+        return id == that.id && Objects.equals(mitglied, that.mitglied) && Objects.equals(hund, that.hund) && Objects.equals(datum, that.datum) && Objects.equals(zeitAb, that.zeitAb) && Objects.equals(zeitBis, that.zeitBis);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(idReservierung, mitglied, hund, datum, zeitAb, zeitBis);
+        return Objects.hash(id, mitglied, hund, datum, zeitAb, zeitBis);
     }
 }
