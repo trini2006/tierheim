@@ -9,10 +9,10 @@ import tailwindcss from '@tailwindcss/vite'
 export default defineConfig({
   plugins: [vue(), vueDevTools(), tailwindcss()],
   server: {
-    host: true,
+    port: 5173,
     proxy: {
       '/api': {
-        target: 'http://localhost:8000',
+        target: 'http://localhost:8085',
         changeOrigin: true,
         rewrite: (path) => path.replace(/^\/api/, ''),
       },
