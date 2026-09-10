@@ -6,6 +6,7 @@ import org.springframework.web.bind.annotation.*;
 import projekt_tierheim.tierheim.db.Admin.Admin;
 import projekt_tierheim.tierheim.db.Admin.AdminDTO;
 import projekt_tierheim.tierheim.db.Admin.AdminRepository;
+import projekt_tierheim.tierheim.service.AdminService;
 
 import java.util.List;
 
@@ -13,16 +14,21 @@ import java.util.List;
 @RequestMapping("/admin")
 public class AdminController {
     private final AdminRepository adminRepository;
+    private final AdminService adminService;
 
     @Autowired
-    public AdminController(AdminRepository adminRepository) {
+    public AdminController(
+            AdminRepository adminRepository,
+            AdminService adminService) {
+
         this.adminRepository = adminRepository;
+        this.adminService = adminService;
     }
 
     // Mitarbeiter nach Personalnummer zu suchen, macht mehr Sinn, als nach einer zufällig vergebenen id
     @GetMapping("/{personalnummer}")
     public Admin getAdminByPersonalnummer(@PathVariable("personalnummer") int personalnummer){
-        return adminRepository.findAdminByPersonalnummer(personalnummer);
+        return adminService.getAdminByPersonalnummer(personalnummer);
     }
 
     @GetMapping("/all")
@@ -32,19 +38,15 @@ public class AdminController {
 
     @PostMapping()
     public Admin newAdmin(@Valid @RequestBody AdminDTO adminDTO){
-        Admin admin = Admin.convertToAdmin(adminDTO);
-        return adminRepository.saveAndFlush(admin);
+        return adminService.createAdmin(adminDTO);
     }
 
     @PutMapping("/{personalnummer}")
-    public Admin updateAdmin(@PathVariable("personalnummer") int personalnummer, @Valid @RequestBody AdminDTO adminDTO){
-        Admin admin = adminRepository.findAdminByPersonalnummer(personalnummer);
-        if(admin == null){
-            return null;
-        }
-        admin.setPersonalnummer(adminDTO.personalnummer());
-        admin.setPasswort(adminDTO.passwort());
-        return adminRepository.saveAndFlush(admin);
+    public Admin updateAdmin(
+            @PathVariable("personalnummer") int personalnummer,
+            @Valid @RequestBody AdminDTO adminDTO) {
+
+        return adminService.updateAdmin(personalnummer, adminDTO);
     }
 
     @DeleteMapping("/{personalnummer}")

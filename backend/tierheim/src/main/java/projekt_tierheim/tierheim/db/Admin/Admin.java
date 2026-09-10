@@ -1,5 +1,6 @@
 package projekt_tierheim.tierheim.db.Admin;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 
 import java.util.Objects;
@@ -13,6 +14,7 @@ public class Admin {
     private int id;
     @Column(unique = true)
     private int personalnummer;
+    @JsonIgnore
     private String passwort;
 
     public Admin(){}
@@ -21,13 +23,6 @@ public class Admin {
         this.id = id;
         this.personalnummer = personalnummer;
         this.passwort = passwort;
-    }
-
-    public static Admin convertToAdmin(AdminDTO adminDTO) {
-        Admin admin = new Admin();
-        admin.setPersonalnummer(adminDTO.personalnummer());
-        admin.setPasswort(adminDTO.passwort());
-        return admin;
     }
 
     public int getId() {
