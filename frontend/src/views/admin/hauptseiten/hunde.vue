@@ -130,12 +130,12 @@ const ladeHunde = async () => {
 
 const bearbeitenHund = (hund) => {
   localStorage.setItem('editHund', JSON.stringify(hund))
-  router.push('/app/admin/hundepflegen')
+  router.push({ name: 'Hundepflegen' })
 }
 
 const geheZuPflegen = () => {
   localStorage.removeItem('editHund')
-  router.push('/app/admin/hundepflegen')
+  router.push({ name: 'Hundepflegen' })
 }
 
 const sperreHund = async (id) => {
