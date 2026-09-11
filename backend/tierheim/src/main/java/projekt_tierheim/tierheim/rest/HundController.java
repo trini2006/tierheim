@@ -10,9 +10,15 @@ import projekt_tierheim.tierheim.db.Hund.HundRepository;
 import projekt_tierheim.tierheim.db.Hund.SperrHundDTO;
 import projekt_tierheim.tierheim.db.Label.Label;
 import projekt_tierheim.tierheim.db.Label.LabelRepository;
+import projekt_tierheim.tierheim.db.Mitglied.Mitglied;
+import projekt_tierheim.tierheim.db.Mitglied.MitgliedRepository;
 import projekt_tierheim.tierheim.db.Tierheim.Tierheim;
 import projekt_tierheim.tierheim.db.Tierheim.TierheimRepository;
+import projekt_tierheim.tierheim.service.ReservierungService;
 
+import java.time.LocalDate;
+import java.time.LocalTime;
+import java.util.ArrayList;
 import java.util.List;
 
 @RestController
@@ -21,12 +27,16 @@ public class HundController {
     private final HundRepository hundRepository;
     private final LabelRepository labelRepository;
     private final TierheimRepository tierheimRepository;
+    private final MitgliedRepository mitgliedRepository;
+    private final ReservierungService reservierungService;
 
     @Autowired
-    public HundController(HundRepository hundRepository, LabelRepository labelRepository, TierheimRepository tierheimRepository) {
+    public HundController(HundRepository hundRepository, LabelRepository labelRepository, TierheimRepository tierheimRepository, MitgliedRepository mitgliedRepository, ReservierungService reservierungService) {
         this.hundRepository = hundRepository;
         this.labelRepository = labelRepository;
         this.tierheimRepository = tierheimRepository;
+        this.mitgliedRepository = mitgliedRepository;
+        this.reservierungService = reservierungService;
     }
 
     @GetMapping("/{id}")
@@ -37,6 +47,29 @@ public class HundController {
     @GetMapping("/all")
     public List<Hund> getAlleHunde() {
         return hundRepository.findAll();
+    }
+
+    @GetMapping("/all/available/{mitgliedId}")
+    public List<Hund> getAlleHundeAvailable(
+            @PathVariable("mitgliedId") int mitgliedId,
+            @RequestParam LocalDate datum,
+            @RequestParam LocalTime von,
+            @RequestParam LocalTime bis) {
+        Mitglied mitglied = mitgliedRepository.findMitgliedById(mitgliedId);
+        if(mitglied == null) {
+            return null;
+        }
+        List<Hund> alleHunde = hundRepository.findAll();
+        List<Hund> verfuegbareHunde = new ArrayList<>();
+        for(Hund h : alleHunde) {
+            if(h.isIstGesperrt()) continue;
+            if(reservierungService.istVerfuegbar(h,  datum, von, bis)) continue;
+            if(reservierungService.erfuelltDauer(von, bis, h)) continue;
+            if(reservierungService.erfuelltErfahrung(h, mitglied)) continue;
+            verfuegbareHunde.add(h);
+        }
+
+        return verfuegbareHunde;
     }
 
     @GetMapping("/search")

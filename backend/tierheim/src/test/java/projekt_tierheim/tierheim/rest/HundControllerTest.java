@@ -123,6 +123,11 @@ class HundControllerTest {
     }
 
     @Test
+    void getHundeImZeitfenster() throws Exception {
+
+    }
+
+    @Test
     void getHundByName() throws Exception {
         Mockito.when(hundRepository.findHundByNameIgnoreCase(TEST_NAME1)).thenReturn(List.of(getTestHund()));
         mockMvc.perform(MockMvcRequestBuilders.get("/hund/search?name=" + TEST_NAME1)

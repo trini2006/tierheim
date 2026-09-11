@@ -113,4 +113,43 @@ public class ReservierungService {
             throw new IllegalArgumentException("Dieser Hund erfordert den Besuch eines Lehrgangs für schwierige Hunde");
         }
     }
+
+    public boolean istVerfuegbar(Hund hund, LocalDate datum, LocalTime zeitAb, LocalTime zeitBis) {
+        List<Reservierung> reservierungenAmTag = reservierungRepository
+                .findByHundIdAndDatumAndStatus(
+                        hund.getId(),
+                        datum,
+                        Reservierungsstatus.AKTIV
+                );
+
+        int ruhezeitMinuten = hund.getTierheim().getRuhezeit();
+
+        for(Reservierung bestehende : reservierungenAmTag) {
+            boolean ueberschneidet = bestehende.getZeitAb().isBefore(zeitBis) && bestehende.getZeitBis().isAfter(zeitAb);
+
+            if(ueberschneidet) { return false; }
+
+            // Bestehende Reservierung liegt vor dem neuen Termin
+            if(!bestehende.getZeitBis().isAfter(zeitAb)) {
+                if(ChronoUnit.MINUTES.between(bestehende.getZeitBis(), zeitAb) < ruhezeitMinuten) { return false; }
+            }
+
+            // Bestehende Reservierung liegt nach dem neuen Termin
+            if(!bestehende.getZeitAb().isBefore(zeitBis)) {
+                if(ChronoUnit.MINUTES.between(zeitBis, bestehende.getZeitAb()) < ruhezeitMinuten) { return false; }
+            }
+        }
+        return true;
+    }
+
+    public boolean erfuelltDauer(LocalTime zeitAb, LocalTime zeitBis, Hund hund) {
+        Tierheim tierheim = hund.getTierheim();
+        long dauer = ChronoUnit.MINUTES.between(zeitAb, zeitBis);
+
+        return dauer >= tierheim.getMinGassi() && dauer <= tierheim.getMaxGassi();
+    }
+
+    public boolean erfuelltErfahrung(Hund hund, Mitglied mitglied) {
+        return !hund.getErfahrung() || mitglied.getErfahrung();
+    }
 }
