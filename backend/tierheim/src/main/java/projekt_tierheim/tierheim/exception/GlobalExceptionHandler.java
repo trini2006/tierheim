@@ -1,5 +1,6 @@
 package projekt_tierheim.tierheim.exception;
 
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.data.crossstore.ChangeSetPersister;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -19,7 +20,13 @@ public class GlobalExceptionHandler {
     }
 
     @ExceptionHandler(IllegalStateException.class)
-    public ResponseEntity<String> handleIllegalState (IllegalStateException e) {
+    public ResponseEntity<String> handleIllegalState(IllegalStateException e) {
         return ResponseEntity.status(HttpStatus.CONFLICT).body(e.getMessage());
+    }
+
+    @ExceptionHandler(DataIntegrityViolationException.class)
+    public ResponseEntity<String> handleDataIntegrityViolation(DataIntegrityViolationException e) {
+        System.err.println(e.getMostSpecificCause().getMessage()); // nur in der Konsole sichtbar
+        return ResponseEntity.status(HttpStatus.CONFLICT).body("Diese Personalnummer ist bereits vergeben");
     }
 }

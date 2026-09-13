@@ -11,6 +11,7 @@ import projekt_tierheim.tierheim.db.Reservierung.Reservierung;
 import projekt_tierheim.tierheim.db.Reservierung.ReservierungDTO;
 import projekt_tierheim.tierheim.db.Reservierung.ReservierungRepository;
 import projekt_tierheim.tierheim.db.Reservierung.Reservierungsstatus;
+import projekt_tierheim.tierheim.exception.NotFoundException;
 import projekt_tierheim.tierheim.service.ReservierungService;
 
 import java.time.LocalDate;
@@ -64,7 +65,7 @@ public class ReservierungController {
     public Reservierung storniereReservierung(@PathVariable("reservierungId") int reservierungsId, @RequestParam(required = true) String grund) {
         Reservierung reservierung = reservierungRepository.findReservierungById(reservierungsId);
         if(reservierung == null) {
-            return null;
+            throw new NotFoundException("Reservierung mit der Id " +  reservierungsId + " nicht gefunden");
         }
         reservierung.setStatus(Reservierungsstatus.STORNIERT);
         reservierung.setStornierungsgrund(grund);
@@ -73,12 +74,11 @@ public class ReservierungController {
         return reservierungRepository.saveAndFlush(reservierung);
     }
 
+    // theoretisch kann eine Überprüfung der HundId erfolgen, ist aber nicht zwingend
     @DeleteMapping("/hund/{hundId}/alle")
     public List<Reservierung> storniereAlleReservierung(@PathVariable("hundId") int hundId, @RequestParam(required = true) String grund) {
         List<Reservierung> reservierungen = reservierungRepository.findReservierungByHundAndStatus(hundId, Reservierungsstatus.AKTIV);
-        if(reservierungen == null || reservierungen.isEmpty()) {
-            return null;
-        }
+
         for(Reservierung r : reservierungen) {
             r.setStatus(Reservierungsstatus.STORNIERT);
             r.setStornierungsgrund(grund);

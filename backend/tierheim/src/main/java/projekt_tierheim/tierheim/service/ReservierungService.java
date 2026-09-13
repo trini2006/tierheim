@@ -12,6 +12,7 @@ import projekt_tierheim.tierheim.db.Reservierung.ReservierungRepository;
 import projekt_tierheim.tierheim.db.Reservierung.Reservierungsstatus;
 import projekt_tierheim.tierheim.db.Tierheim.Tierheim;
 import projekt_tierheim.tierheim.db.Tierheim.TierheimRepository;
+import projekt_tierheim.tierheim.exception.NotFoundException;
 
 import java.time.LocalDate;
 import java.time.LocalTime;
@@ -23,23 +24,25 @@ public class ReservierungService {
     private final ReservierungRepository reservierungRepository;
     private final HundRepository hundRepository;
     private final MitgliedRepository mitgliedRepository;
-    private final TierheimRepository tierheimRepository;
 
     @Autowired
-    public ReservierungService(ReservierungRepository reservierungRepository, HundRepository hundRepository, MitgliedRepository mitgliedRepository, TierheimRepository tierheimRepository) {
+    public ReservierungService(ReservierungRepository reservierungRepository, HundRepository hundRepository, MitgliedRepository mitgliedRepository) {
         this.reservierungRepository = reservierungRepository;
         this.hundRepository = hundRepository;
         this.mitgliedRepository = mitgliedRepository;
-        this.tierheimRepository = tierheimRepository;
     }
 
     public Reservierung erstelleReservierung(ReservierungDTO reservierungDTO) {
         Mitglied mitglied = mitgliedRepository.findMitgliedById(reservierungDTO.mitgliedId());
         Hund hund = hundRepository.findHundById(reservierungDTO.hundId());
 
-        if(mitglied == null || hund == null) {
-            throw new IllegalArgumentException("Hund oder Mitglied nicht gefunden");
+        if(mitglied == null) {
+            throw new NotFoundException("Mitglied mit der Id " + reservierungDTO.mitgliedId() + " nicht gefunden");
         }
+        if(hund == null) {
+            throw new NotFoundException("Hund mit der Id " + reservierungDTO.hundId() + " nicht gefunden");
+        }
+
         if(hund.isIstGesperrt()) {
             throw new IllegalArgumentException("Hund ist aktuell gesperrt");
         }

@@ -7,6 +7,7 @@ import org.springframework.web.bind.annotation.*;
 import projekt_tierheim.tierheim.db.Mitglied.Mitglied;
 import projekt_tierheim.tierheim.db.Mitglied.MitgliedDTO;
 import projekt_tierheim.tierheim.db.Mitglied.MitgliedRepository;
+import projekt_tierheim.tierheim.exception.NotFoundException;
 
 import java.util.List;
 
@@ -29,7 +30,7 @@ public class MitgliedController {
     public Mitglied findByMitgliedsnummer(@PathVariable("mitgliedsnummer") int mitgliedsnummer) {
         Mitglied mitglied = mitgliedRepository.findMitgliedByMitgliedsnummer(mitgliedsnummer);
         if(mitglied == null) {
-            return null;
+            throw new NotFoundException("Mitglied mit der Mitgliedsnummer " +  mitgliedsnummer + " nicht gefunden");
         }
         return mitglied;
     }
@@ -44,7 +45,7 @@ public class MitgliedController {
     public Mitglied updateMitglied(@PathVariable("mitgliedsnummer") int mitgliedsnummer, @Valid @RequestBody MitgliedDTO mitgliedDTO) {
         Mitglied mitglied = mitgliedRepository.findMitgliedByMitgliedsnummer(mitgliedsnummer);
         if(mitglied == null) {
-            return null;
+            throw new NotFoundException("Mitglied mit der Mitgliedsnummer " +  mitgliedsnummer + " nicht gefunden");
         }
 
         mitglied.setErfahrung(mitgliedDTO.erfahrung());
@@ -54,7 +55,9 @@ public class MitgliedController {
 
     @DeleteMapping("/{mitgliedsnummer}")
     public void deleteMitglied(@PathVariable("mitgliedsnummer") int mitgliedsnummer) {
-        Mitglied mitglied = mitgliedRepository.findMitgliedByMitgliedsnummer(mitgliedsnummer);
-        mitgliedRepository.delete(mitglied);
+        if(!mitgliedRepository.existsById(mitgliedsnummer)) {
+            throw new NotFoundException("Mitglied mit der Mitgliedsnummer " +  mitgliedsnummer + " nicht gefunden");
+        }
+        mitgliedRepository.deleteById(mitgliedsnummer);
     }
 }

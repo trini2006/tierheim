@@ -7,6 +7,7 @@ import projekt_tierheim.tierheim.db.GassiGehZeiten.GassiGehZeiten;
 import projekt_tierheim.tierheim.db.GassiGehZeiten.GassiGehZeitenDTO;
 import projekt_tierheim.tierheim.db.GassiGehZeiten.GassiGehZeitenRepository;
 import projekt_tierheim.tierheim.db.GassiGehZeiten.Tage;
+import projekt_tierheim.tierheim.exception.NotFoundException;
 
 import java.util.List;
 
@@ -33,7 +34,11 @@ public class GassiGehZeitenController {
 
     @GetMapping("/{id}")
     public GassiGehZeiten getGassiGehZeit(@PathVariable("id") int id) {
-        return gassiGehZeitenRepository.findGassiGehZeitenById(id);
+        GassiGehZeiten gassiGehZeiten = gassiGehZeitenRepository.findGassiGehZeitenById(id);
+        if(gassiGehZeiten == null) {
+            throw new  NotFoundException("Keine Gassi-Geh-Zeiten mit der Id " + id);
+        }
+        return gassiGehZeiten;
     }
 
     @PostMapping("/new")
@@ -47,7 +52,7 @@ public class GassiGehZeitenController {
     public GassiGehZeiten updateZeit(@PathVariable("id") int id, @Valid @RequestBody GassiGehZeitenDTO zeitDTO) {
         GassiGehZeiten zeit = gassiGehZeitenRepository.findGassiGehZeitenById(id);
         if(zeit == null) {
-            return null;
+            throw new NotFoundException("Keine Gassi-Geh-Zeiten mit der Id " + id);
         }
         zeit.setTag(zeitDTO.tag());
         zeit.setVon(zeitDTO.von());
@@ -57,6 +62,9 @@ public class GassiGehZeitenController {
 
     @DeleteMapping("/{id}")
     public void deleteZeit(@PathVariable("id") int id) {
+        if(!gassiGehZeitenRepository.existsById(id)) {
+            throw new NotFoundException("Keine Gassi-Geh-Zeiten mit der Id " + id);
+        }
         gassiGehZeitenRepository.deleteById(id);
     }
 }

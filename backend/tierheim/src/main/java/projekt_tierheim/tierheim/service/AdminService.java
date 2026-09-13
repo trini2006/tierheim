@@ -21,32 +21,26 @@ public class AdminService {
     }
 
     public Admin createAdmin(AdminDTO adminDTO) {
-
         Admin admin = new Admin();
-
         admin.setPersonalnummer(adminDTO.personalnummer());
 
         // Passwort hashen
         String hash = passwordEncoder.encode(adminDTO.passwort());
-
         admin.setPasswort(hash);
 
         return adminRepository.saveAndFlush(admin);
     }
 
     public Admin updateAdmin(int personalnummer, AdminDTO adminDTO) {
-
         Admin admin = adminRepository.findAdminByPersonalnummer(personalnummer);
 
         if (admin == null) {
-            throw new NotFoundException("Admin mit der Personalnummer \" +  personalnummer + \" nicht gefunden");
+            throw new NotFoundException("Admin mit der Personalnummer " +  personalnummer + " nicht gefunden");
         }
-
         admin.setPersonalnummer(adminDTO.personalnummer());
 
         // Neues Passwort hashen
         String hash = passwordEncoder.encode(adminDTO.passwort());
-
         admin.setPasswort(hash);
 
         return adminRepository.saveAndFlush(admin);

@@ -10,4 +10,6 @@ public interface AdminRepository extends JpaRepository<Admin, Integer> {
     // um eine explizit geöffnete Schreib-/ Löschtransaktionen auszuführen
     @Transactional
     void deleteByPersonalnummer(int personalnummer);
+
+    boolean existsByPersonalnummer(int personalnummer);
 }

@@ -38,11 +38,7 @@ public class AdminController {
 
     @GetMapping("/all")
     public List<Admin> getAllAdmins(){
-        List<Admin> admins = adminRepository.findAll();
-        if(admins.isEmpty() || admins.size() == 0) {
-            throw new NotFoundException("Es gibt keine Admins");
-        }
-        return admins;
+        return adminRepository.findAll();
     }
 
     @PostMapping()
@@ -60,6 +56,9 @@ public class AdminController {
 
     @DeleteMapping("/{personalnummer}")
     public void deleteAdmin(@PathVariable("personalnummer") int personalnummer){
+        if(!adminRepository.existsByPersonalnummer(personalnummer)) {
+            throw new NotFoundException("Admin mit der Personalnummer " +  personalnummer + " nicht gefunden");
+        }
         adminRepository.deleteByPersonalnummer(personalnummer);
     }
 }

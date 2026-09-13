@@ -6,6 +6,7 @@ import org.springframework.web.bind.annotation.*;
 import projekt_tierheim.tierheim.db.Label.Label;
 import projekt_tierheim.tierheim.db.Label.LabelDTO;
 import projekt_tierheim.tierheim.db.Label.LabelRepository;
+import projekt_tierheim.tierheim.exception.NotFoundException;
 
 import java.util.List;
 
@@ -21,7 +22,11 @@ public class LabelController {
 
     @GetMapping("/{id}")
     public Label getLabelById(@PathVariable("id") int id) {
-        return labelRepository.findLabelById(id);
+        Label label = labelRepository.findLabelById(id);
+        if(label == null) {
+            throw new NotFoundException("Das Label mit der Id " + id + " nicht gefunden");
+        }
+        return label;
     }
 
     @GetMapping("/all")
@@ -47,7 +52,7 @@ public class LabelController {
     public Label updateLabel(@PathVariable("id") int id, @Valid @RequestBody LabelDTO labelDTO) {
         Label label = labelRepository.findLabelById(id);
         if(label == null){
-            return null;
+            throw new NotFoundException("Das Label mit der Id " + id + " nicht gefunden");
         }
         label.setBezeichnung(labelDTO.bezeichnung());
         label.setHinweis(labelDTO.hinweis());
@@ -56,6 +61,9 @@ public class LabelController {
 
     @DeleteMapping("/{id}")
     public void deleteLabel(@PathVariable("id") int id) {
+        if(!labelRepository.existsById(id)) {
+            throw new NotFoundException("Das Label mit der Id \" + id + \" nicht gefunden");
+        }
         labelRepository.deleteById(id);
     }
 }

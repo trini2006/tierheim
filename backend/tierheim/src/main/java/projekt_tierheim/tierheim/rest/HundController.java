@@ -14,6 +14,7 @@ import projekt_tierheim.tierheim.db.Mitglied.Mitglied;
 import projekt_tierheim.tierheim.db.Mitglied.MitgliedRepository;
 import projekt_tierheim.tierheim.db.Tierheim.Tierheim;
 import projekt_tierheim.tierheim.db.Tierheim.TierheimRepository;
+import projekt_tierheim.tierheim.exception.NotFoundException;
 import projekt_tierheim.tierheim.service.ReservierungService;
 
 import java.time.LocalDate;
@@ -41,7 +42,11 @@ public class HundController {
 
     @GetMapping("/{id}")
     public Hund getHund(@PathVariable int id) {
-        return hundRepository.findHundById(id);
+        Hund hund = hundRepository.findHundById(id);
+        if(hund == null) {
+            throw new NotFoundException("Hund nicht gefunden");
+        }
+        return hund;
     }
 
     @GetMapping("/all")
@@ -57,7 +62,7 @@ public class HundController {
             @RequestParam LocalTime bis) {
         Mitglied mitglied = mitgliedRepository.findMitgliedById(mitgliedId);
         if(mitglied == null) {
-            return null;
+            throw new NotFoundException("Mitglied mit der Id " +  mitgliedId + " nicht gefunden");
         }
         List<Hund> alleHunde = hundRepository.findAll();
         List<Hund> verfuegbareHunde = new ArrayList<>();
@@ -84,18 +89,18 @@ public class HundController {
     public Hund newHund(@Valid @RequestBody HundDTO hundDTO) {
         Tierheim tierheim = tierheimRepository.findTierheimById(hundDTO.tierheimId());
         if(tierheim == null) {
-            return null;
+            throw new NotFoundException("Tierheim mit der Id" + hundDTO.tierheimId() + " nicht gefunden");
         }
         Hund hund = Hund.convertToHund(hundDTO, tierheim);
         return hundRepository.saveAndFlush(hund);
     }
 
     @PutMapping("/{id}")
-    public Hund updateHund(@PathVariable int id, @Valid @RequestBody HundDTO neuerHund)
+    public Hund updateHund(@PathVariable("id") int id, @Valid @RequestBody HundDTO neuerHund)
     {
         Hund hundAlt = hundRepository.findHundById(id);
         if(hundAlt == null) {
-            return null;
+            throw new NotFoundException("Hund mit der Id " + id + " nicht gefunden");
         }
 
         hundAlt.setName(neuerHund.name());
@@ -112,8 +117,10 @@ public class HundController {
 
     @DeleteMapping("/{id}")
     public void deleteHund(@PathVariable int id) {
-        Hund hund = hundRepository.findHundById(id);
-        hundRepository.delete(hund);
+        if(!hundRepository.existsById(id)) {
+            throw new NotFoundException("Hund mit der Id " + id + " nicht gefunden");
+        }
+        hundRepository.deleteById(id);
     }
 
     // HUND SPERREN
@@ -121,7 +128,7 @@ public class HundController {
     public Hund sperrgrundHinzufuegen(@PathVariable("id") int hundId, @Valid @RequestBody SperrHundDTO sperrHundDTO) {
         Hund hund = hundRepository.findHundById(hundId);
         if(hund == null) {
-            return null;
+            throw new NotFoundException("Hund mit der Id " + hundId + " nicht gefunden");
         }
 
         hund.setIstGesperrt(true);
@@ -137,7 +144,7 @@ public class HundController {
     public Hund sperrgrundEntfernen(@PathVariable("id") int hundId) {
         Hund hund =  hundRepository.findHundById(hundId);
         if(hund == null) {
-            return null;
+            throw new NotFoundException("Hund mit der Id " + hundId + " nicht gefunden");
         }
 
         hund.setIstGesperrt(false);
@@ -149,15 +156,16 @@ public class HundController {
     }
 
     // LABEL
-    // ToDO Frontend und Backend müssen mit möglichen 404 ungehen können
     @PostMapping("/{id}/label/{labelId}")
     public Hund addLabel(@PathVariable("id") int hundId, @PathVariable("labelId") int labelId) {
         Hund hund = hundRepository.findHundById(hundId);
         Label label = labelRepository.findLabelById(labelId);
 
-        // ResponseEntity.notFound().build()
-        if(hund == null || label == null) {
-            return null;
+        if(hund == null) {
+            throw new NotFoundException("Hund mit der Id " + hundId + " nicht gefunden");
+        }
+        if(label == null) {
+            throw new NotFoundException("Label mit der Id " + labelId + " nicht gefunden");
         }
 
         if(!hund.getLabels().contains(label)) {
@@ -172,12 +180,15 @@ public class HundController {
         Hund hund = hundRepository.findHundById(hundId);
         Label label = labelRepository.findLabelById(labelId);
 
-        if(hund == null || label == null) {
-            return null;
+        if(hund == null) {
+            throw new NotFoundException("Hund mit der Id " + hundId + " nicht gefunden");
         }
-        // theroretisch eigentlich unmöglich
+        if(label == null) {
+            throw new NotFoundException("Label mit der Id " + labelId + " nicht gefunden");
+        }
+
         if(!hund.getLabels().contains(label)) {
-            return null;
+            throw new IllegalStateException("Der Hund hat dieses Label nicht zugewiesen");
         }
         hund.removeLabel(label);
         return hundRepository.saveAndFlush(hund);

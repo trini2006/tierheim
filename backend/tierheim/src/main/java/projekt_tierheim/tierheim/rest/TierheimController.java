@@ -4,6 +4,7 @@ import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 import projekt_tierheim.tierheim.db.Tierheim.*;
+import projekt_tierheim.tierheim.exception.NotFoundException;
 
 import java.util.List;
 
@@ -26,7 +27,7 @@ public class TierheimController {
     public Tierheim getById(@PathVariable("id") int id) {
         Tierheim tierheim = tierheimRepository.findById(id).orElse(null);
         if(tierheim == null) {
-            return null;
+            throw new NotFoundException("Tierheim mit der Id " + id + " nicht gefunden");
         }
         return tierheim;
     }
@@ -39,6 +40,9 @@ public class TierheimController {
 
     @DeleteMapping("/{id}")
     public void deleteTierheim(@PathVariable("id") int id) {
+        if(!tierheimRepository.existsById(id)) {
+            throw new NotFoundException("Tierheim mit der Id " + id + " nicht gefunden");
+        }
         tierheimRepository.deleteById(id);
     }
 
@@ -46,7 +50,7 @@ public class TierheimController {
     public Tierheim updateTierheimStammdaten(@PathVariable("id") int id, @Valid @RequestBody TierheimStammdatenDTO tierheimStammdatenDTO) {
         Tierheim tierheim =  tierheimRepository.findTierheimById(id);
         if(tierheim == null) {
-            return null;
+            throw new NotFoundException("Tierheim mit der Id " + id + " nicht gefunden");
         }
         tierheim.setName(tierheimStammdatenDTO.name());
         tierheim.setStrasse(tierheimStammdatenDTO.strasse());
@@ -65,7 +69,7 @@ public class TierheimController {
     public Tierheim updateTierheimAussehen(@PathVariable("id") int id, @Valid @RequestBody TierheimAussehenDTO tierheimAussehenDTO) {
         Tierheim tierheim =  tierheimRepository.findTierheimById(id);
         if(tierheim == null) {
-            return null;
+            throw new NotFoundException("Tierheim mit der Id " + id + " nicht gefunden");
         }
         tierheim.setBild(tierheimAussehenDTO.bild());
         tierheim.setBannerfarbe(tierheimAussehenDTO.bannerfarbe());
@@ -76,7 +80,7 @@ public class TierheimController {
     public Tierheim updateTierheimGassiEinstellungen(@PathVariable("id") int id, @Valid @RequestBody TierheimGassiEinstellungenDTO tierheimGassiEinstellungenDTO) {
         Tierheim tierheim =  tierheimRepository.findTierheimById(id);
         if(tierheim == null) {
-            return null;
+            throw new NotFoundException("Tierheim mit der Id " + id + " nicht gefunden");
         }
         tierheim.setZeitblock(tierheimGassiEinstellungenDTO.zeitblock());
         tierheim.setRuhezeit(tierheimGassiEinstellungenDTO.ruhezeit());
