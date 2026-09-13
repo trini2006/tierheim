@@ -6,6 +6,7 @@ import org.springframework.web.bind.annotation.*;
 import projekt_tierheim.tierheim.db.Admin.Admin;
 import projekt_tierheim.tierheim.db.Admin.AdminDTO;
 import projekt_tierheim.tierheim.db.Admin.AdminRepository;
+import projekt_tierheim.tierheim.exception.NotFoundException;
 import projekt_tierheim.tierheim.service.AdminService;
 
 import java.util.List;
@@ -28,12 +29,20 @@ public class AdminController {
     // Mitarbeiter nach Personalnummer zu suchen, macht mehr Sinn, als nach einer zufällig vergebenen id
     @GetMapping("/{personalnummer}")
     public Admin getAdminByPersonalnummer(@PathVariable("personalnummer") int personalnummer){
-        return adminService.getAdminByPersonalnummer(personalnummer);
+        Admin admin = adminService.getAdminByPersonalnummer(personalnummer);
+        if(admin == null){
+            throw new NotFoundException("Admin mit der Personalnummer " +  personalnummer + " nicht gefunden");
+        }
+        return admin;
     }
 
     @GetMapping("/all")
     public List<Admin> getAllAdmins(){
-        return adminRepository.findAll();
+        List<Admin> admins = adminRepository.findAll();
+        if(admins.isEmpty() || admins.size() == 0) {
+            throw new NotFoundException("Es gibt keine Admins");
+        }
+        return admins;
     }
 
     @PostMapping()

@@ -6,6 +6,7 @@ import org.springframework.stereotype.Service;
 import projekt_tierheim.tierheim.db.Admin.Admin;
 import projekt_tierheim.tierheim.db.Admin.AdminDTO;
 import projekt_tierheim.tierheim.db.Admin.AdminRepository;
+import projekt_tierheim.tierheim.exception.NotFoundException;
 
 @Service
 public class AdminService {
@@ -38,7 +39,7 @@ public class AdminService {
         Admin admin = adminRepository.findAdminByPersonalnummer(personalnummer);
 
         if (admin == null) {
-            return null;
+            throw new NotFoundException("Admin mit der Personalnummer \" +  personalnummer + \" nicht gefunden");
         }
 
         admin.setPersonalnummer(adminDTO.personalnummer());
@@ -52,6 +53,10 @@ public class AdminService {
     }
 
     public Admin getAdminByPersonalnummer(int personalnummer) {
-        return adminRepository.findAdminByPersonalnummer(personalnummer);
+        Admin admin = adminRepository.findAdminByPersonalnummer(personalnummer);
+        if (admin == null) {
+            throw new NotFoundException("Admin mit der Personalnummer \" +  personalnummer + \" nicht gefunden");
+        }
+        return admin;
     }
 }
