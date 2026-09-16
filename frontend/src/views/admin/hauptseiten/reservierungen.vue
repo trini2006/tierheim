@@ -106,16 +106,14 @@
           </div>
         </div>
 
-        <!-- Zeitslots-Matrix (Nicht anklickbar, gleicher Stil) -->
+        <!-- Zeitslots-Matrix -->
         <div class="divide-y divide-gray-50">
           <div v-for="slot in zeitSlots" :key="slot" class="grid grid-cols-8 gap-4 items-center py-3">
             
-            <!-- Zeitspalte links im einheitlichen Stil -->
             <div class="bg-[#D3DDD1] text-gray-800 font-medium text-xs py-2 px-3 rounded-xl text-center shadow-sm border border-gray-200/50">
               {{ slot }}
             </div>
 
-            <!-- Spalten für jeden Hund (Nur Anzeige) -->
             <div v-for="hund in alleHunde" :key="hund.id" class="flex justify-center">
               <div 
                 :class="[
@@ -135,9 +133,8 @@
 </template>
 
 <script setup>
-import { ref, computed } from 'vue'
+import { ref, computed, onMounted, watch } from 'vue'
 
-// Hilfsfunktion: Berechnet die Kalenderwoche (KW) für ein Datum
 const getKW = (d) => {
   const date = new Date(Date.UTC(d.getFullYear(), d.getMonth(), d.getDate()))
   date.setUTCDate(date.getUTCDate() + 4 - (date.getUTCDay() || 7))
@@ -148,7 +145,6 @@ const getKW = (d) => {
 const heute = new Date()
 const aktuelleKWNummer = getKW(heute)
 
-// Kalenderwochen dynamisch um die aktuelle Woche herum aufgebaut
 const kalenderWochen = ref([
   { nummer: aktuelleKWNummer },
   { nummer: aktuelleKWNummer + 1 },
@@ -158,7 +154,6 @@ const kalenderWochen = ref([
 const aktiveKW = ref(aktuelleKWNummer)
 const aktuellesDatumObj = ref(new Date(heute))
 
-// Hilfsfunktion: Gibt den Montag der gewählten KW zurück
 const getMontagDerKW = (kw, jahr) => {
   const simple = new Date(jahr, 0, 1 + (kw - 1) * 7)
   const dow = simple.getDay()
@@ -171,12 +166,10 @@ const getMontagDerKW = (kw, jahr) => {
   return ISOweekStart
 }
 
-// Kalenderwoche wechseln
 const waehleKW = (kwNummer) => {
   aktiveKW.value = kwNummer
   const montag = getMontagDerKW(kwNummer, heute.getFullYear())
   
-  // Wenn es die aktuelle KW ist, springe auf heute. Ansonsten auf den Montag der KW.
   if (kwNummer === aktuelleKWNummer) {
     aktuellesDatumObj.value = new Date(heute)
   } else {
@@ -184,15 +177,11 @@ const waehleKW = (kwNummer) => {
   }
 }
 
-// Prüfen ob man einen Tag zurückschalten darf (nicht vor heute und nicht vor KW-Montag)
 const istErlaubterTagZurueck = computed(() => {
   const montagKW = getMontagDerKW(aktiveKW.value, heute.getFullYear())
-  
-  // Berechne den gestrigen/vorherigen Tag
   const vorherigesDatum = new Date(aktuellesDatumObj.value)
   vorherigesDatum.setDate(vorherigesDatum.getDate() - 1)
 
-  // Sperren wenn der vorige Tag vor dem Montag der KW liegt ODER vor dem echten "heute"
   if (vorherigesDatum < montagKW) return true
   if (aktiveKW.value === aktuelleKWNummer && vorherigesDatum < new Date(heute.getFullYear(), heute.getMonth(), heute.getDate())) {
     return true
@@ -200,10 +189,9 @@ const istErlaubterTagZurueck = computed(() => {
   return false
 })
 
-// Prüfen ob man am Sonntag (letzter Tag der KW) ist
 const istLetzterTagDerWoche = computed(() => {
   const d = new Date(aktuellesDatumObj.value)
-  return d.getDay() === 0 // Sonntag
+  return d.getDay() === 0
 })
 
 const tagZurueck = () => {
@@ -220,7 +208,6 @@ const tagVorkommen = () => {
   }
 }
 
-// Datum formatieren für den Button (z.B. "Mo 29.06.")
 const formatiertesDatum = computed(() => {
   const wochentage = ['So', 'Mo', 'Di', 'Mi', 'Do', 'Fr', 'Sa']
   const tagWort = wochentage[aktuellesDatumObj.value.getDay()]
@@ -229,24 +216,14 @@ const formatiertesDatum = computed(() => {
   return `${tagWort} ${tagZahl}.${monat}.`
 })
 
-// Datum formatieren für die Überschrift Mobil (z.B. "Montag, 29.06.2026")
 const wochenTagString = computed(() => {
   const options = { weekday: 'long', year: 'numeric', month: '2-digit', day: '2-digit' }
   return aktuellesDatumObj.value.toLocaleDateString('de-DE', options)
 })
 
-// Alle Hunde für die Desktop-Matrix
-const alleHunde = ref([
-  { id: 1, name: 'Wambo', bild: 'https://images.unsplash.com/photo-1543466835-00a7907e9de1' },
-  { id: 2, name: 'Aris', bild: 'https://images.unsplash.com/photo-1552053831-71594a27632d' },
-  { id: 3, name: 'Luna', bild: 'https://images.unsplash.com/photo-1537151608828-ea2b11777ee8' },
-  { id: 4, name: 'DC', bild: 'https://images.unsplash.com/photo-1583511655857-d19b40a7a54e' },
-  { id: 5, name: 'Pai', bild: 'https://images.unsplash.com/photo-1517849845537-4d257902454a' },
-  { id: 6, name: 'Richy', bild: 'https://images.unsplash.com/photo-1561948955-570b270e7c36' },
-  { id: 7, name: 'Roxy', bild: 'https://images.unsplash.com/photo-1534361960057-19889db9621e' },
-])
+const alleHunde = ref([])
+const reservierungen = ref([])
 
-// Zeitslots
 const zeitSlots = [
   '10:00 - 10:30',
   '10:30 - 11:00',
@@ -258,16 +235,56 @@ const zeitSlots = [
   '13:30 - 14:00'
 ]
 
-// Reservierungsdaten (Mock-Daten)
-const reservierungen = ref([
-  { id: 1, hundId: 2, hundName: 'Aris', telefon: '1234555678', zeit: '12:00 - 13:30Uhr', bild: 'https://images.unsplash.com/photo-1552053831-71594a27632d', slot: '12:00 - 12:30' },
-  { id: 2, hundId: 2, hundName: 'Aris', telefon: '1234555678', zeit: '12:00 - 13:30Uhr', bild: 'https://images.unsplash.com/photo-1552053831-71594a27632d', slot: '12:30 - 13:00' },
-  { id: 3, hundId: 2, hundName: 'Aris', telefon: '1234555678', zeit: '12:00 - 13:30Uhr', bild: 'https://images.unsplash.com/photo-1552053831-71594a27632d', slot: '13:00 - 13:30' },
-  { id: 4, hundId: 1, hundName: 'Wambo', telefon: '1223455678', zeit: '10:00 - 11:30Uhr', bild: 'https://images.unsplash.com/photo-1543466835-00a7907e9de1', slot: '10:00 - 10:30' },
-  { id: 5, hundId: 1, hundName: 'Wambo', telefon: '1223455678', zeit: '10:00 - 11:30Uhr', bild: 'https://images.unsplash.com/photo-1543466835-00a7907e9de1', slot: '10:30 - 11:00' },
-])
+// Daten vom Backend laden
+const ladeDaten = async () => {
+  try {
+    // 1. Hunde laden (für die Matrix-Spalten)
+    const hundeRes = await fetch('/hund/all')
+    if (hundeRes.ok) {
+      const hundeData = await hundeRes.json()
+      alleHunde.value = hundeData.map(h => ({
+        id: h.id,
+        name: h.name,
+        bild: h.bild || 'https://images.unsplash.com/photo-1543466835-00a7907e9de1'
+      }))
+    }
 
-// Filtert die Liste für die mobile Ansicht
+    // 2. Reservierungen laden (mit dem aktuellen Datum als Filter)
+    const datumString = aktuellesDatumObj.value.toISOString().split('T')[0]
+    const resRes = await fetch(`/reservierung/all?von=${datumString}&bis=${datumString}`)
+    if (resRes.ok) {
+      const resData = await resRes.json()
+      
+      reservierungen.value = resData
+        .filter(r => r.status === 'AKTIV') // Nur aktive Reservierungen anzeigen
+        .map(r => {
+          // Extrahiere Uhrzeit / Slot aus den Start- und Endzeiten der Reservierung
+          const startZeit = r.startZeit ? r.startZeit.substring(0, 5) : '10:00'
+          const endZeit = r.endZeit ? r.endZeit.substring(0, 5) : '10:30'
+          const slotStr = `${startZeit} - ${endZeit}`
+
+          return {
+            id: r.id,
+            hundId: r.hund?.id,
+            hundName: r.hund?.name || 'Unbekannt',
+            telefon: r.mitglied?.mitgliedsnummer ? String(r.mitglied.mitgliedsnummer) : '',
+            zeit: `${slotStr}Uhr`,
+            bild: r.hund?.bild || 'https://images.unsplash.com/photo-1543466835-00a7907e9de1',
+            slot: slotStr
+          }
+        })
+    }
+  } catch (e) {
+    console.error('Fehler beim Laden der Reservierungsdaten:', e)
+  }
+}
+
+// Bei initialem Laden und wenn sich das Datum ändert, Daten neu laden
+onMounted(ladeDaten)
+watch(aktuellesDatumObj, () => {
+  ladeDaten()
+})
+
 const aktuelleReservierungen = computed(() => {
   const uniqueMap = new Map()
   reservierungen.value.forEach(r => {
@@ -278,16 +295,24 @@ const aktuelleReservierungen = computed(() => {
   return Array.from(uniqueMap.values())
 })
 
-// Prüfen ob ein Slot für Desktop grün markiert ist
 const istReserviert = (hundId, slot) => {
   return reservierungen.value.some(r => r.hundId === hundId && r.slot === slot)
 }
 
-// Mobil: Reservierung löschen
-const loescheReservierung = (id) => {
-  const res = reservierungen.value.find(r => r.id === id)
-  if (res) {
-    reservierungen.value = reservierungen.value.filter(r => r.hundId !== res.hundId)
+const loescheReservierung = async (id) => {
+  try {
+    const grund = prompt('Bitte geben Sie einen Stornierungsgrund ein:', 'Storniert durch Admin')
+    if (grund === null) return // Abgebrochen
+
+    const res = await fetch(`/reservierung/${id}?grund=${encodeURIComponent(grund)}`, {
+      method: 'DELETE'
+    })
+    if (res.ok) {
+      // Nach erfolgreicher Stornierung die Liste aktualisieren
+      await ladeDaten()
+    }
+  } catch (e) {
+    console.error('Fehler beim Stornieren der Reservierung:', e)
   }
 }
 </script>

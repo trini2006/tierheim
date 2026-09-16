@@ -59,7 +59,6 @@ const router = useRouter()
 const route = useRoute()
 const booking = ref(null)
 
-// Prüft, ob wir uns im Admin-Bereich befinden
 const isAdminMode = computed(() => route.path.startsWith('/app/admin'))
 
 onMounted(() => {
@@ -67,17 +66,48 @@ onMounted(() => {
   if (data) {
     booking.value = JSON.parse(data)
   } else {
-    // Falls keine Daten da sind, zurück zur entsprechenden Startseite
     router.push(isAdminMode.value ? '/app/admin' : '/app/reservierung/zeitwahl')
   }
 })
 
-const confirmBooking = () => {
-  if (isAdminMode.value) {
-    // Hier kannst du für Admin einen eigenen Erfolgsweg oder eine Weiterleitung definieren
-    router.push('/app/admin/erfolgreichReserviert')
-  } else {
-    router.push('/app/reservierung/erfolgreichReserviert')
+const confirmBooking = async () => {
+  try {
+    if (!booking.value) return
+
+    // Daten für das Backend-DTO aufbauen
+    // (Passt sich an die Daten an, die du in den vorherigen Schritten im localStorage gespeichert hast)
+    const payload = {
+      mitgliedId: booking.value.mitgliedId,
+      hundId: booking.value.dog.id,
+      datum: booking.value.datum || '2026-07-01', // Format: YYYY-MM-DD
+      startZeit: booking.value.start ? `${booking.value.start}:00` : '10:00:00', // Format: HH:mm:ss
+      endZeit: booking.value.end ? `${booking.value.end}:00` : '10:30:00'
+    }
+
+    const res = await fetch('/reservierung/new', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload)
+    })
+
+    if (res.ok) {
+      // Optional: localStorage aufräumen
+      localStorage.removeItem('bookingFinal')
+      localStorage.removeItem('terminData')
+
+      // Weiterleitung zur Erfolgsseite
+      if (isAdminMode.value) {
+        router.push('/app/admin/erfolgreichReserviert')
+      } else {
+        router.push('/app/reservierung/erfolgreichReserviert')
+      }
+    } else {
+      const errText = await res.text()
+      alert('Fehler beim Speichern der Reservierung: ' + errText)
+    }
+  } catch (e) {
+    console.error('Netzwerkfehler:', e)
+    alert('Es gab einen Fehler bei der Verbindung zum Server.')
   }
 }
 </script>

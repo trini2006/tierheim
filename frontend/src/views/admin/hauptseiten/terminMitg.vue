@@ -24,9 +24,13 @@
               </div>
               <span class="w-3 h-3 rounded-full" :class="mitglied.aktiv ? 'bg-green-500' : 'bg-orange-400'"></span>
             </div>
+
+            <p v-if="mitgliederListe.length === 0" class="text-sm text-gray-500 italic">
+              Keine Mitglieder gefunden.
+            </p>
           </div>
         </div>
-  
+ 
         <!-- RECHTE SEITE: Zeitwahl (Mehrfachauswahl, gesperrt solange kein Mitglied gewählt) -->
         <div :class="{'opacity-50 pointer-events-none': !ausgewaehltesMitglied}" class="transition-opacity">
           <div class="bg-white p-6 rounded-3xl border border-gray-100 shadow-sm">
@@ -36,13 +40,13 @@
                 {{ kw }}
               </button>
             </div>
-  
+ 
             <div class="flex items-center justify-between mb-6">
               <button class="font-bold text-lg">&lt;</button>
               <span class="px-4 py-1.5 bg-[#D3DDD1] rounded-xl text-sm font-bold text-gray-800">Mi 01.07.</span>
               <button class="font-bold text-lg">&gt;</button>
             </div>
-  
+ 
             <!-- Zeitblöcke (Mehrfachauswahl per Array) -->
             <div class="space-y-3">
               <div v-for="zeit in zeitBloecke" :key="zeit.id" class="flex items-center justify-between">
@@ -56,12 +60,12 @@
                 </div>
               </div>
             </div>
-  
+ 
           </div>
         </div>
-  
+ 
       </div>
-  
+ 
       <!-- UNTERER BEREICH: Weiter-Button -->
       <div class="flex justify-end mt-8">
         <button 
@@ -76,67 +80,74 @@
           </div>
         </button>
       </div>
-  
+ 
     </div>
-  </template>
-  
-  <script setup>
-  import { ref } from 'vue'
-  import { useRouter } from 'vue-router'
-  
-  const router = useRouter()
-  
-  const mitgliederListe = ref([
-    { id: 1, telefon: '1234556789', aktiv: false },
-    { id: 2, telefon: '1234567890', aktiv: true },
-    { id: 3, telefon: '6371947129', aktiv: false },
-    { id: 4, telefon: '3478123674', aktiv: true },
-    { id: 5, telefon: '34712375123', aktiv: true },
-  ])
-  
-  const ausgewaehltesMitglied = ref(null)
-  // Geändert zu einem Array für mehrere Zeitblöcke
-  const ausgewaehlteZeiten = ref([])
-  
-  const zeitBloecke = ref([
-    { id: 1, label: '10:00 - 10:30 Uhr' },
-    { id: 2, label: '10:30 - 11:00 Uhr' },
-    { id: 3, label: '11:00 - 11:30 Uhr' },
-    { id: 4, label: '11:30 - 12:00 Uhr' },
-    { id: 5, label: '12:00 - 12:30 Uhr' },
-    { id: 6, label: '12:30 - 13:00 Uhr' },
-    { id: 7, label: '13:00 - 13:30 Uhr' },
-    { id: 8, label: '13:30 - 14:00 Uhr' },
-  ])
-  
-  function waehleMitglied(mitglied) {
-    ausgewaehltesMitglied.value = mitglied
-  }
-  
-  // Logik zum Hinzufügen oder Entfernen von Zeitblöcken (Mehrfachauswahl)
-  function toggleZeit(zeitId) {
-    if (!ausgewaehltesMitglied.value) return
-    
-    const index = ausgewaehlteZeiten.value.indexOf(zeitId)
-    if (index > -1) {
-      ausgewaehlteZeiten.value.splice(index, 1) // Entfernen, falls schon ausgewählt
-    } else {
-      ausgewaehlteZeiten.value.push(zeitId) // Hinzufügen
+</template>
+ 
+<script setup>
+import { ref, onMounted } from 'vue'
+import { useRouter } from 'vue-router'
+ 
+const router = useRouter()
+ 
+const mitgliederListe = ref([])
+const ausgewaehltesMitglied = ref(null)
+const ausgewaehlteZeiten = ref([])
+ 
+const zeitBloecke = ref([
+  { id: 1, label: '10:00 - 10:30 Uhr' },
+  { id: 2, label: '10:30 - 11:00 Uhr' },
+  { id: 3, label: '11:00 - 11:30 Uhr' },
+  { id: 4, label: '11:30 - 12:00 Uhr' },
+  { id: 5, label: '12:00 - 12:30 Uhr' },
+  { id: 6, label: '12:30 - 13:00 Uhr' },
+  { id: 7, label: '13:00 - 13:30 Uhr' },
+  { id: 8, label: '13:30 - 14:00 Uhr' },
+])
+
+// Mitglieder beim Laden der Komponente vom Backend abrufen
+const ladeMitglieder = async () => {
+  try {
+    const res = await fetch('/mitglied/all')
+    if (res.ok) {
+      const data = await res.json()
+      mitgliederListe.value = data.map((m) => ({
+        id: m.mitgliedsnummer,
+        telefon: String(m.mitgliedsnummer), // Nutzt die Mitgliedsnummer als Anzeige-String
+        aktiv: m.erfahrung === 'gruen', // Beispielhafte Logik für den Statuspunkt (grün vs. orange)
+      }))
     }
+  } catch (e) {
+    console.error('Fehler beim Laden der Mitglieder:', e)
   }
+}
+
+onMounted(ladeMitglieder)
+ 
+function waehleMitglied(mitglied) {
+  ausgewaehltesMitglied.value = mitglied
+}
+ 
+function toggleZeit(zeitId) {
+  if (!ausgewaehltesMitglied.value) return
   
-  function weiterZuHundewahl() {
+  const index = ausgewaehlteZeiten.value.indexOf(zeitId)
+  if (index > -1) {
+    ausgewaehlteZeiten.value.splice(index, 1)
+  } else {
+    ausgewaehlteZeiten.value.push(zeitId)
+  }
+}
+ 
+function weiterZuHundewahl() {
   if (ausgewaehltesMitglied.value && ausgewaehlteZeiten.value.length > 0) {
-    // Speichere die Daten zwischen (oder nutze Query-Parameter)
     const daten = {
       mitgliedId: ausgewaehltesMitglied.value.id,
       telefon: ausgewaehltesMitglied.value.telefon,
       zeiten: ausgewaehlteZeiten.value
     }
     localStorage.setItem('terminData', JSON.stringify(daten))
-
-    // Führe den Admin zur Admin-Hundewahl statt zur Benutzer-Hundewahl
     router.push('/app/admin/hundewahl')
   }
 }
-  </script>
+</script>
