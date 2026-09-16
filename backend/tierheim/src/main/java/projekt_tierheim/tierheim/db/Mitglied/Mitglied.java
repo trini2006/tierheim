@@ -1,5 +1,6 @@
 package projekt_tierheim.tierheim.db.Mitglied;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 
 import java.util.Objects;
@@ -12,6 +13,7 @@ public class Mitglied {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
     private int mitgliedsnummer;
+    @JsonIgnore
     private String passwort;
     private boolean erfahrung; // false = Gruen, true = Gelb/Orange
 

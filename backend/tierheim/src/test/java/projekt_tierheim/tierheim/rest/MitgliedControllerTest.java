@@ -2,6 +2,7 @@ package projekt_tierheim.tierheim.rest;
 
 import org.json.JSONObject;
 import org.junit.jupiter.api.Test;
+import org.mockito.ArgumentCaptor;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -15,6 +16,7 @@ import projekt_tierheim.tierheim.db.Mitglied.MitgliedRepository;
 
 import java.util.List;
 
+import static org.junit.jupiter.api.Assertions.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -61,7 +63,9 @@ class MitgliedControllerTest {
                         status().isOk(),
                         jsonPath("$[0].id").value(TEST_ID1),
                         jsonPath("$[0].erfahrung").value(TEST_ERFAHRUNG1),
-                        jsonPath("$[1].erfahrung").value(TEST_ERFAHRUNG2)
+                        jsonPath("$[1].erfahrung").value(TEST_ERFAHRUNG2),
+                        jsonPath("$[0].passwort").doesNotExist(),
+                        jsonPath("$[1].passwort").doesNotExist()
                 );
     }
 
@@ -73,27 +77,69 @@ class MitgliedControllerTest {
                 .andExpectAll(
                         status().isOk(),
                         jsonPath("id").value(TEST_ID1),
-                        jsonPath("erfahrung").value(TEST_ERFAHRUNG1)
+                        jsonPath("erfahrung").value(TEST_ERFAHRUNG1),
+                        jsonPath("passwort").doesNotExist()
+                );
+    }
+
+    @Test
+    void newMitglied() throws Exception{
+        JSONObject jsonObject = new JSONObject();
+        jsonObject.put("mitgliedsnummer", TEST_MITGLIEDSNUMMER1);
+        jsonObject.put("passwort", TEST_PASSWORT1);
+
+        Mockito.when(mitgliedRepository.saveAndFlush(Mockito.any(Mitglied.class)))
+                .thenAnswer(invocation -> invocation.getArgument(0));
+
+        mockMvc.perform(MockMvcRequestBuilders.post("/mitglied")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(jsonObject.toString())
+                        .accept(MediaType.APPLICATION_JSON))
+                .andExpectAll(
+                        status().isOk(),
+                        jsonPath("mitgliedsnummer").value(TEST_MITGLIEDSNUMMER1),
+                        jsonPath("passwort").doesNotExist()
                 );
     }
 
     @Test
     void updateMitglied() throws Exception {
-        Mockito.when(mitgliedRepository.findMitgliedByMitgliedsnummer(TEST_MITGLIEDSNUMMER1)).thenReturn(getTestMitglied1());
-        Mockito.when(mitgliedRepository.saveAndFlush(Mockito.any(Mitglied.class))).thenReturn(getUpdateMitglied1());
+        String neuesPasswort = "NeuesPasswort1234";
+        JSONObject jsonObject = new JSONObject();
+        jsonObject.put("mitgliedsnummer", TEST_MITGLIEDSNUMMER1);
+        jsonObject.put("passwort", neuesPasswort);
 
-        JSONObject mitglied = new JSONObject();
-        mitglied.put("mitgliedsnummer", TEST_MITGLIEDSNUMMER1);
-        mitglied.put("passwort", "geheim");
-        mitglied.put("erfahrung", TEST_ERFAHRUNG2);
+        Mitglied mitglied = getTestMitglied1();
 
-        mockMvc.perform(MockMvcRequestBuilders.put("/mitglied/" +  TEST_MITGLIEDSNUMMER1)
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(mitglied.toString()))
+        Mockito.when(mitgliedRepository.findMitgliedByMitgliedsnummer(TEST_MITGLIEDSNUMMER1))
+                .thenAnswer(invocation -> invocation.getArgument(0));
+
+        mockMvc.perform(MockMvcRequestBuilders.put("/mitglied/" + TEST_MITGLIEDSNUMMER1)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(jsonObject.toString())
+                        .accept(MediaType.APPLICATION_JSON))
                 .andExpectAll(
                         status().isOk(),
                         jsonPath("id").value(TEST_ID1),
-                        jsonPath("erfahrung").value(TEST_ERFAHRUNG2)
+                        jsonPath("passwort").doesNotExist()
                 );
+
+        ArgumentCaptor<Mitglied> captor = ArgumentCaptor.forClass(Mitglied.class);
+        Mockito.verify(mitgliedRepository).saveAndFlush(captor.capture());
+        Mitglied gespeichertesMitglied = captor.getValue();
+
+        assertNotEquals(neuesPasswort, gespeichertesMitglied.getPasswort());
+        assertTrue(gespeichertesMitglied.getPasswort().startsWith("$argon2"));
+    }
+
+    @Test
+    void deleteMitglied() throws Exception{
+        mockMvc.perform(MockMvcRequestBuilders.delete("/mitglied/" + TEST_MITGLIEDSNUMMER1)
+                        .accept(MediaType.APPLICATION_JSON))
+                .andExpect(
+                        status().isOk()
+                );
+        Mockito.verify(mitgliedRepository, Mockito.times(1))
+                .deleteByMitgliedsnummer(TEST_MITGLIEDSNUMMER1);
     }
 }

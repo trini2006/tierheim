@@ -8,6 +8,7 @@ import projekt_tierheim.tierheim.db.Mitglied.Mitglied;
 import projekt_tierheim.tierheim.db.Mitglied.MitgliedDTO;
 import projekt_tierheim.tierheim.db.Mitglied.MitgliedRepository;
 import projekt_tierheim.tierheim.exception.NotFoundException;
+import projekt_tierheim.tierheim.service.MitgliedService;
 
 import java.util.List;
 
@@ -15,10 +16,12 @@ import java.util.List;
 @RequestMapping("/mitglied")
 public class MitgliedController {
     private final MitgliedRepository mitgliedRepository;
+    private final MitgliedService mitgliedService;
 
     @Autowired
-    public MitgliedController(MitgliedRepository mitgliedRepository) {
+    public MitgliedController(MitgliedRepository mitgliedRepository, MitgliedService mitgliedService) {
         this.mitgliedRepository = mitgliedRepository;
+        this.mitgliedService = mitgliedService;
     }
 
     @GetMapping("/all")
@@ -27,7 +30,7 @@ public class MitgliedController {
     }
 
     @GetMapping("/{mitgliedsnummer}")
-    public Mitglied findByMitgliedsnummer(@PathVariable("mitgliedsnummer") int mitgliedsnummer) {
+    public Mitglied getMitgliedByMitgliedsnummer(@PathVariable("mitgliedsnummer") int mitgliedsnummer) {
         Mitglied mitglied = mitgliedRepository.findMitgliedByMitgliedsnummer(mitgliedsnummer);
         if(mitglied == null) {
             throw new NotFoundException("Mitglied mit der Mitgliedsnummer " +  mitgliedsnummer + " nicht gefunden");
@@ -37,27 +40,19 @@ public class MitgliedController {
 
     @PostMapping("/new")
     public Mitglied newMitglied(@Valid @RequestBody MitgliedDTO mitgliedDTO) {
-        Mitglied mitglied = Mitglied.convertToMitglied(mitgliedDTO);
-        return mitgliedRepository.saveAndFlush(mitglied);
+        return mitgliedService.createMitglied(mitgliedDTO);
     }
 
     @PutMapping("/{mitgliedsnummer}")
     public Mitglied updateMitglied(@PathVariable("mitgliedsnummer") int mitgliedsnummer, @Valid @RequestBody MitgliedDTO mitgliedDTO) {
-        Mitglied mitglied = mitgliedRepository.findMitgliedByMitgliedsnummer(mitgliedsnummer);
-        if(mitglied == null) {
-            throw new NotFoundException("Mitglied mit der Mitgliedsnummer " +  mitgliedsnummer + " nicht gefunden");
-        }
-
-        mitglied.setErfahrung(mitgliedDTO.erfahrung());
-        mitglied.setPasswort(mitgliedDTO.passwort());
-        return mitgliedRepository.saveAndFlush(mitglied);
+        return mitgliedService.updateMitglied(mitgliedsnummer, mitgliedDTO);
     }
 
     @DeleteMapping("/{mitgliedsnummer}")
     public void deleteMitglied(@PathVariable("mitgliedsnummer") int mitgliedsnummer) {
-        if(!mitgliedRepository.existsById(mitgliedsnummer)) {
+        if(!mitgliedRepository.existsByMitgliedsnummer(mitgliedsnummer)) {
             throw new NotFoundException("Mitglied mit der Mitgliedsnummer " +  mitgliedsnummer + " nicht gefunden");
         }
-        mitgliedRepository.deleteById(mitgliedsnummer);
+        mitgliedRepository.deleteByMitgliedsnummer(mitgliedsnummer);
     }
 }
