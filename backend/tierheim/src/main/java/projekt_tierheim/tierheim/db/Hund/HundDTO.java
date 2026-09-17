@@ -14,5 +14,6 @@ public record HundDTO(
         @NotNull @Positive int gewicht,
         @NotNull boolean erfahrung,
         @NotNull Strecke strecke,
-        @NotNull Integer tierheimId)
+        @NotNull Integer tierheimId,
+        String bildURL)
 { }

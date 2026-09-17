@@ -23,7 +23,8 @@ public class Hund {
     private int jahre;
     private String rasse;
     private int gewicht; // z.B. 20kg
-    private boolean erfahrung; // false = Anfängerhund, true = Problemhund
+    private boolean erfahrung = false; // false = Anfängerhund, true = Problemhund
+    private String bildURL;
 
     @Enumerated(EnumType.STRING)
     private Groesse groesse;
@@ -130,6 +131,9 @@ public class Hund {
     public boolean getErfahrung() { return erfahrung; }
     public void setErfahrung(boolean erfahrung) { this.erfahrung = erfahrung; }
 
+    public String getBildURL() { return bildURL; }
+    public void setBildURL(String bildURL) { this.bildURL = bildURL; }
+
     public Strecke getStrecke() { return strecke; }
     public void setStrecke(Strecke strecke) { this.strecke = strecke; }
 
@@ -182,6 +186,7 @@ public class Hund {
         hund.setErfahrung(hundDTO.erfahrung());
         hund.setStrecke(hundDTO.strecke());
         hund.setTierheim(tierheim);
+        hund.setBildURL(hundDTO.bildURL());
         return hund;
     }
 
