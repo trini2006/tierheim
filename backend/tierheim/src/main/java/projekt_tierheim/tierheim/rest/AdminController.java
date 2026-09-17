@@ -3,9 +3,7 @@ package projekt_tierheim.tierheim.rest;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
-import projekt_tierheim.tierheim.db.Admin.Admin;
-import projekt_tierheim.tierheim.db.Admin.AdminDTO;
-import projekt_tierheim.tierheim.db.Admin.AdminRepository;
+import projekt_tierheim.tierheim.db.Admin.*;
 import projekt_tierheim.tierheim.exception.NotFoundException;
 import projekt_tierheim.tierheim.service.AdminService;
 
@@ -42,14 +40,14 @@ public class AdminController {
     }
 
     @PostMapping()
-    public Admin newAdmin(@Valid @RequestBody AdminDTO adminDTO){
+    public Admin newAdmin(@Valid @RequestBody AdminCreateDTO adminDTO){
         return adminService.createAdmin(adminDTO);
     }
 
     @PutMapping("/{personalnummer}")
-    public Admin updateAdmin(
+    public AdminResponseDTO updateAdmin(
             @PathVariable("personalnummer") int personalnummer,
-            @Valid @RequestBody AdminDTO adminDTO) {
+            @Valid @RequestBody AdminPasswortDTO adminDTO) {
 
         return adminService.updateAdmin(personalnummer, adminDTO);
     }

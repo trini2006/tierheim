@@ -3,8 +3,6 @@ package projekt_tierheim.tierheim.service;
 import org.springframework.security.crypto.argon2.Argon2PasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
-import projekt_tierheim.tierheim.db.Admin.Admin;
-import projekt_tierheim.tierheim.db.Admin.AdminDTO;
 import projekt_tierheim.tierheim.db.Mitglied.Mitglied;
 import projekt_tierheim.tierheim.db.Mitglied.MitgliedDTO;
 import projekt_tierheim.tierheim.db.Mitglied.MitgliedRepository;
