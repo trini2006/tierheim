@@ -103,7 +103,7 @@ const ladeVerfuegbareHunde = async () => {
         age: h.jahre,
         gender: h.geschlecht,
         tags: h.labels ? h.labels.map(l => l.name) : [],
-        color: h.erfahrung === 'gruen' ? 'bg-green-500' : 'bg-orange-500',
+        color: h.erfahrung ? 'bg-orange-500' : 'bg-green-500',
         image: h.bildUrl
       }))
     } else {

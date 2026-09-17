@@ -1,5 +1,4 @@
 <template>
-  <h1 class="text-4xl text-red-600 font-bold bg-yellow-300 p-4">TEST: MEINE DATEI WIRD GELADEN!</h1>
   <div class="max-w-6xl mx-auto p-4 md:p-6 grid grid-cols-1 md:grid-cols-2 gap-16 items-start">
     
     <!-- LINKE SEITE: Aktive Hunde & Hinzufügen -->
