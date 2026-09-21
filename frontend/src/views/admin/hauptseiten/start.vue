@@ -1,95 +1,92 @@
 <template>
-  <div class="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-6xl mx-auto items-start p-4 md:p-6">
+  <!-- w-full sorgt dafür, dass der Flex-Container die volle Breite nutzt -->
+  <div class="flex items-center justify-center min-h-screen w-full">
     
-    <!-- LINKER BEREICH: Menü & Mobile "Heute"-Ansicht -->
-    <div :class="isIndexRoute ? 'block' : 'hidden md:block'" class="space-y-3 w-full max-w-md mx-auto md:mx-0">
-      <button 
-        v-for="item in menuItems" 
-        :key="item.path" 
-        @click="handleNavigate(item)" 
-        :class="buttonClass(item.path)"
-      >
-        <span class="font-bold text-gray-800 text-sm">{{ item.name }}</span>
-      </button>
-
-      <!-- "Heute" Bereich (nur auf Mobile sichtbar, wenn man sich auf der Admin-Startseite befindet) -->
-      <div class="block md:hidden mt-8 bg-white p-6 rounded-3xl border border-gray-100 shadow-sm">
-        <h2 class="text-lg font-bold text-gray-800 mb-4">Heute</h2>
-        <p v-if="!hatHeuteTermine" class="text-gray-500">Aktuell keine geplanten Gassi-Geher...</p>
-        <ul v-else class="space-y-2">
-          <li v-for="termin in gassiGeherHeute" :key="termin.id" class="text-gray-800 border-b pb-2">
-            {{ termin.uhrzeit }} – {{ termin.hundName }} mit {{ termin.mitgliedName }}
-          </li>
-        </ul>
-      </div>
+    <!-- LADEZUSTAND -->
+    <div v-if="loading" class="bg-gray-200 text-gray-800 p-8 rounded-2xl shadow-2xl text-center m-4">
+      <div class="animate-spin text-4xl mb-2">⏳</div>
+      <h2 class="text-3xl font-bold mb-2">Wird reserviert...</h2>
+      <p class="text-lg">Bitte einen Moment Geduld.</p>
     </div>
 
-    <!-- RECHTER BEREICH: RouterView für Unterseiten & Desktop "Heute"-Kasten -->
-    <div :class="isIndexRoute ? 'hidden md:block' : 'block'" class="w-full max-w-md mx-auto md:mx-0">
-      <RouterView />
-
-      <!-- "Heute" Bereich (nur auf Desktop/Tablet sichtbar, wenn auf der Admin-Startseite) -->
-      <div v-if="isIndexRoute" class="hidden md:block bg-white p-6 rounded-3xl border border-gray-100 shadow-sm">
-        <h2 class="text-xl font-bold text-gray-800 mb-4">Heute</h2>
-        <p v-if="!hatHeuteTermine" class="text-gray-500">Aktuell keine geplanten Gassi-Geher...</p>
-        <ul v-else class="space-y-2">
-          <li v-for="termin in gassiGeherHeute" :key="termin.id" class="text-gray-800 border-b pb-2">
-            {{ termin.uhrzeit }} – {{ termin.hundName }} mit {{ termin.mitgliedName }}
-          </li>
-        </ul>
-      </div>
+    <!-- ERFOLG BANNER -->
+    <div v-else-if="success" class="bg-green-700 text-white p-8 rounded-2xl shadow-2xl text-center animate-bounce m-4">
+      <h2 class="text-3xl font-bold mb-2">Erfolg!</h2>
+      <p class="text-lg">Sie haben erfolgreich reserviert.</p>
     </div>
+
+    <!-- FEHLER BANNER -->
+    <div v-else class="bg-red-600 text-white p-8 rounded-2xl shadow-2xl text-center m-4">
+      <h2 class="text-3xl font-bold mb-2">Fehlgeschlagen!</h2>
+      <p class="text-lg">Reservierung konnte nicht gespeichert werden.</p>
+    </div>
+    
   </div>
 </template>
 
 <script setup>
-import { ref, onMounted, computed } from 'vue'
-import { useRouter, useRoute, RouterView } from 'vue-router'
+import { ref, onMounted } from 'vue'
+import { useRouter, useRoute } from 'vue-router'
 
 const router = useRouter()
 const route = useRoute()
 
-// Prüft, ob man exakt auf der Hauptseite des Admins ist (/app/admin)
-const isIndexRoute = computed(() => route.path === '/app/admin')
+const loading = ref(true)
+const success = ref(false)
 
-const menuItems = [
-  { name: 'Statistik', path: '/app/admin/statistik' },  
-  { name: 'Nachrichten', path: '/app/admin/nachrichten' },
-  { name: 'Veranstaltungen', path: '/app/admin/veranstaltungen' },
-  { name: 'Reservierungen', path: '/app/admin/reservierungen' },
-  { name: 'Reservierung hinzufügen', path: '/app/admin/termin-mitglied' },
-  { name: 'Mitglieder', path: '/app/admin/mitglieder' },
-]
-
-function buttonClass(path) {
-  const active = route.path === path
-  return [
-    'flex items-center justify-between p-4 rounded-3xl shadow-sm border transition-colors w-full',
-    active ? 'bg-[#b8c9b4] border-emerald-700' : 'bg-[#D3DDD1] border-gray-200 hover:bg-[#c2cebf]'
-  ]
-}
-
-function handleNavigate(item) {
-  router.push(item.path)
-}
-
-const gassiGeherHeute = ref([])
-const hatHeuteTermine = computed(() => gassiGeherHeute.value.length > 0)
-
-async function ladeHeutigeTermine() {
+onMounted(async () => {
   try {
-    const res = await fetch('/api/admin/termine/heute')
-    
-    const contentType = res.headers.get('content-type')
-    if (res.ok && contentType && contentType.includes('application/json')) {
-      gassiGeherHeute.value = await res.json()
+    // Gespeicherte Daten aus dem localStorage holen
+    const terminData = JSON.parse(localStorage.getItem('terminData') || '{}')
+    const hundData = JSON.parse(localStorage.getItem('finalerTermin') || '{}') // Falls woanders gespeichert
+
+    // Payload für ReservierungDTO zusammenbauen
+    const payload = {
+      mitgliedId: terminData.mitgliedId || terminData.mitgliedsnummer,
+      hundId: hundData.hundId || terminData.hundId,
+      datum: terminData.datum, // Format 'YYYY-MM-DD'
+      zeitAb: terminData.von || terminData.start, // Format 'HH:mm:ss' oder 'HH:mm'
+      zeitBis: terminData.bis || terminData.end
+    }
+
+    // Absenden an den Endpunkt @PostMapping("/new")
+    const res = await fetch('/new', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload)
+    })
+
+    if (res.ok) {
+      success.value = true
+      loading.value = false
+
+      setTimeout(() => {
+        localStorage.removeItem('terminData')
+        localStorage.removeItem('finalerTermin')
+        localStorage.removeItem('bookingFinal')
+
+        if (route.path.startsWith('/app/admin')) {
+          router.push('/app/admin')
+        } else {
+          router.push('/app')
+        }
+      }, 2000)
     } else {
-      gassiGeherHeute.value = []
+      throw new Error('Server antwortete mit Fehler')
     }
   } catch (e) {
-    gassiGeherHeute.value = []
-  }
-}
+    console.error('Reservierungsfehler:', e)
+    success.value = false
+    loading.value = false
 
-onMounted(ladeHeutigeTermine)
+    // Bei Fehler nach kurzer Zeit zum Anfang des Reservierungsprozesses leiten
+    setTimeout(() => {
+      if (route.path.startsWith('/app/admin')) {
+        router.push('/app/admin/termin-mitglied') // Admin Start vom Termin-Prozess
+      } else {
+        router.push('/app/zeitwahl') // Benutzer Start vom Termin-Prozess (Pfad anpassen falls nötig)
+      }
+    }, 2500)
+  }
+})
 </script>

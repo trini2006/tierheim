@@ -4,7 +4,7 @@
     <h2 class="text-xl font-bold">Unser Vorschlag</h2>
     <div v-if="randomDog" @click="selectDog(randomDog)" class="bg-[#BFCABF] p-4 rounded-xl cursor-pointer hover:bg-[#b0bcaf] transition-colors relative">
       <div class="flex gap-4">
-        <img :src="randomDog.image" class="w-24 h-24 rounded-lg object-cover pointer-events-none" />
+        <img :src="randomDog.image || 'https://via.placeholder.com/150'" class="w-24 h-24 rounded-lg object-cover pointer-events-none" />
         <div class="flex-grow">
           <div class="flex justify-between items-start">
             <h3 class="text-lg font-bold">{{ randomDog.name }}</h3>
@@ -28,7 +28,7 @@
     <h2 class="text-xl font-bold">Freie Hunde</h2>
     <div v-for="dog in filteredDogs" :key="dog.id" @click="selectDog(dog)" 
          class="bg-[#BFCABF] p-4 rounded-xl cursor-pointer flex gap-4 hover:bg-[#b0bcaf] transition-colors relative">
-      <img :src="dog.image" class="w-24 h-24 rounded-lg object-cover pointer-events-none flex-shrink-0" />
+      <img :src="dog.image || 'https://via.placeholder.com/150'" class="w-24 h-24 rounded-lg object-cover pointer-events-none flex-shrink-0" />
       <div class="flex-grow">
         <h3 class="text-lg font-bold">{{ dog.name }}</h3>
         <p class="text-sm">{{ dog.breed }} • {{ dog.age }} Jahre, {{ dog.gender }}</p>
@@ -57,7 +57,20 @@ const route = useRoute()
 
 const searchQuery = ref('')
 const terminData = ref(null)
-const allDogs = ref([])
+
+// Hier ist der Mock-Hund als Standard-Fallback definiert
+const mockHund = {
+  id: 999,
+  name: 'Wambo (Beispiel)',
+  breed: 'Husky-Chow Mix',
+  age: 3,
+  gender: 'Männlich',
+  tags: ['Freundlich', 'Verspielt'],
+  color: 'bg-green-500',
+  image: ''
+}
+
+const allDogs = ref([mockHund])
 
 onMounted(async () => {
   const data = localStorage.getItem('terminData')
@@ -92,25 +105,26 @@ const ladeVerfuegbareHunde = async () => {
       return
     }
 
-    // Exakter Abruf ohne Fallback-Daten über deinen Backend-Endpunkt
     const res = await fetch(`/hund/all/available/${mitgliedId}?datum=${datum}&von=${von}&bis=${bis}`)
     if (res.ok) {
       const data = await res.json()
-      allDogs.value = data.map(h => ({
-        id: h.id,
-        name: h.name,
-        breed: h.rasse,
-        age: h.jahre,
-        gender: h.geschlecht,
-        tags: h.labels ? h.labels.map(l => l.name) : [],
-        color: h.erfahrung ? 'bg-orange-500' : 'bg-green-500',
-        image: h.bildUrl
-      }))
+      if (data && data.length > 0) {
+        allDogs.value = data.map(h => ({
+          id: h.id,
+          name: h.name,
+          breed: h.rasse,
+          age: h.jahre,
+          gender: h.geschlecht,
+          tags: h.labels ? h.labels.map(l => l.name) : [],
+          color: h.erfahrung ? 'bg-orange-500' : 'bg-green-500',
+          image: h.bildUrl
+        }))
+      }
     } else {
       console.error('Fehler beim Laden der Hunde, Status:', res.status)
     }
   } catch (e) {
-    console.error('Netzwerkfehler beim Laden der Hunde:', e)
+    console.error('Netzwerkfehler beim Laden der Hunde, behalte Mock-Hund:', e)
   }
 }
 

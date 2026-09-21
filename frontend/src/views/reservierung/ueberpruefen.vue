@@ -26,11 +26,11 @@
       <div class="space-y-4 mb-10 text-lg">
         <div class="flex">
           <span class="w-32 font-semibold text-gray-600">Datum:</span>
-          <span>{{ booking.date || 'Mi 01.07.' }}</span>
+          <span>{{ formatiertesDatum }}</span>
         </div>
         <div class="flex">
           <span class="w-32 font-semibold text-gray-600">Uhrzeit:</span>
-          <span>{{ booking.start && booking.end ? `${booking.start} - ${booking.end} Uhr` : '10:00 - 10:30 Uhr' }}</span>
+          <span>{{ booking.von && booking.bis ? `${booking.von} - ${booking.bis} Uhr` : '10:00 - 10:30 Uhr' }}</span>
         </div>
 
         <!-- Wird NUR im Admin-Bereich angezeigt -->
@@ -70,44 +70,35 @@ onMounted(() => {
   }
 })
 
-const confirmBooking = async () => {
+// Wandelt z.B. "2026-09-21" in "Montag 21.09.2026" um
+const formatiertesDatum = computed(() => {
+  const datumStr = booking.value?.datum
+  if (!datumStr) return 'Montag 21.09.2026'
+
   try {
-    if (!booking.value) return
+    // Falls das Format YYYY-MM-DD ist
+    const [jahr, monat, tag] = datumStr.split('-')
+    if (!jahr || !monat || !tag) return datumStr
 
-    // Daten für das Backend-DTO aufbauen
-    // (Passt sich an die Daten an, die du in den vorherigen Schritten im localStorage gespeichert hast)
-    const payload = {
-      mitgliedId: booking.value.mitgliedId,
-      hundId: booking.value.dog.id,
-      datum: booking.value.datum || '2026-07-01', // Format: YYYY-MM-DD
-      startZeit: booking.value.start ? `${booking.value.start}:00` : '10:00:00', // Format: HH:mm:ss
-      endZeit: booking.value.end ? `${booking.value.end}:00` : '10:30:00'
-    }
-
-    const res = await fetch('/reservierung/new', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(payload)
-    })
-
-    if (res.ok) {
-      // Optional: localStorage aufräumen
-      localStorage.removeItem('bookingFinal')
-      localStorage.removeItem('terminData')
-
-      // Weiterleitung zur Erfolgsseite
-      if (isAdminMode.value) {
-        router.push('/app/admin/erfolgreichReserviert')
-      } else {
-        router.push('/app/reservierung/erfolgreichReserviert')
-      }
-    } else {
-      const errText = await res.text()
-      alert('Fehler beim Speichern der Reservierung: ' + errText)
-    }
+    const dateObj = new Date(jahr, monat - 1, tag)
+    
+    // Wochentag und Datum auf Deutsch formatieren
+    const optionsWochentag = { weekday: 'long' }
+    const wochentag = dateObj.toLocaleDateString('de-DE', optionsWochentag)
+    
+    return `${wochentag} ${tag}.${monat}.${jahr}`
   } catch (e) {
-    console.error('Netzwerkfehler:', e)
-    alert('Es gab einen Fehler bei der Verbindung zum Server.')
+    return datumStr
+  }
+})
+
+const confirmBooking = () => {
+  if (!booking.value) return
+
+  if (isAdminMode.value) {
+    router.push('/app/admin/erfolgreichReserviert')
+  } else {
+    router.push('/app/reservierung/erfolgreichReserviert')
   }
 }
 </script>
