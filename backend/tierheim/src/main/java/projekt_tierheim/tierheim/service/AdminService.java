@@ -18,7 +18,7 @@ public class AdminService {
         this.adminRepository = adminRepository;
     }
 
-    public Admin createAdmin(AdminCreateDTO adminDTO) {
+    public AdminResponseDTO createAdmin(AdminCreateDTO adminDTO) {
         Admin admin = new Admin();
         admin.setPersonalnummer(adminDTO.personalnummer());
 
@@ -26,7 +26,11 @@ public class AdminService {
         String hash = passwordEncoder.encode(adminDTO.passwort());
         admin.setPasswort(hash);
 
-        return adminRepository.saveAndFlush(admin);
+        Admin gespeichert = adminRepository.saveAndFlush(admin);
+        return new AdminResponseDTO(
+                gespeichert.getId(),
+                gespeichert.getPersonalnummer()
+        );
     }
 
     public AdminResponseDTO updateAdmin(int personalnummer, AdminPasswortDTO adminDTO) {
@@ -36,7 +40,9 @@ public class AdminService {
             throw new NotFoundException("Admin mit der Personalnummer " +  personalnummer + " nicht gefunden");
         }
         // Neues Passwort hashen
-        String hash = passwordEncoder.encode(adminDTO.passwort());
+        admin.setPasswort(
+                passwordEncoder.encode(adminDTO.passwort())
+        );
         Admin gespeichert = adminRepository.saveAndFlush(admin);
 
         return new AdminResponseDTO(
@@ -51,5 +57,19 @@ public class AdminService {
             throw new NotFoundException("Admin mit der Personalnummer \" +  personalnummer + \" nicht gefunden");
         }
         return admin;
+    }
+
+    public boolean login(AdminLoginDTO dto){
+        Admin admin = adminRepository.findAdminByPersonalnummer(
+                dto.personalnummer()
+        );
+        if(admin == null){
+            throw new NotFoundException("Admin mit der Personalnummer \" +  personalnummer + \" nicht gefunden");
+        }
+
+        return passwordEncoder.matches(
+                dto.passwort(), // eingegebenes Passwort
+                admin.getPasswort() // gespeicherter Hash
+        );
     }
 }
