@@ -3,9 +3,7 @@ package projekt_tierheim.tierheim.service;
 import org.springframework.security.crypto.argon2.Argon2PasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
-import projekt_tierheim.tierheim.db.Mitglied.Mitglied;
-import projekt_tierheim.tierheim.db.Mitglied.MitgliedDTO;
-import projekt_tierheim.tierheim.db.Mitglied.MitgliedRepository;
+import projekt_tierheim.tierheim.db.Mitglied.*;
 import projekt_tierheim.tierheim.exception.NotFoundException;
 
 @Service
@@ -19,7 +17,7 @@ public class MitgliedService {
         this.mitgliedRepository = mitgliedRepository;
     }
 
-    public Mitglied createMitglied(MitgliedDTO mitgliedDTO) {
+    public MitgliedResponseDTO createMitglied(MitgliedCreateDTO mitgliedDTO) {
         Mitglied mitglied = new Mitglied();
         mitglied.setMitgliedsnummer(mitgliedDTO.mitgliedsnummer());
 
@@ -27,22 +25,34 @@ public class MitgliedService {
         String hash = passwordEncoder.encode(mitgliedDTO.passwort());
         mitglied.setPasswort(hash);
 
-        return mitgliedRepository.saveAndFlush(mitglied);
+        Mitglied gespeichert = mitgliedRepository.saveAndFlush(mitglied);
+        return new MitgliedResponseDTO(
+                gespeichert.getId(),
+                gespeichert.getMitgliedsnummer(),
+                gespeichert.getErfahrung()
+        );
     }
 
-    public Mitglied updateMitglied(int mitgliedsnummer, MitgliedDTO mitgliedDTO) {
+    public MitgliedResponseDTO updateMitglied(int mitgliedsnummer, MitgliedUpdateDTO mitgliedDTO) {
         Mitglied mitglied = mitgliedRepository.findMitgliedByMitgliedsnummer(mitgliedsnummer);
 
         if (mitglied == null) {
             throw new NotFoundException("Mitglied mit der Mitgliedsnummer " +  mitgliedsnummer + " nicht gefunden");
         }
-        mitglied.setMitgliedsnummer(mitgliedDTO.mitgliedsnummer());
 
         // Neues Passwort hashen
         String hash = passwordEncoder.encode(mitgliedDTO.passwort());
         mitglied.setPasswort(hash);
 
-        return mitgliedRepository.saveAndFlush(mitglied);
+        mitglied.setErfahrung(mitgliedDTO.erfahrung());
+
+        Mitglied gespeichert = mitgliedRepository.saveAndFlush(mitglied);
+
+        return new MitgliedResponseDTO(
+                gespeichert.getId(),
+                gespeichert.getMitgliedsnummer(),
+                gespeichert.getErfahrung()
+        );
     }
 
     public Mitglied getMitgliedByMitgliedsnummer(int mitgliedsnummer) {
@@ -51,5 +61,19 @@ public class MitgliedService {
             throw new NotFoundException("Mitglied mit der Mitgliedsnummer \" +  mitgliedsnummer + \" nicht gefunden");
         }
         return mitglied;
+    }
+
+    public boolean login(MitgliedLoginDTO dto){
+        Mitglied mitglied = mitgliedRepository.findMitgliedByMitgliedsnummer(
+                dto.mitgliedsnummer()
+        );
+        if(mitglied == null){
+            throw new NotFoundException("Mitglied mit der Mitgliedsnummer \" +  mitgliedsnummer + \" nicht gefunden");
+        }
+
+        return passwordEncoder.matches(
+                dto.passwort(), // eingegebenes Passwort
+                mitglied.getPasswort() // gespeicherter Hash
+        );
     }
 }

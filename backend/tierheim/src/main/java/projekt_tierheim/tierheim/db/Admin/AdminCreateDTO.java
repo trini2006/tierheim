@@ -5,6 +5,6 @@ import jakarta.validation.constraints.Positive;
 
 public record AdminCreateDTO(
         @NotNull @Positive int personalnummer,
-        @NotNull String passwort    // Erstmal nur für die Tests noch im normalen DTO
+        @NotNull String passwort
 )
 { }
