@@ -22,6 +22,7 @@ public interface ReservierungRepository extends JpaRepository<Reservierung, Inte
                 AND (:mitgliedId IS NULL OR r.mitglied.id = :mitgliedId)
                 AND (:hundId IS NULL OR r.hund.id = :hundId)
                 AND (:status IS NULL OR r.status = :status)
+                ORDER BY r.datum ASC, r.zeitAb ASC
     """)
     List<Reservierung> findGefiltert(
       @Param("von") LocalDate von,
