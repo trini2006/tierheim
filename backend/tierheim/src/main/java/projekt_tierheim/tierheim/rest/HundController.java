@@ -49,9 +49,12 @@ public class HundController {
         return hund;
     }
 
-    @GetMapping("/all")
-    public List<Hund> getAlleHunde() {
-        return hundRepository.findAll();
+    @GetMapping("/{tierheimId}/all")
+    public List<Hund> getAlleHunde(@PathVariable("tierheimId") int tierheimId) {
+        if(!tierheimRepository.existsById(tierheimId)) {
+            throw new NotFoundException("Tierheim mit der Id " + tierheimId + " nicht gefunden");
+        }
+        return hundRepository.findAllByTierheimId(tierheimId);
     }
 
     @GetMapping("/all/available/{mitgliedId}")
