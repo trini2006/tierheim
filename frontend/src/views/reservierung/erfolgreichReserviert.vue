@@ -1,5 +1,5 @@
 <template>
-  <div class="flex items-center justify-center min-h-screen w-full">
+  <div class="flex items-center justify-center min-h-screen w-full bg-gray-50">
     
     <!-- LADEZUSTAND -->
     <div v-if="loading" class="bg-gray-700 text-white p-8 rounded-2xl shadow-2xl text-center m-4">
@@ -23,7 +23,7 @@
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue'
+import { ref, onMounted, onUnmounted } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 
 const router = useRouter()
@@ -31,13 +31,12 @@ const route = useRoute()
 
 const loading = ref(true)
 const success = ref(false)
+let timerId = null // Variable zum Speichern des Timers
 
 onMounted(async () => {
   try {
     const bookingFinal = JSON.parse(localStorage.getItem('bookingFinal') || '{}')
 
-    // Entspricht exakt deinem ReservierungDTO:
-    // mitgliedId, hundId, datum, zeitAb, zeitBis
     const payload = {
       mitgliedId: bookingFinal.mitgliedId,
       hundId: bookingFinal.dog?.id,
@@ -56,7 +55,7 @@ onMounted(async () => {
       success.value = true
       loading.value = false
 
-      setTimeout(() => {
+      timerId = setTimeout(() => {
         localStorage.removeItem('terminData')
         localStorage.removeItem('bookingFinal')
 
@@ -74,14 +73,26 @@ onMounted(async () => {
     success.value = false
     loading.value = false
 
-    // Bei Fehler zurück zum Anfang des Prozesses
-    setTimeout(() => {
+    // Wenn ein Fehler auftritt, leiten wir standardmäßig nach 3 Sekunden weiter,
+    // ABER nur, wenn der User nicht vorher manuell wegnavigiert.
+    timerId = setTimeout(() => {
+      // Wenn der Nutzer bereits auf der Home-Seite ist, machen wir gar nichts mehr
+      if (route.path === '/app/admin' || route.path === '/app') return
+
       if (route.path.startsWith('/app/admin')) {
-        router.push('/app/admin/termin-mitglied')
+        router.push('/app/admin')
       } else {
-        router.push('/app/reservierung/zeitwahl')
+        router.push('/app')
       }
-    }, 2500)
+    }, 3000)
+  }
+})
+
+// WICHTIG: Sobald die Komponente zerstört wird (z.B. weil du auf Home klickst),
+// wird der laufende Timer sofort gelöscht. So wirst du nie wieder ungewollt weggezogen!
+onUnmounted(() => {
+  if (timerId) {
+    clearTimeout(timerId)
   }
 })
 </script>
