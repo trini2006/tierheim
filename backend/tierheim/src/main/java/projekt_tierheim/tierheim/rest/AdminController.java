@@ -42,7 +42,7 @@ public class AdminController {
         return adminRepository.findAll();
     }
 
-    @PostMapping()
+    @PostMapping("/new")
     public AdminResponseDTO newAdmin(@Valid @RequestBody AdminCreateDTO adminDTO){
         return adminService.createAdmin(adminDTO);
     }

@@ -55,14 +55,6 @@ public class Mitglied {
         this.erfahrung = erfahrung;
     }
 
-    public static Mitglied convertToMitglied(MitgliedDTO mitgliedDTO) {
-        Mitglied mitglied = new Mitglied();
-        mitglied.setMitgliedsnummer(mitgliedDTO.mitgliedsnummer());
-        mitglied.setPasswort(mitgliedDTO.passwort());
-        mitglied.setErfahrung(mitgliedDTO.erfahrung());
-        return mitglied;
-    }
-
     @Override
     public boolean equals(Object o) {
         if (o == null || getClass() != o.getClass()) return false;

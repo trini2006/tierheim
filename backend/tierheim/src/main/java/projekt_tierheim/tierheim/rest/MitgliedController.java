@@ -1,12 +1,9 @@
 package projekt_tierheim.tierheim.rest;
 
 import jakarta.validation.Valid;
-import org.apache.commons.lang3.NotImplementedException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
-import projekt_tierheim.tierheim.db.Mitglied.Mitglied;
-import projekt_tierheim.tierheim.db.Mitglied.MitgliedDTO;
-import projekt_tierheim.tierheim.db.Mitglied.MitgliedRepository;
+import projekt_tierheim.tierheim.db.Mitglied.*;
 import projekt_tierheim.tierheim.exception.NotFoundException;
 import projekt_tierheim.tierheim.service.MitgliedService;
 
@@ -30,21 +27,30 @@ public class MitgliedController {
     }
 
     @GetMapping("/{mitgliedsnummer}")
-    public Mitglied getMitgliedByMitgliedsnummer(@PathVariable("mitgliedsnummer") int mitgliedsnummer) {
+    public MitgliedResponseDTO getMitgliedByMitgliedsnummer(@PathVariable("mitgliedsnummer") int mitgliedsnummer) {
         Mitglied mitglied = mitgliedRepository.findMitgliedByMitgliedsnummer(mitgliedsnummer);
         if(mitglied == null) {
             throw new NotFoundException("Mitglied mit der Mitgliedsnummer " +  mitgliedsnummer + " nicht gefunden");
         }
-        return mitglied;
+        return new MitgliedResponseDTO(
+                mitglied.getId(),
+                mitglied.getMitgliedsnummer(),
+                mitglied.getErfahrung()
+        );
     }
 
     @PostMapping("/new")
-    public Mitglied newMitglied(@Valid @RequestBody MitgliedDTO mitgliedDTO) {
+    public MitgliedResponseDTO newMitglied(@Valid @RequestBody MitgliedCreateDTO mitgliedDTO) {
         return mitgliedService.createMitglied(mitgliedDTO);
     }
 
+    @PostMapping("/login")
+    public boolean login(@Valid @RequestBody MitgliedLoginDTO dto){
+        return mitgliedService.login(dto);
+    }
+
     @PutMapping("/{mitgliedsnummer}")
-    public Mitglied updateMitglied(@PathVariable("mitgliedsnummer") int mitgliedsnummer, @Valid @RequestBody MitgliedDTO mitgliedDTO) {
+    public MitgliedResponseDTO updateMitglied(@PathVariable("mitgliedsnummer") int mitgliedsnummer, @Valid @RequestBody MitgliedUpdateDTO mitgliedDTO) {
         return mitgliedService.updateMitglied(mitgliedsnummer, mitgliedDTO);
     }
 
