@@ -153,97 +153,122 @@
   </template>
   
   <script setup>
-  import { ref, onMounted } from 'vue'
-  import { useRoute, useRouter } from 'vue-router'
-  
-  const route = useRoute()
-  const router = useRouter()
-  
-  const isEditMode = ref(false)
-  const popupMeldung = ref('')
-  const popUfZaehler = ref(false)
-  
-  // Formular Datenstruktur
-  const hund = ref({
-    id: null,
-    name: '',
-    gender: 'Rüde',
-    statusPunkt: 'bg-green-500',
-    age: '',
-    breed: '',
-    weight: '',
-    strecke: '',
-    bild: 'https://images.unsplash.com/photo-1543466835-00a7907e9de1',
-    tags: ['ruhig', 'zurückhaltend', 'freundlich']
-  })
-  
-  onMounted(() => {
-    const editData = localStorage.getItem('editHund')
-    if (editData) {
-      // Bearbeiten-Modus: Daten laden
-      isEditMode.value = true
-      hund.value = JSON.parse(editData)
-    } else {
-      // Neuer Hund Modus: Felder sind leer
-      isEditMode.value = false
+import { ref, onMounted } from 'vue'
+import { useRoute, useRouter } from 'vue-router'
+
+const route = useRoute()
+const router = useRouter()
+
+const isEditMode = ref(false)
+const popupMeldung = ref('')
+const popUfZaehler = ref(false)
+
+// Formular Datenstruktur
+const hund = ref({
+  id: null,
+  name: '',
+  gender: 'Rüde',
+  statusPunkt: 'bg-green-500',
+  age: '',
+  breed: '',
+  weight: '',
+  strecke: '',
+  bild: 'https://images.unsplash.com/photo-1543466835-00a7907e9de1',
+  tags: []
+})
+
+onMounted(async () => {
+  const idFromRoute = route.params.id
+
+  if (idFromRoute) {
+    isEditMode.value = true
+    try {
+      const response = await fetch(`/api/hund/${idFromRoute}`)
+      if (!response.ok) {
+        throw new Error(`Fehler beim Laden des Hundes: Status ${response.status}`)
+      }
+      const data = await response.json()
+      
+      // Backend-Datenstruktur auf Frontend-Variablen mappen
       hund.value = {
-        id: Date.now(),
-        name: '',
-        gender: 'Rüde',
-        statusPunkt: 'bg-green-500',
-        age: '',
-        breed: '',
-        weight: '',
-        strecke: '',
-        bild: 'https://images.unsplash.com/photo-1543466835-00a7907e9de1',
-        tags: []
+        id: data.id,
+        name: data.name || '',
+        gender: data.geschlecht || data.gender || 'Rüde',
+        statusPunkt: data.statusPunkt || 'bg-green-500',
+        age: data.alter || data.age || '',
+        breed: data.rasse || data.breed || '',
+        weight: data.gewicht || data.weight || '',
+        strecke: data.strecke || '',
+        bild: data.bild || 'https://images.unsplash.com/photo-1543466835-00a7907e9de1',
+        tags: data.tags || []
       }
+    } catch (error) {
+      console.error('Fehler beim Abrufen der Daten vom Backend:', error)
+      alert('Der Hund konnte nicht geladen werden. Bitte prüfen Sie die Verbindung zum Backend.')
     }
-  })
-  
-  const enferneTag = (index) => {
-    hund.value.tags.splice(index, 1)
+  } else {
+    isEditMode.value = false
   }
-  
-  const neuenTagHinzufuegen = () => {
-    const neuerTag = prompt('Neues Tag eingeben:')
-    if (neuerTag) {
-      hund.value.tags.push(neuerTag)
-    }
+})
+
+const entferneTag = (index) => {
+  hund.value.tags.splice(index, 1)
+}
+
+const neuenTagHinzufuegen = () => {
+  const neuerTag = prompt('Neues Tag eingeben:')
+  if (neuerTag && neuerTag.trim()) {
+    hund.value.tags.push(neuerTag.trim())
   }
-  
-  const speichern = () => {
-    if (!hund.value.name.trim()) {
-      alert('Bitte geben Sie einen Namen ein.')
-      return
+}
+
+const speichern = async () => {
+  if (!hund.value.name.trim()) {
+    alert('Bitte geben Sie einen Namen ein.')
+    return
+  }
+
+  // Datenpaket für die API vorbereiten
+  const payload = {
+    id: hund.value.id,
+    name: hund.value.name,
+    geschlecht: hund.value.gender,
+    alter: hund.value.age,
+    rasse: hund.value.breed,
+    gewicht: hund.value.weight,
+    strecke: hund.value.strecke,
+    bild: hund.value.bild,
+    tags: hund.value.tags,
+    statusPunkt: hund.value.statusPunkt
+  }
+
+  const url = isEditMode.value ? `/api/hund/${hund.value.id}` : '/api/hund'
+  const method = isEditMode.value ? 'PUT' : 'POST'
+
+  try {
+    const response = await fetch(url, {
+      method: method,
+      headers: { 
+        'Content-Type': 'application/json' 
+      },
+      body: JSON.stringify(payload)
+    })
+
+    if (!response.ok) {
+      throw new Error(`Server antwortete mit Status ${response.status}`)
     }
-  
-    // Bestehende Liste aus localStorage holen oder initialisieren
-    let gespeicherteHunde = JSON.parse(localStorage.getItem('alleHundeListe') || '[]')
-  
-    if (isEditMode.value) {
-      // Hund in der Liste aktualisieren
-      const index = gespeicherteHunde.findIndex(h => h.id === hund.value.id)
-      if (index !== -1) {
-        gespeicherteHunde[index] = hund.value
-      } else {
-        gespeicherteHunde.push(hund.value)
-      }
-      popupMeldung.value = 'Hund wurde geändert'
-    } else {
-      // Neuen Hund hinzufügen
-      gespeicherteHunde.push(hund.value)
-      popupMeldung.value = 'Hund wurde angelegt'
-    }
-  
-    localStorage.setItem('alleHundeListe', JSON.stringify(gespeicherteHunde))
-    localStorage.removeItem('editHund') // Aufräumen
-  
-    // Pop-up anzeigen und nach 1.5 Sekunden zur Übersicht (hunde.vue) wechseln
+
+    popupMeldung.value = isEditMode.value ? 'Hund wurde geändert' : 'Hund wurde angelegt'
     popUfZaehler.value = true
+
     setTimeout(() => {
       popUfZaehler.value = false
-      router.push('app//admin/hunde') // Passe den Pfad zu deiner Hunde-Übersicht an falls nötig
+      router.push('/admin/hunde')
     }, 1500)
+
+  } catch (error) {
+    console.error('Fehler beim Speichern an das Backend:', error)
+    alert('Fehler beim Speichern! Bitte stellen Sie sicher, dass das Backend erreichbar ist.')
   }
+}
   </script>

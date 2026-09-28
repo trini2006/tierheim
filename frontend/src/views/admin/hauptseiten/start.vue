@@ -78,11 +78,21 @@ const hatHeuteTermine = computed(() => gassiGeherHeute.value.length > 0)
 
 async function ladeHeutigeTermine() {
   try {
-    const res = await fetch('/api/admin/termine/heute')
+    // Heutiges Datum im Format YYYY-MM-DD generieren
+    const heuteStr = new Date().toISOString().split('T')[0]
+    
+    // Nutzung des Endpunkts mit von, bis und Status AKTIV
+    const res = await fetch(`/all?von=${heuteStr}&bis=${heuteStr}&status=AKTIV`)
     
     const contentType = res.headers.get('content-type')
     if (res.ok && contentType && contentType.includes('application/json')) {
-      gassiGeherHeute.value = await res.json()
+      const data = await res.json()
+      gassiGeherHeute.value = data.map(termin => ({
+        id: termin.id,
+        uhrzeit: `${termin.von?.substring(0, 5)} – ${termin.bis?.substring(0, 5)} Uhr`,
+        hundName: termin.hund?.name || 'Hund',
+        mitgliedName: termin.mitglied?.telefon || 'Mitglied'
+      }))
     } else {
       gassiGeherHeute.value = []
     }
