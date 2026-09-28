@@ -168,4 +168,13 @@ class AdminControllerTest {
         Mockito.verify(adminRepository, Mockito.times(1))
                 .deleteByPersonalnummer(TEST_PERSONALNUMMER1);
     }
+
+    @Test
+    void login() throws Exception{
+        mockMvc.perform(MockMvcRequestBuilders.post("/admin/login")
+                .accept(MediaType.APPLICATION_JSON))
+                .andExpect(
+                        status().isOk()
+                );
+    }
 }
