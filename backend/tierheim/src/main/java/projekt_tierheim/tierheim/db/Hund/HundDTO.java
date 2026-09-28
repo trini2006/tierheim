@@ -1,0 +1,19 @@
+package projekt_tierheim.tierheim.db.Hund;
+
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Positive;
+
+// Zum Erstellen/ Bearbeiten eines vorhandenen Hundes ohne Sperrgrund
+public record HundDTO(
+        @NotBlank String name,
+        @NotNull boolean geschlecht,
+        @NotNull @Positive int jahre,
+        @NotBlank String rasse,
+        @NotNull Groesse groesse,
+        @NotNull @Positive int gewicht,
+        @NotNull boolean erfahrung,
+        @NotNull Strecke strecke,
+        @NotNull Integer tierheimId,
+        String bildURL)
+{ }

@@ -1,0 +1,202 @@
+package projekt_tierheim.tierheim.db.Hund;
+
+import jakarta.persistence.*;
+import projekt_tierheim.tierheim.db.Admin.Admin;
+import projekt_tierheim.tierheim.db.Label.Label;
+import projekt_tierheim.tierheim.db.Tierheim.Tierheim;
+
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.util.HashSet;
+import java.util.Objects;
+import java.util.Set;
+
+@Entity
+@Table(name = "hund")
+public class Hund {
+    // Attribute für alle Hunde
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private int id;
+    private String name;
+    private boolean geschlecht; // false = Rüde, true = Hündin
+    private int jahre;
+    private String rasse;
+    private int gewicht; // z.B. 20kg
+    private boolean erfahrung = false; // false = Anfängerhund, true = Problemhund
+    private String bildURL;
+
+    @Enumerated(EnumType.STRING)
+    private Groesse groesse;
+    @Enumerated(EnumType.STRING)
+    private Strecke strecke;
+
+    // Attribute zum Sperren von Hunden
+    private LocalDate gesperrtVon;
+    private LocalDate gesperrtBis;
+    private boolean istGesperrt = false; // true = ja, false = nein
+    private String sperrGrund;
+
+    // Zu welchem Tierheim gehört der Hund
+    @ManyToOne(fetch = FetchType.LAZY)
+    private Tierheim tierheim;
+
+    // Log-Daten für z.B. Debugging
+    private LocalDateTime erstelltAm;
+    @ManyToOne(fetch = FetchType.LAZY)
+    private Admin erstelltVon;
+
+    // Labels für die Charakteristik
+    @ManyToMany(cascade = CascadeType.REFRESH, fetch = FetchType.LAZY)
+    @JoinTable(name = "Hundelabel",
+            joinColumns = @JoinColumn(name = "idHundi"),
+            inverseJoinColumns = @JoinColumn(name = "idLabeli"))
+    protected Set<Label> labels = new HashSet<>();
+
+    public Hund() {}
+
+    // Hund ohne Sperrgrund
+    public Hund(int id, String name, boolean geschlecht, int jahre, String rasse, Groesse groesse, int gewicht, boolean erfahrung, Strecke strecke, Admin erstelltVon, Tierheim tierheim) {
+        this.id = id;
+        this.name = name;
+        this.geschlecht = geschlecht;
+        this.jahre = jahre;
+        this.rasse = rasse;
+        this.groesse = groesse;
+        this.gewicht = gewicht;
+        this.erfahrung = erfahrung;
+        this.strecke = strecke;
+        this.erstelltAm = LocalDateTime.now();
+        this.erstelltVon = erstelltVon;
+        this.tierheim = tierheim;
+    }
+
+    // Hund mit Sperrgrund
+    public Hund(LocalDate gesperrtVon, LocalDate gesperrtBis, String sperrGrund) {
+        this.gesperrtVon = gesperrtVon;
+        this.gesperrtBis = gesperrtBis;
+        this.istGesperrt = true;
+        this.sperrGrund = sperrGrund;
+    }
+
+    public int getId() {
+        return id;
+    }
+    public void setId(int id) {
+        this.id = id;
+    }
+
+    public String getName() {
+        return name;
+    }
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public boolean isGeschlecht() {
+        return geschlecht;
+    }
+    public void setGeschlecht(boolean geschlecht) {
+        this.geschlecht = geschlecht;
+    }
+
+    public int getJahre() {
+        return jahre ;
+    }
+    public void setJahre(int jahre) {
+        this.jahre = jahre;
+    }
+
+    public String getRasse() {
+        return rasse;
+    }
+    public void setRasse(String rasse) {
+        this.rasse = rasse;
+    }
+
+    public Groesse getGroesse() {
+        return groesse;
+    }
+    public void setGroesse(Groesse groesse) {
+        this.groesse = groesse;
+    }
+
+    public int getGewicht() {
+        return gewicht;
+    }
+    public void setGewicht(int gewicht) {
+        this.gewicht = gewicht;
+    }
+
+    public boolean getErfahrung() { return erfahrung; }
+    public void setErfahrung(boolean erfahrung) { this.erfahrung = erfahrung; }
+
+    public String getBildURL() { return bildURL; }
+    public void setBildURL(String bildURL) { this.bildURL = bildURL; }
+
+    public Strecke getStrecke() { return strecke; }
+    public void setStrecke(Strecke strecke) { this.strecke = strecke; }
+
+    public LocalDate getGesperrtVon() { return gesperrtVon; }
+    public void setGesperrtVon(LocalDate gesperrtVon) { this.gesperrtVon = gesperrtVon; }
+
+    public LocalDate getGesperrtBis() { return gesperrtBis; }
+    public void setGesperrtBis(LocalDate gesperrtBis) { this.gesperrtBis = gesperrtBis; }
+
+    public boolean isIstGesperrt() { return istGesperrt; }
+    public void setIstGesperrt(boolean istGesperrt) { this.istGesperrt = istGesperrt; }
+
+    public String getSperrGrund() { return sperrGrund; }
+    public void setSperrGrund(String sperrGrund) { this.sperrGrund = sperrGrund; }
+
+    public LocalDateTime getErstelltAm() { return erstelltAm; }
+    public void setErstelltAm(LocalDateTime erstelltAm) { this.erstelltAm = erstelltAm; }
+
+    public Admin getErstelltVon() { return erstelltVon; }
+    public void setErstelltVon(Admin erstelltVon) { this.erstelltVon = erstelltVon; }
+
+    public Tierheim getTierheim() { return tierheim; }
+    public void setTierheim(Tierheim tierheim) { this.tierheim = tierheim; }
+
+    public Set<Label> getLabels(){return labels;}
+    public void setLabels(Set<Label> labels){this.labels = labels;}
+
+    public void addLabel(Label label){this.labels.add(label);}
+    public void removeLabel(Label label){this.labels.remove(label);}
+
+    @Override
+    public boolean equals(Object o) {
+        if (o == null || getClass() != o.getClass()) return false;
+        Hund hund = (Hund) o;
+        return getId() == hund.getId() && isGeschlecht() == hund.isGeschlecht() && getJahre() == hund.getJahre() && getGewicht() == hund.getGewicht() && getErfahrung() == hund.getErfahrung() && isIstGesperrt() == hund.isIstGesperrt() && getErstelltVon() == hund.getErstelltVon() && Objects.equals(getName(), hund.getName()) && Objects.equals(getRasse(), hund.getRasse()) && getGroesse() == hund.getGroesse() && getStrecke() == hund.getStrecke() && Objects.equals(getGesperrtVon(), hund.getGesperrtVon()) && Objects.equals(getGesperrtBis(), hund.getGesperrtBis()) && Objects.equals(getSperrGrund(), hund.getSperrGrund()) && Objects.equals(getErstelltAm(), hund.getErstelltAm()) && Objects.equals(getLabels(), hund.getLabels());
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(getId(), getName(), isGeschlecht(), getJahre(), getRasse(), getGroesse(), getGewicht(), getErfahrung(), getStrecke(), getGesperrtVon(), getGesperrtBis(), isIstGesperrt(), getSperrGrund(), getErstelltAm(), getErstelltVon(), getLabels());
+    }
+
+    public static Hund convertToHund(HundDTO hundDTO, Tierheim tierheim) {
+        Hund hund = new Hund();
+        hund.setName(hundDTO.name());
+        hund.setGeschlecht(hundDTO.geschlecht());
+        hund.setJahre(hundDTO.jahre());
+        hund.setRasse(hundDTO.rasse());
+        hund.setGroesse(hundDTO.groesse());
+        hund.setErfahrung(hundDTO.erfahrung());
+        hund.setStrecke(hundDTO.strecke());
+        hund.setTierheim(tierheim);
+        hund.setBildURL(hundDTO.bildURL());
+        return hund;
+    }
+
+    // evtl. überflüssig
+    public static Hund convertToSperren(SperrHundDTO sperrHundDTO) {
+        Hund hund = new Hund();
+        hund.setGesperrtVon(sperrHundDTO.gesperrtVon());
+        hund.setGesperrtBis(sperrHundDTO.gesperrtBis());
+        hund.setIstGesperrt(true);
+        hund.setSperrGrund(sperrHundDTO.sperrGrund());
+        return hund;
+    }
+}
