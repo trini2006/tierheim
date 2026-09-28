@@ -54,7 +54,6 @@
     </div>
 
     <!-- RECHTER BEREICH: Mitglied bearbeiten / anlegen -->
-    <!-- md:mt-12 schiebt den Container auch auf Tablet/Desktop etwas nach unten (vorher md:mt-0) -->
     <div class="w-full max-w-md mx-auto md:mx-0 mt-8 md:mt-12">
       <div class="space-y-4">
         <!-- Mitgliedsnummer -->
@@ -118,7 +117,7 @@
           ></button>
         </div>
 
-        <!-- Anlegen Button: flex + justify-center zentriert den Button horizontal im rechten Container -->
+        <!-- Anlegen Button -->
         <div class="flex justify-center">
           <button
             @click="anlegen"
@@ -133,26 +132,38 @@
 </template>
 
 <script setup>
-import { ref, computed } from 'vue'
+import { ref, onMounted, computed } from 'vue'
 
-// Beispielhafte Daten; in echt via fetch/API aus dem Backend laden
-const mitglieder = ref([
-  { id: 1, nummer: '1234556789', passwort: 'gassi123', erfahrung: 'orange' },
-  { id: 2, nummer: '1234567890', passwort: 'gassi456', erfahrung: 'gruen' },
-  { id: 3, nummer: '1233567893', passwort: 'gassi789', erfahrung: 'orange' },
-  { id: 4, nummer: '5718239471', passwort: 'gassi321', erfahrung: 'gruen' },
-  { id: 5, nummer: '6734846293', passwort: 'gassi654', erfahrung: 'gruen' },
-])
+const mitglieder = ref([])
 
 const selectedId = ref(null)
 const editField = ref(null)
 const form = ref({ nummer: '', passwort: '', erfahrung: 'gruen' })
 
-// Zeigt die Mitgliedsnummer gekürzt an (z.B. "1234..."), solange nicht bearbeitet wird
 const nummerAnzeige = computed(() => {
   const n = form.value.nummer
-  return n.length > 4 ? n.slice(0, 4) + '...' : n
+  return n && n.length > 4 ? n.slice(0, 4) + '...' : n
 })
+
+// Daten beim Laden der Komponente vom Backend abrufen
+const ladeMitglieder = async () => {
+  try {
+    const res = await fetch('/mitglied/all')
+    if (res.ok) {
+      const data = await res.json()
+      mitglieder.value = data.map((m) => ({
+        id: m.mitgliedsnummer,
+        nummer: String(m.mitgliedsnummer),
+        passwort: m.passwort,
+        erfahrung: m.erfahrung,
+      }))
+    }
+  } catch (e) {
+    console.error('Fehler beim Laden der Mitglieder:', e)
+  }
+}
+
+onMounted(ladeMitglieder)
 
 const neuesMitglied = () => {
   selectedId.value = null
@@ -166,29 +177,57 @@ const bearbeiten = (mitglied) => {
   form.value = { ...mitglied }
 }
 
-const loeschen = (id) => {
-  mitglieder.value = mitglieder.value.filter((m) => m.id !== id)
-  if (selectedId.value === id) {
-    neuesMitglied()
+const loeschen = async (id) => {
+  try {
+    const res = await fetch(`/mitglied/${id}`, {
+      method: 'DELETE',
+    })
+    if (res.ok) {
+      mitglieder.value = mitglieder.value.filter((m) => m.id !== id)
+      if (selectedId.value === id) {
+        neuesMitglied()
+      }
+    }
+  } catch (e) {
+    console.error('Fehler beim Löschen:', e)
   }
 }
 
-const anlegen = () => {
+const anlegen = async () => {
   if (!form.value.nummer) return
 
-  if (selectedId.value) {
-    // bestehendes Mitglied aktualisieren
-    const index = mitglieder.value.findIndex((m) => m.id === selectedId.value)
-    if (index !== -1) {
-      mitglieder.value[index] = { ...form.value, id: selectedId.value }
+  const payload = {
+    mitgliedsnummer: parseInt(form.value.nummer, 10),
+    passwort: form.value.passwort,
+    erfahrung: form.value.erfahrung,
+  }
+
+  try {
+    if (selectedId.value) {
+      // Bestehendes Mitglied aktualisieren (PUT)
+      const res = await fetch(`/mitglied/${selectedId.value}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload),
+      })
+      if (res.ok) {
+        await ladeMitglieder()
+        neuesMitglied()
+      }
+    } else {
+      // Neues Mitglied anlegen (POST)
+      const res = await fetch('/mitglied/new', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload),
+      })
+      if (res.ok) {
+        await ladeMitglieder()
+        neuesMitglied()
+      }
     }
-  } else {
-    // neues Mitglied anlegen
-    const neueId = mitglieder.value.length
-      ? Math.max(...mitglieder.value.map((m) => m.id)) + 1
-      : 1
-    mitglieder.value.push({ ...form.value, id: neueId })
-    selectedId.value = neueId
+  } catch (e) {
+    console.error('Fehler beim Speichern:', e)
   }
 }
 </script>

@@ -16,7 +16,7 @@
         </div>
       </section>
 
-      <!-- Sektion 1: Allgemein -->
+      <!-- Sektion 1: Allgemein 
       <section>
         <div class="flex items-center gap-3 mb-6">
           <span class="text-2xl">🔧</span>
@@ -30,8 +30,9 @@
           </div>
         </div>
       </section>
+      -->
 
-      <!-- Sektion 2: Benachrichtigungen -->
+      <!-- Sektion 2: Benachrichtigungen 
       <section>
         <div class="flex items-center gap-3 mb-6">
           <span class="text-2xl">🔔</span>
@@ -54,6 +55,7 @@
           </div>
         </div>
       </section>
+      -->
 
       <!-- Sektion 3: App-Sprache -->
       <section>

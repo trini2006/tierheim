@@ -26,11 +26,11 @@
       <div class="space-y-4 mb-10 text-lg">
         <div class="flex">
           <span class="w-32 font-semibold text-gray-600">Datum:</span>
-          <span>{{ booking.date || 'Mi 01.07.' }}</span>
+          <span>{{ formatiertesDatum }}</span>
         </div>
         <div class="flex">
           <span class="w-32 font-semibold text-gray-600">Uhrzeit:</span>
-          <span>{{ booking.start && booking.end ? `${booking.start} - ${booking.end} Uhr` : '10:00 - 10:30 Uhr' }}</span>
+          <span>{{ booking.von && booking.bis ? `${booking.von} - ${booking.bis} Uhr` : '10:00 - 10:30 Uhr' }}</span>
         </div>
 
         <!-- Wird NUR im Admin-Bereich angezeigt -->
@@ -59,7 +59,6 @@ const router = useRouter()
 const route = useRoute()
 const booking = ref(null)
 
-// Prüft, ob wir uns im Admin-Bereich befinden
 const isAdminMode = computed(() => route.path.startsWith('/app/admin'))
 
 onMounted(() => {
@@ -67,14 +66,36 @@ onMounted(() => {
   if (data) {
     booking.value = JSON.parse(data)
   } else {
-    // Falls keine Daten da sind, zurück zur entsprechenden Startseite
     router.push(isAdminMode.value ? '/app/admin' : '/app/reservierung/zeitwahl')
   }
 })
 
+// Wandelt z.B. "2026-09-21" in "Montag 21.09.2026" um
+const formatiertesDatum = computed(() => {
+  const datumStr = booking.value?.datum
+  if (!datumStr) return 'Montag 21.09.2026'
+
+  try {
+    // Falls das Format YYYY-MM-DD ist
+    const [jahr, monat, tag] = datumStr.split('-')
+    if (!jahr || !monat || !tag) return datumStr
+
+    const dateObj = new Date(jahr, monat - 1, tag)
+    
+    // Wochentag und Datum auf Deutsch formatieren
+    const optionsWochentag = { weekday: 'long' }
+    const wochentag = dateObj.toLocaleDateString('de-DE', optionsWochentag)
+    
+    return `${wochentag} ${tag}.${monat}.${jahr}`
+  } catch (e) {
+    return datumStr
+  }
+})
+
 const confirmBooking = () => {
+  if (!booking.value) return
+
   if (isAdminMode.value) {
-    // Hier kannst du für Admin einen eigenen Erfolgsweg oder eine Weiterleitung definieren
     router.push('/app/admin/erfolgreichReserviert')
   } else {
     router.push('/app/reservierung/erfolgreichReserviert')

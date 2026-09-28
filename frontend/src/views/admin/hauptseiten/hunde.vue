@@ -1,5 +1,4 @@
 <template>
-  <h1 class="text-4xl text-red-600 font-bold bg-yellow-300 p-4">TEST: MEINE DATEI WIRD GELADEN!</h1>
   <div class="max-w-6xl mx-auto p-4 md:p-6 grid grid-cols-1 md:grid-cols-2 gap-16 items-start">
     
     <!-- LINKE SEITE: Aktive Hunde & Hinzufügen -->
@@ -23,9 +22,9 @@
           class="flex items-center justify-between p-3 rounded-full bg-[#D3DDD1] border border-gray-200 shadow-sm"
         >
           <div class="flex items-center gap-3">
-            <img :src="hund.bild || '/placeholder-dog.png'" class="w-10 h-10 rounded-full object-cover" />
+            <img :src="hund.bild" class="w-10 h-10 rounded-full object-cover" />
             <div class="flex items-center gap-2">
-              <span class="w-3 h-3 rounded-full" :class="getDotClass(hund)"></span>
+              <span class="w-3 h-3 rounded-full" :class="hund.statusPunkt"></span>
               <span class="font-bold text-gray-800 text-sm">{{ hund.name }}</span>
             </div>
           </div>
@@ -67,14 +66,12 @@
           class="flex items-center justify-between p-3 rounded-full bg-[#D3DDD1] border border-gray-200 shadow-sm"
         >
           <div class="flex items-center gap-3">
-            <img :src="hund.bild || '/placeholder-dog.png'" class="w-10 h-10 rounded-full object-cover" />
+            <img :src="hund.bild" class="w-10 h-10 rounded-full object-cover" />
             <div class="flex items-center gap-2">
-              <span class="w-3 h-3 rounded-full" :class="getDotClass(hund)"></span>
+              <span class="w-3 h-3 rounded-full" :class="hund.statusPunkt"></span>
               <div>
                 <span class="font-bold text-gray-800 text-sm block leading-tight">{{ hund.name }}</span>
-                <span class="text-[11px] text-gray-600 block leading-tight" v-if="hund.sperrGrund || hund.info">
-                  {{ hund.sperrGrund || hund.info }}
-                </span>
+                <span class="text-[11px] text-gray-600 block leading-tight" v-if="hund.info">{{ hund.info }}</span>
               </div>
             </div>
           </div>
@@ -114,100 +111,51 @@ import { useRouter } from 'vue-router'
 
 const router = useRouter()
 
+// Aktive Hunde (Linke Seite)
 const aktiveHunde = ref([])
+
+// Gesperrte Hunde (Rechte Seite)
 const gesperrteHunde = ref([])
 
-// Hilfsfunktion: dynamische Punktfarbe je nach Status
-const getDotClass = (hund) => {
-  if (hund.istGesperrt) return 'bg-red-500'
-  return 'bg-green-500'
-}
+const API_BASE = 'http://localhost:8085'
+// Beispielhafte Tierheim-ID – falls du diese dynamisch speicherst (z.B. im localStorage), kannst du sie hier auslesen
+const tierheimId = 1 
 
-// Hunde aus dem Backend laden
+// Hunde beim Laden der Komponente vom Backend abrufen
 const ladeHunde = async () => {
   try {
-    const res = await fetch('/api/hund/all')
-    if (!res.ok) throw new Error('Fehler beim Laden der Hunde')
-    const hunde = await res.json()
-    
-    console.log('Vom Backend empfangene Hunde:', hunde)
+    const response = await fetch(`${API_BASE}/hund/${tierheimId}/all`)
+    if (response.ok) {
+      const alleHunde = await response.json()
+      
+      // Aufteilung in aktive und gesperrte Hunde basierend auf dem Datenbankfeld 'istGesperrt'
+      aktiveHunde.value = alleHunde
+        .filter(h => !h.istGesperrt)
+        .map(h => ({
+          ...h,
+          statusPunkt: 'bg-green-500',
+          ursruenglicherPunkt: 'bg-green-500'
+        }))
 
-    // Sortieren nach Gesperrt / Aktiv
-    aktiveHunde.value = hunde.filter(h => !h.istGesperrt)
-    gesperrteHunde.value = hunde.filter(h => h.istGesperrt)
-  } catch (err) {
-    console.error('Fehler beim Laden der Hunde:', err)
+      gesperrteHunde.value = alleHunde
+        .filter(h => h.istGesperrt)
+        .map(h => ({
+          ...h,
+          statusPunkt: 'bg-red-500',
+          ursruenglicherPunkt: 'bg-orange-400',
+          info: h.sperrGrund ? `${h.sperrGrund}` : 'Gesperrt'
+        }))
+    } else {
+      console.error('Fehler beim Laden der Hunde')
+    }
+  } catch (error) {
+    console.error('Verbindungsfehler zum Backend:', error)
   }
 }
-
-// Navigation mit Übergabe der Hund-ID
-const bearbeitenHund = (hund) => {
-  router.push({ name: 'Hundepflegen', params: { id: hund.id } })
-}
-
-const geheZuPflegen = () => {
-  router.push({ name: 'Hundepflegen' })
-}
-
-const sperreHund = async (id) => {
-  try {
-    const sperrDaten = { gesperrtVon: null, gesperrtBis: null, sperrGrund: 'Gesperrt' }
-    const res = await fetch(`/api/hund/sperren/${id}`, {
-      method: 'PUT',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(sperrDaten)
-    })
-    if (res.ok) await ladeHunde()
-  } catch (err) {
-    console.error('Fehler beim Sperren:', err)
-  }
-}
-
-const entsperreHund = async (id) => {
-  try {
-    const res = await fetch(`/api/hund/entsperren/${id}`, { method: 'PUT' })
-    if (res.ok) await ladeHunde()
-  } catch (err) {
-    console.error('Fehler beim Entsperren:', err)
-  }
-}
-
-const loescheHund = async (id) => {
-  try {
-    const res = await fetch(`/api/hund/${id}`, { method: 'DELETE' })
-    if (res.ok) await ladeHunde()
-  } catch (err) {
-    console.error('Fehler beim Löschen:', err)
-  }
-}
-
-const loescheGesperrtenHund = (id) => loescheHund(id)
 
 onMounted(() => {
   ladeHunde()
 })
-</script>
-
-
-
-/* import { ref } from 'vue'
-import { useRouter } from 'vue-router'
-
-const router = useRouter()
-
-// Aktive Hunde (Linke Seite)
-const aktiveHunde = ref([
-  { id: 1, name: 'Wambo', statusPunkt: 'bg-green-500', ursruenglicherPunkt: 'bg-green-500', bild: 'https://images.unsplash.com/photo-1543466835-00a7907e9de1' },
-  { id: 2, name: 'Aris', statusPunkt: 'bg-green-500', ursruenglicherPunkt: 'bg-green-500', bild: 'https://images.unsplash.com/photo-1552053831-71594a27632d' },
-  { id: 3, name: 'Mira', statusPunkt: 'bg-orange-400', ursruenglicherPunkt: 'bg-orange-400', bild: 'https://images.unsplash.com/photo-1537151608828-ea2b11777ee8' },
-  { id: 4, name: 'Richy', statusPunkt: 'bg-orange-400', ursruenglicherPunkt: 'bg-orange-400', bild: 'https://images.unsplash.com/photo-1583511655857-d19b40a7a54e' },
-  { id: 5, name: 'Roxy', statusPunkt: 'bg-green-500', ursruenglicherPunkt: 'bg-green-500', bild: 'https://images.unsplash.com/photo-1517849845537-4d257902454a' },
-])
-
-// Gesperrte Hunde (Rechte Seite)
-const gesperrteHunde = ref([
-  { id: 6, name: 'Bonny', statusPunkt: 'bg-red-500', ursruenglicherPunkt: 'bg-orange-400', info: 'Probewohnen - 05.07.', bild: 'https://images.unsplash.com/photo-1561948955-570b270e7c36' }
-])
 
 const bearbeitenHund = (hund) => {
   localStorage.setItem('editHund', JSON.stringify(hund))
@@ -219,33 +167,81 @@ const geheZuPflegen = () => {
   router.push('/app/admin/hundepflegen')
 }
 
-// Hund sperren: Verschiebt nach rechts und setzt den Punkt auf rot
-const sperreHund = (id) => {
-  const index = aktiveHunde.value.findIndex(h => h.id === id)
-  if (index !== -1) {
-    const [hund] = aktiveHunde.value.splice(index, 1)
-    hund.statusPunkt = 'bg-red-500' // Punkt wird rot
-    gesperrteHunde.value.push(hund)
+// Hund sperren: Schickt ein PUT-Request an das Backend und verschiebt ihn nach rechts
+const sperreHund = async (id) => {
+  try {
+    // Falls ein Sperrgrund benötigt wird, kannst du hier ein Objekt übergeben (entspricht SperrHundDTO)
+    const sperrDaten = {
+      gesperrtVon: new Date().toISOString().split('T')[0],
+      gesperrtBis: null,
+      sperrGrund: 'Gesperrt'
+    }
+
+    const response = await fetch(`${API_BASE}/hund/sperren/${id}`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(sperrDaten)
+    })
+
+    if (response.ok) {
+      const index = aktiveHunde.value.findIndex(h => h.id === id)
+      if (index !== -1) {
+        const [hund] = aktiveHunde.value.splice(index, 1)
+        hund.statusPunkt = 'bg-red-500'
+        hund.info = 'Gesperrt'
+        gesperrteHunde.value.push(hund)
+      }
+    }
+  } catch (error) {
+    console.error('Fehler beim Sperren des Hundes:', error)
   }
 }
 
-// Hund entsperren: Verschiebt nach links und stellt die Originalfarbe des Punktes wieder her
-const entsperreHund = (id) => {
-  const index = gesperrteHunde.value.findIndex(h => h.id === id)
-  if (index !== -1) {
-    const [hund] = gesperrteHunde.value.splice(index, 1)
-    hund.statusPunkt = hund.ursruenglicherPunkt // Ursprüngliche Farbe wiederherstellen
-    aktiveHunde.value.push(hund)
+// Hund entsperren: Schickt ein PUT-Request an das Backend und verschiebt ihn nach links
+const entsperreHund = async (id) => {
+  try {
+    const response = await fetch(`${API_BASE}/hund/entsperren/${id}`, {
+      method: 'PUT'
+    })
+
+    if (response.ok) {
+      const index = gesperrteHunde.value.findIndex(h => h.id === id)
+      if (index !== -1) {
+        const [hund] = gesperrteHunde.value.splice(index, 1)
+        hund.statusPunkt = hund.ursruenglicherPunkt
+        aktiveHunde.value.push(hund)
+      }
+    }
+  } catch (error) {
+    console.error('Fehler beim Entsperren des Hundes:', error)
   }
 }
 
 // Aktiven Hund löschen
-const loescheHund = (id) => {
-  aktiveHunde.value = aktiveHunde.value.filter(h => h.id !== id)
+const loescheHund = async (id) => {
+  try {
+    const response = await fetch(`${API_BASE}/hund/${id}`, {
+      method: 'DELETE'
+    })
+    if (response.ok) {
+      aktiveHunde.value = aktiveHunde.value.filter(h => h.id !== id)
+    }
+  } catch (error) {
+    console.error('Fehler beim Löschen des Hundes:', error)
+  }
 }
 
 // Gesperrten Hund löschen
-const loescheGesperrtenHund = (id) => {
-  gesperrteHunde.value = gesperrteHunde.value.filter(h => h.id !== id)
-} */
-
+const loescheGesperrtenHund = async (id) => {
+  try {
+    const response = await fetch(`${API_BASE}/hund/${id}`, {
+      method: 'DELETE'
+    })
+    if (response.ok) {
+      gesperrteHunde.value = gesperrteHunde.value.filter(h => h.id !== id)
+    }
+  } catch (error) {
+    console.error('Fehler beim Löschen des gesperrten Hundes:', error)
+  }
+}
+</script>

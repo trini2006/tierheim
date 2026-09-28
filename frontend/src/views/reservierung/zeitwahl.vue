@@ -54,31 +54,59 @@
 </template>
 
 <script setup>
-import { ref, computed } from 'vue'
-import { useRouter } from 'vue-router'
+import { ref, computed, onMounted } from 'vue'
+import { useRouter, useRoute } from 'vue-router'
 import { addDays, subDays, getISOWeek, startOfWeek, endOfWeek, addWeeks, format, startOfToday, isSameDay, isBefore, parse } from 'date-fns'
 import { de } from 'date-fns/locale'
 
 const router = useRouter()
+const route = useRoute()
 const today = startOfToday()
 const currentDate = ref(today)
 
-const generateSlots = () => {
-  const starts = ['10:00', '10:30', '11:00', '11:30', '12:00', '12:30', '13:00', '13:30'];
-  return starts.map(start => {
-    const [h, m] = start.split(':');
-    const endMinutes = parseInt(m) + 30;
-    const endHour = endMinutes === 60 ? parseInt(h) + 1 : parseInt(h);
-    const endMinuteStr = endMinutes === 60 ? '00' : '30';
-    return {
-      start,
-      end: `${endHour.toString().padStart(2, '0')}:${endMinuteStr}`,
-      booked: Math.random() < 0.2
-    };
-  });
-};
+const timeSlots = ref([])
+const gassiZeitenBackend = ref([])
 
-const timeSlots = ref(generateSlots());
+// Wochentag-Mapping für das Backend (Enum)
+const tagesMapping = ['SONNTAG', 'MONTAG', 'DIENSTAG', 'MITTWOCH', 'DONNERSTAG', 'FREITAG', 'SAMSTAG']
+
+// Gassi-Geh-Zeiten vom Backend laden
+const ladeZeitenVomBackend = async () => {
+  try {
+    const res = await fetch('/gassiGehZeiten/all')
+    if (res.ok) {
+      gassiZeitenBackend.value = await res.json()
+      aktualisiereSlotsFuerAktuellenTag()
+    }
+  } catch (e) {
+    console.error('Fehler beim Laden der Gassi-Geh-Zeiten:', e)
+  }
+}
+
+const aktualisiereSlotsFuerAktuellenTag = () => {
+  const wochentagEnum = tagesMapping[currentDate.value.getDay()]
+  const tagesZeiten = gassiZeitenBackend.value.filter(g => g.tag === wochentagEnum)
+
+  if (tagesZeiten.length > 0) {
+    timeSlots.value = tagesZeiten.map(g => ({
+      start: g.von ? g.von.substring(0, 5) : '10:00',
+      end: g.bis ? g.bis.substring(0, 5) : '10:30',
+      booked: false
+    }))
+  } else {
+    // Fallback falls für diesen Tag keine Zeiten im Backend stehen
+    timeSlots.value = [
+      { start: '10:00', end: '10:30', booked: false },
+      { start: '10:30', end: '11:00', booked: false },
+      { start: '11:00', end: '11:30', booked: false },
+      { start: '11:30', end: '12:00', booked: false }
+    ]
+  }
+}
+
+onMounted(() => {
+  ladeZeitenVomBackend()
+})
 
 const weeks = [0, 1, 2].map(i => ({ 
   number: getISOWeek(addWeeks(today, i)),
@@ -95,16 +123,16 @@ const isEndOfWeek = computed(() => {
 const selectWeek = (kw) => {
   selectedWeek.value = kw;
   currentDate.value = kw.startDate < today ? today : kw.startDate;
-  timeSlots.value = generateSlots();
   selectedIndices.value = [];
+  aktualisiereSlotsFuerAktuellenTag();
 };
 
 const changeDay = (dir) => {
   const nextDate = dir > 0 ? addDays(currentDate.value, 1) : subDays(currentDate.value, 1);
   if (nextDate >= today && nextDate >= selectedWeek.value.startDate && nextDate <= endOfWeek(selectedWeek.value.startDate, { weekStartsOn: 1 })) {
     currentDate.value = nextDate;
-    timeSlots.value = generateSlots();
     selectedIndices.value = [];
+    aktualisiereSlotsFuerAktuellenTag();
   }
 };
 
@@ -136,12 +164,31 @@ const toggleSlot = (slot, index) => {
 const saveAndContinue = () => {
   if (selectedIndices.value.length > 0) {
     const sorted = [...selectedIndices.value].sort((a,b) => a-b);
+    
+    // Bestehende Daten auslesen (falls bereits etwas da war)
+    const existingData = JSON.parse(localStorage.getItem('terminData') || '{}')
+
+    const vonZeit = timeSlots.value[sorted[0]].start + ':00'
+    const bisZeit = timeSlots.value[sorted[sorted.length-1]].end + ':00'
+
+    // Daten inklusive TEMPORÄRER MITGLIEDS-ID im localStorage speichern
     localStorage.setItem('terminData', JSON.stringify({ 
-      date: format(currentDate.value, 'yyyy-MM-dd'),
-      start: timeSlots.value[sorted[0]].start,
-      end: timeSlots.value[sorted[sorted.length-1]].end
+      ...existingData,
+      mitgliedId: existingData.mitgliedId || 1, // Temporäre Benutzer-ID (z. B. 1)
+      datum: format(currentDate.value, 'yyyy-MM-dd'),
+      von: vonZeit,   
+      bis: bisZeit,   
+      start: vonZeit, 
+      end: bisZeit    
     }));
-    router.push('/app/reservierung/hundewahl');
+
+    // Weiterleitung basierend auf dem aktuellen Pfad (Admin oder normaler Benutzer)
+    const currentPath = route?.path || window.location.pathname
+    if (currentPath.startsWith('/app/admin')) {
+      router.push('/app/admin/hundewahl')
+    } else {
+      router.push('/app/reservierung/hundewahl')
+    }
   }
 };
 </script>
