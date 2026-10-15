@@ -5,6 +5,6 @@ import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Positive;
 
 public record AdminLoginDTO (
-        @NotNull @Positive int personalnummer,
+        @NotNull @Positive Integer username,
         @NotBlank String passwort)
 { }

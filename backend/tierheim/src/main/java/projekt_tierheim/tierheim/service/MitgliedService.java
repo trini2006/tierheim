@@ -1,5 +1,6 @@
 package projekt_tierheim.tierheim.service;
 
+import jakarta.validation.Valid;
 import org.springframework.security.crypto.argon2.Argon2PasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -58,17 +59,17 @@ public class MitgliedService {
     public Mitglied getMitgliedByMitgliedsnummer(int mitgliedsnummer) {
         Mitglied mitglied = mitgliedRepository.findMitgliedByMitgliedsnummer(mitgliedsnummer);
         if (mitglied == null) {
-            throw new NotFoundException("Mitglied mit der Mitgliedsnummer \" +  mitgliedsnummer + \" nicht gefunden");
+            throw new NotFoundException("Mitglied mit der Mitgliedsnummer \" +  username + \" nicht gefunden");
         }
         return mitglied;
     }
 
-    public boolean login(MitgliedLoginDTO dto){
+    public boolean login(@Valid MitgliedLoginDTO dto){
         Mitglied mitglied = mitgliedRepository.findMitgliedByMitgliedsnummer(
-                dto.mitgliedsnummer()
+                dto.username()
         );
         if(mitglied == null){
-            throw new NotFoundException("Mitglied mit der Mitgliedsnummer \" +  mitgliedsnummer + \" nicht gefunden");
+            throw new NotFoundException("Mitglied mit der Mitgliedsnummer \" +  username + \" nicht gefunden");
         }
 
         return passwordEncoder.matches(

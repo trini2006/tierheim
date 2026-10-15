@@ -87,7 +87,7 @@ class AdminControllerTest {
     void newAdmin() throws Exception {
 
         JSONObject jsonObject = new JSONObject();
-        jsonObject.put("personalnummer", TEST_PERSONALNUMMER1);
+        jsonObject.put("username", TEST_PERSONALNUMMER1);
         jsonObject.put("passwort", TEST_PASSWORT1);
 
         Mockito.when(adminRepository.saveAndFlush(Mockito.any(Admin.class)))
@@ -122,7 +122,7 @@ class AdminControllerTest {
 
         String neuesPasswort = "NeuesPasswort1234";
         JSONObject jsonObject = new JSONObject();
-        jsonObject.put("personalnummer", TEST_PERSONALNUMMER1);
+        jsonObject.put("username", TEST_PERSONALNUMMER1);
         jsonObject.put("passwort", neuesPasswort);
 
         Admin admin = getAdmin1();

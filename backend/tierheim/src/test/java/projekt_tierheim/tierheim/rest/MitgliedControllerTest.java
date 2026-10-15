@@ -85,7 +85,7 @@ class MitgliedControllerTest {
     @Test
     void newMitglied() throws Exception{
         JSONObject jsonObject = new JSONObject();
-        jsonObject.put("mitgliedsnummer", TEST_MITGLIEDSNUMMER1);
+        jsonObject.put("username", TEST_MITGLIEDSNUMMER1);
         jsonObject.put("passwort", TEST_PASSWORT1);
 
         Mockito.when(mitgliedRepository.saveAndFlush(Mockito.any(Mitglied.class)))
@@ -106,7 +106,7 @@ class MitgliedControllerTest {
     void updateMitglied() throws Exception {
         String neuesPasswort = "NeuesPasswort1234";
         JSONObject jsonObject = new JSONObject();
-        jsonObject.put("mitgliedsnummer", TEST_MITGLIEDSNUMMER1);
+        jsonObject.put("username", TEST_MITGLIEDSNUMMER1);
         jsonObject.put("passwort", neuesPasswort);
 
         Mitglied mitglied = getTestMitglied1();

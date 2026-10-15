@@ -1,5 +1,6 @@
 package projekt_tierheim.tierheim.service;
 
+import jakarta.validation.Valid;
 import org.springframework.security.crypto.argon2.Argon2PasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -54,17 +55,17 @@ public class AdminService {
     public Admin getAdminByPersonalnummer(int personalnummer) {
         Admin admin = adminRepository.findAdminByPersonalnummer(personalnummer);
         if (admin == null) {
-            throw new NotFoundException("Admin mit der Personalnummer \" +  personalnummer + \" nicht gefunden");
+            throw new NotFoundException("Admin mit der Personalnummer \" +  username + \" nicht gefunden");
         }
         return admin;
     }
 
-    public boolean login(AdminLoginDTO dto){
+    public boolean login(@Valid AdminLoginDTO dto){
         Admin admin = adminRepository.findAdminByPersonalnummer(
-                dto.personalnummer()
+                dto.username()
         );
         if(admin == null){
-            throw new NotFoundException("Admin mit der Personalnummer \" +  personalnummer + \" nicht gefunden");
+            throw new NotFoundException("Admin mit der Personalnummer \" +  username + \" nicht gefunden");
         }
 
         return passwordEncoder.matches(
