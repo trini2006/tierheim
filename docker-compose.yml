@@ -7,3 +7,8 @@ services:
       POSTGRES_DB: thWenApp
     ports:
       - "5432:5432"
+    volumes:
+      - thWenApp-db-data:/var/lib/postgresql/data
+
+volumes:
+  thWenApp-db-data:

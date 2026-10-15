@@ -56,8 +56,7 @@ public class Hund {
     public Hund() {}
 
     // Hund ohne Sperrgrund
-    public Hund(int id, String name, boolean geschlecht, int jahre, String rasse, Groesse groesse, int gewicht, boolean erfahrung, Strecke strecke, Admin erstelltVon, Tierheim tierheim) {
-        this.id = id;
+    public Hund(String name, boolean geschlecht, int jahre, String rasse, Groesse groesse, int gewicht, boolean erfahrung, Strecke strecke, Tierheim tierheim) {
         this.name = name;
         this.geschlecht = geschlecht;
         this.jahre = jahre;
@@ -67,7 +66,6 @@ public class Hund {
         this.erfahrung = erfahrung;
         this.strecke = strecke;
         this.erstelltAm = LocalDateTime.now();
-        this.erstelltVon = erstelltVon;
         this.tierheim = tierheim;
     }
 
@@ -79,11 +77,11 @@ public class Hund {
         this.sperrGrund = sperrGrund;
     }
 
+    public Hund(int testId1, String testName1, boolean testGeschlecht1, int testAlter1, String testRasse1, Groesse testGroesse1, int testGewicht1, boolean testErfahrung1, Strecke testStrecke1, Admin testErstelltvon, Tierheim testTierheim1) {
+    }
+
     public int getId() {
         return id;
-    }
-    public void setId(int id) {
-        this.id = id;
     }
 
     public String getName() {

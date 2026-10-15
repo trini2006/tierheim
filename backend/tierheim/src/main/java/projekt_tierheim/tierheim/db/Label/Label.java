@@ -24,8 +24,7 @@ public class Label {
 
     public Label(){}
 
-    public Label(int id, String bezeichnung, boolean hinweis) {
-        this.id = id;
+    public Label(String bezeichnung, boolean hinweis) {
         this.bezeichnung = bezeichnung;
         this.hinweis = hinweis;
     }
@@ -40,7 +39,6 @@ public class Label {
     public String getBezeichnung() {
         return bezeichnung;
     }
-
     public void setBezeichnung(String bezeichnung) {
         this.bezeichnung = bezeichnung;
     }
@@ -48,7 +46,6 @@ public class Label {
     public boolean isHinweis() {
         return hinweis;
     }
-
     public void setHinweis(boolean hinweis) {
         this.hinweis = hinweis;
     }
@@ -57,9 +54,6 @@ public class Label {
         return id;
     }
 
-    public void setId(int id) {
-        this.id = id;
-    }
 
     @Override
     public boolean equals(Object o) {

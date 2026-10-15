@@ -31,8 +31,7 @@ public class Tierheim {
 
     public Tierheim() {}
 
-    public Tierheim(int id, String name, String strasse, String hausnummer, String plz, String ort, String telefonnummer) {
-        this.id = id;
+    public Tierheim(String name, String strasse, String hausnummer, String plz, String ort, String telefonnummer) {
         this.name = name;
         this.strasse = strasse;
         this.hausnummer = hausnummer;
@@ -41,15 +40,14 @@ public class Tierheim {
         this.telefonnummer = telefonnummer;
     }
 
-    public Tierheim(int id, String name, String strasse, String hausnummer, String plz, String ort, String telefonnummer, String notfallnummer, String email, String link, String bild, String bannerfarbe, int zeitblock, int ruhezeit, int maxGassi, int minGassi) {
-        this.id = id;
+    public Tierheim(String name, String strasse, String hausnummer, String plz, String ort, String telefonnummer, String email, String link, String bild, String bannerfarbe, int zeitblock, int ruhezeit, int maxGassi, int minGassi) {
         this.name = name;
         this.strasse = strasse;
         this.hausnummer = hausnummer;
         this.plz = plz;
         this.ort = ort;
         this.telefonnummer = telefonnummer;
-        this.notfallnummer = notfallnummer;
+        //this.notfallnummer = notfallnummer;
         this.email = email;
         this.link = link;
         this.bild = bild;
@@ -60,12 +58,11 @@ public class Tierheim {
         this.minGassi = minGassi;
     }
 
-    public int getId() {
-        return id;
+    public Tierheim(int testId1, String testName, String testStrasse1, String testHausnummer1, String testPlz1, String testOrt1, String testTelefonnr1) {
     }
 
-    public void setId(int id) {
-        this.id = id;
+    public int getId() {
+        return id;
     }
 
     public String getName() {

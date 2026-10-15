@@ -21,8 +21,7 @@ public class GassiGehZeiten {
 
     public GassiGehZeiten(){}
 
-    public GassiGehZeiten(int id, Tage tag, LocalTime von, LocalTime bis, Tierheim tierheim) {
-        this.id = id;
+    public GassiGehZeiten(Tage tag, LocalTime von, LocalTime bis, Tierheim tierheim) {
         this.tag = tag;
         this.von = von;
         this.bis = bis;
@@ -33,14 +32,9 @@ public class GassiGehZeiten {
         return id;
     }
 
-    public void setId(int id) {
-        this.id = id;
-    }
-
     public Tage getTag() {
         return tag;
     }
-
     public void setTag(Tage tag) {
         this.tag = tag;
     }
@@ -48,7 +42,6 @@ public class GassiGehZeiten {
     public LocalTime getVon() {
         return von;
     }
-
     public void setVon(LocalTime von) {
         this.von = von;
     }
@@ -56,7 +49,6 @@ public class GassiGehZeiten {
     public LocalTime getBis() {
         return bis;
     }
-
     public void setBis(LocalTime bis) {
         this.bis = bis;
     }
@@ -64,7 +56,6 @@ public class GassiGehZeiten {
     public Tierheim getTierheim() {
         return tierheim;
     }
-
     public void setTierheim(Tierheim tierheim) {
         this.tierheim = tierheim;
     }

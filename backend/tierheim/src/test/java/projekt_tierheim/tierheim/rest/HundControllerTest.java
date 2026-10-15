@@ -243,7 +243,7 @@ class HundControllerTest {
     void addLabel() throws Exception {
         Hund hund = getTestHund();
         Hund updateHund = getTestHund();
-        Label label = new Label(1, "Freundlich", false);
+        Label label = new Label("Freundlich", false);
         updateHund.addLabel(label);
 
         Mockito.when(labelRepository.findLabelById(TEST_ID1)).thenReturn(label);
@@ -263,7 +263,7 @@ class HundControllerTest {
     @Test
     void deleteLabelVonHund() throws Exception {
         Hund hund = getTestHund();
-        Label label = new Label(1, "Freundlich", false);
+        Label label = new Label("Freundlich", false);
         hund.addLabel(label);
         Mockito.when(labelRepository.findLabelById(TEST_ID1)).thenReturn(label);
         Mockito.when(hundRepository.findHundById(TEST_ID1)).thenReturn(hund);
