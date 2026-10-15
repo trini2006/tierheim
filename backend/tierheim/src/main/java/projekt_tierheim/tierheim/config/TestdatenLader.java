@@ -4,6 +4,8 @@ import jakarta.transaction.Transactional;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.cglib.core.Local;
 import org.springframework.context.annotation.Profile;
+import org.springframework.security.crypto.argon2.Argon2PasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
 import projekt_tierheim.tierheim.db.Admin.Admin;
 import projekt_tierheim.tierheim.db.Admin.AdminRepository;
@@ -34,6 +36,8 @@ public class TestdatenLader implements CommandLineRunner {
     private final GassiGehZeitenRepository gassiGehZeitenRepository;
     private final LabelRepository labelRepository;
     private final MitgliedRepository mitgliedRepository;
+    private final PasswordEncoder passwordEncoder =
+            Argon2PasswordEncoder.defaultsForSpringSecurity_v5_8();
 
     public TestdatenLader(TierheimRepository tierheimRepository, HundRepository hundRepository, AdminRepository adminRepository, GassiGehZeitenRepository gassiGehZeitenRepository, LabelRepository labelRepository, MitgliedRepository mitgliedRepository) {
         this.tierheimRepository = tierheimRepository;
@@ -60,7 +64,8 @@ public class TestdatenLader implements CommandLineRunner {
     }
 
     private Admin legeAdminAn() {
-        Admin admin = new Admin(1234567890, "geheimTest");
+
+        Admin admin = new Admin(1234567890, passwordEncoder.encode("geheimTest"));
         return adminRepository.save(admin);
     }
 
@@ -132,8 +137,8 @@ public class TestdatenLader implements CommandLineRunner {
 
     private List<Mitglied> legeMitgliedAn() {
         List<Mitglied> mitglieder = new ArrayList<>();
-        mitglieder.add(new Mitglied(12345, "geheimMitglied1", false));
-        mitglieder.add(new Mitglied(67890, "geheimMitglied2", true));
+        mitglieder.add(new Mitglied(12345, passwordEncoder.encode("geheimMitglied1"), false));
+        mitglieder.add(new Mitglied(67890, passwordEncoder.encode("geheimMitglied2"), true));
         return mitgliedRepository.saveAll(mitglieder);
     }
 
