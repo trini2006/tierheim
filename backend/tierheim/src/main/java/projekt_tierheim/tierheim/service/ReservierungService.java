@@ -54,6 +54,10 @@ public class ReservierungService {
             throw new IllegalArgumentException("Hund ist aktuell gesperrt");
         }
 
+        if(reservierungDTO.zeitBis().isBefore(reservierungDTO.zeitAb())) {
+            throw new IllegalArgumentException("Terminbeginn muss vor Terminende sein");
+        }
+
         pruefeGassiGehZeit(reservierungDTO.datum(), reservierungDTO.zeitAb(), reservierungDTO.zeitBis());
         pruefeVerfuegbarkeit(hund, reservierungDTO.datum(), reservierungDTO.zeitAb(),  reservierungDTO.zeitBis());
         pruefeDauer(reservierungDTO.zeitAb(), reservierungDTO.zeitBis(), hund);
