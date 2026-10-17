@@ -32,6 +32,7 @@ public class HundService {
             if (reservierungService.istVerfuegbar(h, datum, von, bis)) continue;
             if (reservierungService.erfuelltDauer(von, bis, h)) continue;
             if (reservierungService.erfuelltErfahrung(h, mitglied)) continue;
+            if (reservierungService.liegtInGassiGehZeit(datum, von, bis)) continue;
             verfuegbareHunde.add(h);
         }
         return verfuegbareHunde;

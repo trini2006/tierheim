@@ -2,6 +2,9 @@ package projekt_tierheim.tierheim.service;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import projekt_tierheim.tierheim.db.GassiGehZeiten.GassiGehZeiten;
+import projekt_tierheim.tierheim.db.GassiGehZeiten.GassiGehZeitenRepository;
+import projekt_tierheim.tierheim.db.GassiGehZeiten.Tage;
 import projekt_tierheim.tierheim.db.Hund.Hund;
 import projekt_tierheim.tierheim.db.Hund.HundRepository;
 import projekt_tierheim.tierheim.db.Mitglied.Mitglied;
@@ -13,7 +16,9 @@ import projekt_tierheim.tierheim.db.Reservierung.Reservierungsstatus;
 import projekt_tierheim.tierheim.db.Tierheim.Tierheim;
 import projekt_tierheim.tierheim.db.Tierheim.TierheimRepository;
 import projekt_tierheim.tierheim.exception.NotFoundException;
+import projekt_tierheim.tierheim.rest.GassiGehZeitenController;
 
+import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.time.temporal.ChronoUnit;
@@ -24,12 +29,14 @@ public class ReservierungService {
     private final ReservierungRepository reservierungRepository;
     private final HundRepository hundRepository;
     private final MitgliedRepository mitgliedRepository;
+    private final GassiGehZeitenRepository gassiGehZeitenRepository;
 
     @Autowired
-    public ReservierungService(ReservierungRepository reservierungRepository, HundRepository hundRepository, MitgliedRepository mitgliedRepository) {
+    public ReservierungService(ReservierungRepository reservierungRepository, HundRepository hundRepository, MitgliedRepository mitgliedRepository, GassiGehZeitenRepository gassiGehZeitenRepository) {
         this.reservierungRepository = reservierungRepository;
         this.hundRepository = hundRepository;
         this.mitgliedRepository = mitgliedRepository;
+        this.gassiGehZeitenRepository = gassiGehZeitenRepository;
     }
 
     public Reservierung erstelleReservierung(ReservierungDTO reservierungDTO) {
@@ -47,6 +54,7 @@ public class ReservierungService {
             throw new IllegalArgumentException("Hund ist aktuell gesperrt");
         }
 
+        pruefeGassiGehZeit(reservierungDTO.datum(), reservierungDTO.zeitAb(), reservierungDTO.zeitBis());
         pruefeVerfuegbarkeit(hund, reservierungDTO.datum(), reservierungDTO.zeitAb(),  reservierungDTO.zeitBis());
         pruefeDauer(reservierungDTO.zeitAb(), reservierungDTO.zeitBis(), hund);
         pruefeErfahrung(hund, mitglied);
@@ -154,5 +162,21 @@ public class ReservierungService {
 
     public boolean erfuelltErfahrung(Hund hund, Mitglied mitglied) {
         return !hund.getErfahrung() || mitglied.getErfahrung();
+    }
+
+    public boolean liegtInGassiGehZeit(LocalDate datum, LocalTime zeitAb, LocalTime zeitBis) {
+        Tage tag = Tage.von(datum.getDayOfWeek());
+        List<GassiGehZeiten> fenster = gassiGehZeitenRepository
+                .findGassiGehZeitenByTag(tag);
+
+        return fenster.stream().anyMatch(g ->
+                // der Start liegt nicht bevor des Fensters && das Ende liegt nicht nach dem Fenster
+                !zeitAb.isBefore(g.getVon()) && !zeitBis.isAfter(g.getBis()));
+    }
+
+    public void pruefeGassiGehZeit(LocalDate datum, LocalTime zeitAb, LocalTime zeitBis) {
+        if (!liegtInGassiGehZeit(datum, zeitAb, zeitBis)) {
+            throw new IllegalArgumentException("Der gewählte Zeitraum liegt außerhalb der regulären Gassi-Geh-Zeiten");
+        }
     }
 }
