@@ -14,11 +14,8 @@ import projekt_tierheim.tierheim.db.Reservierung.ReservierungDTO;
 import projekt_tierheim.tierheim.db.Reservierung.ReservierungRepository;
 import projekt_tierheim.tierheim.db.Reservierung.Reservierungsstatus;
 import projekt_tierheim.tierheim.db.Tierheim.Tierheim;
-import projekt_tierheim.tierheim.db.Tierheim.TierheimRepository;
 import projekt_tierheim.tierheim.exception.NotFoundException;
-import projekt_tierheim.tierheim.rest.GassiGehZeitenController;
 
-import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
