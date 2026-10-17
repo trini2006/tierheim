@@ -1,16 +1,19 @@
 <template>
   <div class="max-w-7xl mx-auto p-4 md:p-6 space-y-6 bg-white min-h-screen">
-    
     <!-- HEADER: KW-Auswahl, Datum-Navigation & Archiv-Button -->
     <div class="flex flex-col md:flex-row items-center justify-between gap-4">
-      
       <!-- Kalenderwochen (KW) -->
       <div class="flex items-center gap-2 flex-wrap justify-center">
-        <button 
-          v-for="kw in kalenderWochen" 
+        <button
+          v-for="kw in kalenderWochen"
           :key="kw.nummer"
           @click="waehleKW(kw.nummer)"
-          :class="['px-4 py-2 rounded-xl font-medium text-sm transition-colors', aktiveKW === kw.nummer ? 'bg-[#8FA18C] text-white shadow' : 'bg-[#D3DDD1] text-gray-700 hover:bg-[#c2cebf]']"
+          :class="[
+            'px-4 py-2 rounded-xl font-medium text-sm transition-colors',
+            aktiveKW === kw.nummer
+              ? 'bg-[#8FA18C] text-white shadow'
+              : 'bg-[#D3DDD1] text-gray-700 hover:bg-[#c2cebf]',
+          ]"
         >
           KW {{ kw.nummer }}
         </button>
@@ -19,29 +22,49 @@
       <!-- Tag / Datum Blätterer mit Pfeilen -->
       <div class="flex items-center gap-3">
         <!-- Zurück-Pfeil (Deaktiviert, wenn man am Wochenanfang oder heutigen Tag ist) -->
-        <button 
-          @click="tagZurueck" 
+        <button
+          @click="tagZurueck"
           :disabled="istErlaubterTagZurueck"
-          :class="['p-1 rounded-full transition-colors', istErlaubterTagZurueck ? 'opacity-30 cursor-not-allowed' : 'hover:bg-gray-100']"
+          :class="[
+            'p-1 rounded-full transition-colors',
+            istErlaubterTagZurueck ? 'opacity-30 cursor-not-allowed' : 'hover:bg-gray-100',
+          ]"
           aria-label="Vorheriger Tag"
         >
-          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor" class="w-5 h-5 text-gray-800">
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            fill="none"
+            viewBox="0 0 24 24"
+            stroke-width="2.5"
+            stroke="currentColor"
+            class="w-5 h-5 text-gray-800"
+          >
             <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 19.5 8.25 12l7.5-7.5" />
           </svg>
         </button>
-        
+
         <div class="px-5 py-2 bg-[#8FA18C] text-white font-medium rounded-xl shadow-sm text-sm">
           {{ formatiertesDatum }}
         </div>
 
         <!-- Vor-Pfeil (Deaktiviert am Ende der KW) -->
-        <button 
-          @click="tagVorkommen" 
+        <button
+          @click="tagVorkommen"
           :disabled="istLetzterTagDerWoche"
-          :class="['p-1 rounded-full transition-colors', istLetzterTagDerWoche ? 'opacity-30 cursor-not-allowed' : 'hover:bg-gray-100']"
+          :class="[
+            'p-1 rounded-full transition-colors',
+            istLetzterTagDerWoche ? 'opacity-30 cursor-not-allowed' : 'hover:bg-gray-100',
+          ]"
           aria-label="Nächster Tag"
         >
-          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor" class="w-5 h-5 text-gray-800">
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            fill="none"
+            viewBox="0 0 24 24"
+            stroke-width="2.5"
+            stroke="currentColor"
+            class="w-5 h-5 text-gray-800"
+          >
             <path stroke-linecap="round" stroke-linejoin="round" d="m8.25 4.5 7.5 7.5-7.5 7.5" />
           </svg>
         </button>
@@ -49,12 +72,13 @@
 
       <!-- Archiv Button -->
       <div class="hidden md:block">
-        <button class="px-4 py-2 bg-[#D3DDD1] hover:bg-[#c2cebf] text-gray-700 rounded-xl font-medium text-sm transition-colors">
+        <button
+          class="px-4 py-2 bg-[#D3DDD1] hover:bg-[#c2cebf] text-gray-700 rounded-xl font-medium text-sm transition-colors"
+        >
           Archiv
         </button>
       </div>
     </div>
-
 
     <!-- ========================================== -->
     <!-- MOBILE ANSICHT (Listen-Layout) -->
@@ -63,23 +87,40 @@
       <h3 class="text-lg font-bold text-gray-800 text-center mb-4">{{ wochenTagString }}</h3>
 
       <div class="space-y-3">
-        <div 
-          v-for="res in aktuelleReservierungen" 
+        <div
+          v-for="res in aktuelleReservierungen"
           :key="res.id"
           class="flex items-center justify-between p-3 rounded-full bg-[#D3DDD1] shadow-sm border border-gray-200"
         >
           <div class="flex items-center gap-3">
             <img :src="res.bild" class="w-11 h-11 rounded-full object-cover" />
             <div>
-              <span class="font-bold text-gray-800 text-sm block leading-tight">{{ res.hundName }}, {{ res.telefon }}</span>
+              <span class="font-bold text-gray-800 text-sm block leading-tight"
+                >{{ res.hundName }}, {{ res.telefon }}</span
+              >
               <span class="text-xs text-gray-700 block leading-tight mt-0.5">{{ res.zeit }}</span>
             </div>
           </div>
 
           <!-- Rotes Verbots-Symbol zum Löschen -->
-          <button @click="loescheReservierung(res.id)" class="pr-2" aria-label="Reservierung stornieren">
-            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6 text-red-600 hover:text-red-800">
-              <path stroke-linecap="round" stroke-linejoin="round" d="M18.364 18.364A9 9 0 0 0 5.636 5.636m12.728 12.728A9 9 0 0 1 5.636 5.636m12.728 12.728L5.636 5.636" />
+          <button
+            @click="loescheReservierung(res.id)"
+            class="pr-2"
+            aria-label="Reservierung stornieren"
+          >
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke-width="1.5"
+              stroke="currentColor"
+              class="w-6 h-6 text-red-600 hover:text-red-800"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                d="M18.364 18.364A9 9 0 0 0 5.636 5.636m12.728 12.728A9 9 0 0 1 5.636 5.636m12.728 12.728L5.636 5.636"
+              />
             </svg>
           </button>
         </div>
@@ -90,45 +131,48 @@
       </div>
     </div>
 
-
     <!-- ========================================================== -->
     <!-- TABLET & DESKTOP ANSICHT (Matrix-Layout) -->
     <!-- ========================================================== -->
     <div class="hidden md:block overflow-x-auto pt-4">
       <div class="min-w-[800px]">
-        
         <!-- Hundereihe oben -->
         <div class="grid grid-cols-8 gap-4 items-end pb-6 border-b border-gray-100">
           <div class="text-xs text-gray-400">Zeit / Hund</div>
           <div v-for="hund in alleHunde" :key="hund.id" class="text-center space-y-2">
-            <img :src="hund.bild" class="w-14 h-14 rounded-full object-cover mx-auto shadow-sm border" />
+            <img
+              :src="hund.bild"
+              class="w-14 h-14 rounded-full object-cover mx-auto shadow-sm border"
+            />
             <span class="font-bold text-sm text-gray-800 block truncate">{{ hund.name }}</span>
           </div>
         </div>
 
         <!-- Zeitslots-Matrix -->
         <div class="divide-y divide-gray-50">
-          <div v-for="slot in zeitSlots" :key="slot" class="grid grid-cols-8 gap-4 items-center py-3">
-            
-            <div class="bg-[#D3DDD1] text-gray-800 font-medium text-xs py-2 px-3 rounded-xl text-center shadow-sm border border-gray-200/50">
+          <div
+            v-for="slot in zeitSlots"
+            :key="slot"
+            class="grid grid-cols-8 gap-4 items-center py-3"
+          >
+            <div
+              class="bg-[#D3DDD1] text-gray-800 font-medium text-xs py-2 px-3 rounded-xl text-center shadow-sm border border-gray-200/50"
+            >
               {{ slot }}
             </div>
 
             <div v-for="hund in alleHunde" :key="hund.id" class="flex justify-center">
-              <div 
+              <div
                 :class="[
                   'w-full h-10 rounded-xl border border-gray-200/60 shadow-sm transition-colors',
-                  istReserviert(hund.id, slot) ? 'bg-[#7A9A75]' : 'bg-[#E5E9E4]'
+                  istReserviert(hund.id, slot) ? 'bg-[#7A9A75]' : 'bg-[#E5E9E4]',
                 ]"
               ></div>
             </div>
-
           </div>
         </div>
-
       </div>
     </div>
-
   </div>
 </template>
 
@@ -148,7 +192,7 @@ const aktuelleKWNummer = getKW(heute)
 const kalenderWochen = ref([
   { nummer: aktuelleKWNummer },
   { nummer: aktuelleKWNummer + 1 },
-  { nummer: aktuelleKWNummer + 2 }
+  { nummer: aktuelleKWNummer + 2 },
 ])
 
 const aktiveKW = ref(aktuelleKWNummer)
@@ -169,7 +213,7 @@ const getMontagDerKW = (kw, jahr) => {
 const waehleKW = (kwNummer) => {
   aktiveKW.value = kwNummer
   const montag = getMontagDerKW(kwNummer, heute.getFullYear())
-  
+
   if (kwNummer === aktuelleKWNummer) {
     aktuellesDatumObj.value = new Date(heute)
   } else {
@@ -183,7 +227,10 @@ const istErlaubterTagZurueck = computed(() => {
   vorherigesDatum.setDate(vorherigesDatum.getDate() - 1)
 
   if (vorherigesDatum < montagKW) return true
-  if (aktiveKW.value === aktuelleKWNummer && vorherigesDatum < new Date(heute.getFullYear(), heute.getMonth(), heute.getDate())) {
+  if (
+    aktiveKW.value === aktuelleKWNummer &&
+    vorherigesDatum < new Date(heute.getFullYear(), heute.getMonth(), heute.getDate())
+  ) {
     return true
   }
   return false
@@ -224,40 +271,76 @@ const wochenTagString = computed(() => {
 const alleHunde = ref([])
 const reservierungen = ref([])
 
-const zeitSlots = [
-  '10:00 - 10:30',
-  '10:30 - 11:00',
-  '11:00 - 11:30',
-  '11:30 - 12:00',
-  '12:00 - 12:30',
-  '12:30 - 13:00',
-  '13:00 - 13:30',
-  '13:30 - 14:00'
-]
+/*
+      Task: Dynamische Anzeige der Zeitfenster
+      Author: Lili, 2026-10-17
+*/
+const zeitSlots = ref([]) // Daten für die Anzeige
+const slotMinuten = ref(30) // später: zeitblock aus Tierheim laden
+const TAGE = ['SO', 'MO', 'DI', 'MI', 'DO', 'FR', 'SA']
 
+const minutenVon = (zeit) => {
+  const [h, m] = zeit.split(':')
+  return Number(h) * 60 + Number(m)
+}
+const alsText = (min) =>
+  `${String(Math.floor(min / 60)).padStart(2, '0')}:${String(min % 60).padStart(2, '0')}`
+
+const erzeugeSlots = (fenster, dauer) => {
+  const slots = []
+  for (const f of fenster) {
+    const ende = minutenVon(f.bis)
+    for (let start = minutenVon(f.von); start + dauer <= ende; start += dauer) {
+      slots.push(`${alsText(start)} - ${alsText(start + dauer)}`)
+    }
+  }
+  return slots
+}
+
+const ladeZeitSlots = async () => {
+  const tag = TAGE[aktuellesDatumObj.value.getDay()]
+  try {
+    const res = await fetch(`${API_BASE}/gassiGehZeiten/tag/${tag}`)
+    if (!res.ok) {
+      zeitSlots.value = []
+      return
+    }
+    zeitSlots.value = erzeugeSlots(await res.json(), slotMinuten.value)
+  } catch (error) {
+    console.error('Fehler beim Laden der Zeiten:', error)
+  }
+}
+onMounted(ladeZeitSlots)
+watch(aktuellesDatumObj, ladeZeitSlots) // neu laden, wenn der Tag wechselt
+/*
+      Ende Task, Lili, 2026-10-17
+*/
+
+const API_BASE = 'http://localhost:8085'
+const tierheimId = 1
 // Daten vom Backend laden
 const ladeDaten = async () => {
   try {
     // 1. Hunde laden (für die Matrix-Spalten)
-    const hundeRes = await fetch('/hund/all')
+    const hundeRes = await fetch(`${API_BASE}/hund/${tierheimId}/all`)
     if (hundeRes.ok) {
       const hundeData = await hundeRes.json()
-      alleHunde.value = hundeData.map(h => ({
+      alleHunde.value = hundeData.map((h) => ({
         id: h.id,
         name: h.name,
-        bild: h.bild || 'https://images.unsplash.com/photo-1543466835-00a7907e9de1'
+        bild: h.bild || 'https://images.unsplash.com/photo-1543466835-00a7907e9de1',
       }))
     }
 
     // 2. Reservierungen laden (mit dem aktuellen Datum als Filter)
     const datumString = aktuellesDatumObj.value.toISOString().split('T')[0]
-    const resRes = await fetch(`/reservierung/all?von=${datumString}&bis=${datumString}`)
+    const resRes = await fetch(`${API_BASE}/reservierung/all?von=${datumString}&bis=${datumString}`)
     if (resRes.ok) {
       const resData = await resRes.json()
-      
+
       reservierungen.value = resData
-        .filter(r => r.status === 'AKTIV') // Nur aktive Reservierungen anzeigen
-        .map(r => {
+        .filter((r) => r.status === 'AKTIV') // Nur aktive Reservierungen anzeigen
+        .map((r) => {
           // Extrahiere Uhrzeit / Slot aus den Start- und Endzeiten der Reservierung
           const startZeit = r.startZeit ? r.startZeit.substring(0, 5) : '10:00'
           const endZeit = r.endZeit ? r.endZeit.substring(0, 5) : '10:30'
@@ -270,7 +353,7 @@ const ladeDaten = async () => {
             telefon: r.mitglied?.mitgliedsnummer ? String(r.mitglied.mitgliedsnummer) : '',
             zeit: `${slotStr}Uhr`,
             bild: r.hund?.bild || 'https://images.unsplash.com/photo-1543466835-00a7907e9de1',
-            slot: slotStr
+            slot: slotStr,
           }
         })
     }
@@ -287,7 +370,7 @@ watch(aktuellesDatumObj, () => {
 
 const aktuelleReservierungen = computed(() => {
   const uniqueMap = new Map()
-  reservierungen.value.forEach(r => {
+  reservierungen.value.forEach((r) => {
     if (!uniqueMap.has(r.hundId)) {
       uniqueMap.set(r.hundId, r)
     }
@@ -296,7 +379,7 @@ const aktuelleReservierungen = computed(() => {
 })
 
 const istReserviert = (hundId, slot) => {
-  return reservierungen.value.some(r => r.hundId === hundId && r.slot === slot)
+  return reservierungen.value.some((r) => r.hundId === hundId && r.slot === slot)
 }
 
 const loescheReservierung = async (id) => {
@@ -305,7 +388,7 @@ const loescheReservierung = async (id) => {
     if (grund === null) return // Abgebrochen
 
     const res = await fetch(`/reservierung/${id}?grund=${encodeURIComponent(grund)}`, {
-      method: 'DELETE'
+      method: 'DELETE',
     })
     if (res.ok) {
       // Nach erfolgreicher Stornierung die Liste aktualisieren
