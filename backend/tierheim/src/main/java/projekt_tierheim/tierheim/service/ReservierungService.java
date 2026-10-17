@@ -20,6 +20,7 @@ import projekt_tierheim.tierheim.rest.GassiGehZeitenController;
 
 import java.time.DayOfWeek;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.temporal.ChronoUnit;
 import java.util.List;
@@ -40,9 +41,10 @@ public class ReservierungService {
     }
 
     public Reservierung erstelleReservierung(ReservierungDTO reservierungDTO) {
+        pruefeZeitraum(reservierungDTO.datum(), reservierungDTO.zeitAb(), reservierungDTO.zeitBis());
+
         Mitglied mitglied = mitgliedRepository.findMitgliedById(reservierungDTO.mitgliedId());
         Hund hund = hundRepository.findHundById(reservierungDTO.hundId());
-
         if(mitglied == null) {
             throw new NotFoundException("Mitglied mit der Id " + reservierungDTO.mitgliedId() + " nicht gefunden");
         }
@@ -52,10 +54,6 @@ public class ReservierungService {
 
         if(hund.isIstGesperrt()) {
             throw new IllegalArgumentException("Hund ist aktuell gesperrt");
-        }
-
-        if(reservierungDTO.zeitBis().isBefore(reservierungDTO.zeitAb())) {
-            throw new IllegalArgumentException("Terminbeginn muss vor Terminende sein");
         }
 
         pruefeGassiGehZeit(reservierungDTO.datum(), reservierungDTO.zeitAb(), reservierungDTO.zeitBis());
@@ -181,6 +179,18 @@ public class ReservierungService {
     public void pruefeGassiGehZeit(LocalDate datum, LocalTime zeitAb, LocalTime zeitBis) {
         if (!liegtInGassiGehZeit(datum, zeitAb, zeitBis)) {
             throw new IllegalArgumentException("Der gewählte Zeitraum liegt außerhalb der regulären Gassi-Geh-Zeiten");
+        }
+    }
+
+    public void pruefeZeitraum(LocalDate datum, LocalTime zeitAb, LocalTime zeitBis) {
+        if(!zeitAb.isBefore(zeitBis)) {
+            throw new IllegalArgumentException("Terminbeginn muss vor Terminende sein");
+        }
+        // ToDO flexible Deadline?
+        // Termine in der Vergangenheit werden nicht berücksichtigt
+        // Termin muss mindestens zwei Stunden vor Zeitpunkt der Reservierung sein
+        if(LocalDateTime.of(datum, zeitAb).isBefore(LocalDateTime.now().plusHours(2))) {
+            throw new  IllegalArgumentException("Der Termin darf nicht in der Vergangenheit liegen");
         }
     }
 }
