@@ -82,7 +82,7 @@ async function ladeHeutigeTermine() {
     const heuteStr = new Date().toISOString().split('T')[0]
     
     // Nutzung des Endpunkts mit von, bis und Status AKTIV
-    const res = await fetch(`/all?von=${heuteStr}&bis=${heuteStr}&status=AKTIV`)
+    const res = await fetch(`/reservierung/all?von=${heuteStr}&bis=${heuteStr}&status=AKTIV`)
     
     const contentType = res.headers.get('content-type')
     if (res.ok && contentType && contentType.includes('application/json')) {
