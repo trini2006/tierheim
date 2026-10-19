@@ -179,7 +179,7 @@ const bearbeiten = (mitglied) => {
 
 const loeschen = async (id) => {
   try {
-    const res = await fetch(`/mitglied/${id}`, {
+    const res = await fetch(`/api/mitglied/${id}`, {
       method: 'DELETE',
     })
     if (res.ok) {
@@ -205,7 +205,7 @@ const anlegen = async () => {
   try {
     if (selectedId.value) {
       // Bestehendes Mitglied aktualisieren (PUT)
-      const res = await fetch(`/mitglied/${selectedId.value}`, {
+      const res = await fetch(`/api/mitglied/${selectedId.value}`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(payload),
@@ -216,7 +216,7 @@ const anlegen = async () => {
       }
     } else {
       // Neues Mitglied anlegen (POST)
-      const res = await fetch('/mitglied/new', {
+      const res = await fetch('/api/mitglied/new', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(payload),

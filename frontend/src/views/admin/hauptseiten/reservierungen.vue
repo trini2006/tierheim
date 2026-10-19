@@ -239,7 +239,7 @@ const zeitSlots = [
 const ladeDaten = async () => {
   try {
     // 1. Hunde laden (für die Matrix-Spalten)
-    const hundeRes = await fetch('/hund/all')
+    const hundeRes = await fetch('/api/hund/all')
     if (hundeRes.ok) {
       const hundeData = await hundeRes.json()
       alleHunde.value = hundeData.map(h => ({
@@ -251,7 +251,7 @@ const ladeDaten = async () => {
 
     // 2. Reservierungen laden (mit dem aktuellen Datum als Filter)
     const datumString = aktuellesDatumObj.value.toISOString().split('T')[0]
-    const resRes = await fetch(`/reservierung/all?von=${datumString}&bis=${datumString}`)
+    const resRes = await fetch(`/api/reservierung/all?von=${datumString}&bis=${datumString}`)
     if (resRes.ok) {
       const resData = await resRes.json()
       
@@ -304,7 +304,7 @@ const loescheReservierung = async (id) => {
     const grund = prompt('Bitte geben Sie einen Stornierungsgrund ein:', 'Storniert durch Admin')
     if (grund === null) return // Abgebrochen
 
-    const res = await fetch(`/reservierung/${id}?grund=${encodeURIComponent(grund)}`, {
+    const res = await fetch(`/api/reservierung/${id}?grund=${encodeURIComponent(grund)}`, {
       method: 'DELETE'
     })
     if (res.ok) {
