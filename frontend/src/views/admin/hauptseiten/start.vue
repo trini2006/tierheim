@@ -24,7 +24,7 @@
             :key="termin.id"
             class="text-gray-800 border-b pb-2"
           >
-            {{ termin.uhrzeit }} – {{ termin.hundName }} mit {{ termin.mitgliedName }}
+            {{ termin.uhrzeit }} – {{ termin.hundName }} mit {{ termin.mitgliednummer }}
           </li>
         </ul>
       </div>
@@ -50,7 +50,7 @@
             :key="termin.id"
             class="text-gray-800 border-b pb-2"
           >
-            {{ termin.uhrzeit }} – {{ termin.hundName }} mit {{ termin.mitgliedName }}
+            {{ termin.uhrzeit }} – {{ termin.hundName }} mit {{ termin.mitgliednummer }}
           </li>
         </ul>
       </div>
@@ -97,22 +97,23 @@ const heuteStr = new Date().toISOString().split('T')[0]
 async function ladeHeutigeTermine() {
   try {
     // Nutzung des Endpunkts mit von, bis und Status AKTIV
-    const res = await fetch(`/reservierung/all?von=${heuteStr}&bis=${heuteStr}&status=AKTIV`)
+    const res = await fetch(`/api/reservierung/all?von=${heuteStr}&bis=${heuteStr}&status=AKTIV`)
 
     const contentType = res.headers.get('content-type')
     if (res.ok && contentType && contentType.includes('application/json')) {
       const data = await res.json()
       gassiGeherHeute.value = data.map((termin) => ({
-        id: termin.id,
+        id: termin.idReservierung,
         uhrzeit: `${termin.von?.substring(0, 5)} – ${termin.bis?.substring(0, 5)} Uhr`,
-        hundName: termin.hund?.name || 'Hund',
-        mitgliedName: termin.mitglied?.telefon || 'Mitglied',
+        hundName: termin.hund?.name || '',
+        mitgliednummer: termin.mitglied?.mitgliedsnummer || '',
       }))
     } else {
       gassiGeherHeute.value = []
     }
   } catch (e) {
     gassiGeherHeute.value = []
+    console.error('Fehler beim Laden der Reservierungsdaten:', e)
   }
 }
 

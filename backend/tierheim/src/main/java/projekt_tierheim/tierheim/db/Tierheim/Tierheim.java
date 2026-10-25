@@ -198,10 +198,10 @@ public class Tierheim {
         tierheim.setBild(tierheimDTO.bild());
         tierheim.setBannerfarbe(tierheimDTO.bannerfarbe());
 
-        tierheim.setZeitblock(tierheimDTO.zeitblock() != null ? tierheimDTO.zeitblock() : 30);
-        tierheim.setRuhezeit(tierheimDTO.ruhezeit() != null ? tierheimDTO.ruhezeit() : 60);
-        tierheim.setMaxGassi(tierheimDTO.maxGassi() != null ? tierheimDTO.maxGassi() : 120);
-        tierheim.setMinGassi(tierheimDTO.minGassi() != null ?  tierheimDTO.minGassi() : 30);
+        tierheim.setZeitblock(tierheimDTO.zeitblock() != 0 ? tierheimDTO.zeitblock() : 30);
+        tierheim.setRuhezeit(tierheimDTO.ruhezeit() != 0 ? tierheimDTO.ruhezeit() : 60);
+        tierheim.setMaxGassi(tierheimDTO.maxGassi() != 0 ? tierheimDTO.maxGassi() : 120);
+        tierheim.setMinGassi(tierheimDTO.minGassi() != 0 ?  tierheimDTO.minGassi() : 30);
 
         return tierheim;
     }

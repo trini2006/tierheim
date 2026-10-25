@@ -347,7 +347,9 @@ const ladeDaten = async () => {
 
     // 2. Reservierungen laden (mit dem aktuellen Datum als Filter)
     const datumString = aktuellesDatumObj.value.toLocaleDateString('sv-SE') // YYYY-MM-DD, lokale Zeit
-    const resRes = await fetch(`${API_BASE}/reservierung/all?von=${datumString}&bis=${datumString}`)
+    const resRes = await fetch(
+      `${API_BASE}/reservierung/all?von=${datumString}&bis=${datumString}&status=AKTIV`,
+    )
     if (resRes.ok) {
       const resData = await resRes.json()
 
@@ -429,9 +431,14 @@ const gridStyle = computed(() => ({
 }))
 
 const loescheReservierung = async (id) => {
+  console.log('Stornieren für:', id)
   try {
     const grund = prompt('Bitte geben Sie einen Stornierungsgrund ein:', 'Storniert durch Admin')
-    if (grund === null) return // Abgebrochen
+    if (!grund?.trim()) return // Abgebrochen
+    if (id == null) {
+      console.error('Reservierung ohne ID')
+      return
+    }
 
     const res = await fetch(`${API_BASE}/reservierung/${id}?grund=${encodeURIComponent(grund)}`, {
       method: 'DELETE',
