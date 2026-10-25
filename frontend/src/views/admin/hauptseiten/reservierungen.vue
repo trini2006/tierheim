@@ -96,7 +96,7 @@
             <img :src="res.bild" class="w-11 h-11 rounded-full object-cover" />
             <div>
               <span class="font-bold text-gray-800 text-sm block leading-tight"
-                >{{ res.hundName }}, {{ res.telefon }}</span
+                >{{ res.hundName }}, {{ res.mitgliedsnummer }}</span
               >
               <span class="text-xs text-gray-700 block leading-tight mt-0.5">{{ res.zeit }}</span>
             </div>
@@ -136,40 +136,54 @@
     <!-- ========================================================== -->
     <div class="hidden md:block overflow-x-auto pt-4">
       <div class="min-w-[800px]">
-        <!-- Hundereihe oben -->
-        <div class="grid grid-cols-8 gap-4 items-end pb-6 border-b border-gray-100">
-          <div class="text-xs text-gray-400">Zeit / Hund</div>
-          <div v-for="hund in alleHunde" :key="hund.id" class="text-center space-y-2">
+        <p v-if="sichtbareHunde.length === 0" class="text-center text-gray-500 italic py-8">
+          Für diesen Tag gibt es keine Reservierungen.
+        </p>
+
+        <div v-else class="grid gap-x-4 gap-y-3" :style="gridStyle">
+          <!-- Kopfzeile -->
+          <div class="text-xs text-gray-400 self-end" style="grid-row: 1; grid-column: 1">
+            Zeit / Hund
+          </div>
+          <div
+            v-for="(hund, i) in sichtbareHunde"
+            :key="'kopf-' + hund.id"
+            class="text-center space-y-2 pb-3"
+            :style="{ gridRow: 1, gridColumn: i + 2 }"
+          >
             <img
               :src="hund.bild"
               class="w-14 h-14 rounded-full object-cover mx-auto shadow-sm border"
             />
             <span class="font-bold text-sm text-gray-800 block truncate">{{ hund.name }}</span>
           </div>
-        </div>
 
-        <!-- Zeitslots-Matrix -->
-        <div class="divide-y divide-gray-50">
+          <!-- Uhrzeiten -->
           <div
-            v-for="slot in zeitSlots"
-            :key="slot"
-            class="grid grid-cols-8 gap-4 items-center py-3"
+            v-for="(slot, s) in zeitSlots"
+            :key="'zeit-' + slot"
+            class="bg-[#D3DDD1] text-gray-800 font-medium text-xs py-2 px-3 rounded-xl text-center shadow-sm border border-gray-200/50 self-center"
+            :style="{ gridRow: s + 2, gridColumn: 1 }"
           >
-            <div
-              class="bg-[#D3DDD1] text-gray-800 font-medium text-xs py-2 px-3 rounded-xl text-center shadow-sm border border-gray-200/50"
-            >
-              {{ slot }}
-            </div>
-
-            <div v-for="hund in alleHunde" :key="hund.id" class="flex justify-center">
-              <div
-                :class="[
-                  'w-full h-10 rounded-xl border border-gray-200/60 shadow-sm transition-colors',
-                  istReserviert(hund.id, slot) ? 'bg-[#7A9A75]' : 'bg-[#E5E9E4]',
-                ]"
-              ></div>
-            </div>
+            {{ slot }}
           </div>
+
+          <!-- Leere Zellen -->
+          <div
+            v-for="z in leereZellen"
+            :key="z.key"
+            class="h-10 rounded-xl border border-gray-200/60 shadow-sm bg-[#E5E9E4]"
+            :style="{ gridRow: z.zeile, gridColumn: z.spalte }"
+          ></div>
+
+          <!-- Reservierungsblöcke, liegen über den leeren Zellen -->
+          <div
+            v-for="b in bloecke"
+            :key="b.id"
+            class="rounded-xl border border-gray-200/60 shadow-sm bg-[#7A9A75]"
+            :title="`Mitgliedsnummer: ${b.mitgliedsnummer}`"
+            :style="{ gridRow: `${b.zeile} / span ${b.spanne}`, gridColumn: b.spalte }"
+          ></div>
         </div>
       </div>
     </div>
@@ -177,6 +191,8 @@
 </template>
 
 <script setup>
+const API_BASE = 'http://localhost:8085'
+const tierheimId = 1
 import { ref, computed, onMounted, watch } from 'vue'
 
 const getKW = (d) => {
@@ -315,9 +331,6 @@ watch(aktuellesDatumObj, ladeZeitSlots) // neu laden, wenn der Tag wechselt
 /*
       Ende Task, Lili, 2026-10-17
 */
-
-const API_BASE = 'http://localhost:8085'
-const tierheimId = 1
 // Daten vom Backend laden
 const ladeDaten = async () => {
   try {
@@ -333,29 +346,25 @@ const ladeDaten = async () => {
     }
 
     // 2. Reservierungen laden (mit dem aktuellen Datum als Filter)
-    const datumString = aktuellesDatumObj.value.toISOString().split('T')[0]
+    const datumString = aktuellesDatumObj.value.toLocaleDateString('sv-SE') // YYYY-MM-DD, lokale Zeit
     const resRes = await fetch(`${API_BASE}/reservierung/all?von=${datumString}&bis=${datumString}`)
     if (resRes.ok) {
       const resData = await resRes.json()
 
-      reservierungen.value = resData
-        .filter((r) => r.status === 'AKTIV') // Nur aktive Reservierungen anzeigen
-        .map((r) => {
-          // Extrahiere Uhrzeit / Slot aus den Start- und Endzeiten der Reservierung
-          const startZeit = r.startZeit ? r.startZeit.substring(0, 5) : '10:00'
-          const endZeit = r.endZeit ? r.endZeit.substring(0, 5) : '10:30'
-          const slotStr = `${startZeit} - ${endZeit}`
-
-          return {
-            id: r.id,
-            hundId: r.hund?.id,
-            hundName: r.hund?.name || 'Unbekannt',
-            telefon: r.mitglied?.mitgliedsnummer ? String(r.mitglied.mitgliedsnummer) : '',
-            zeit: `${slotStr}Uhr`,
-            bild: r.hund?.bild || 'https://images.unsplash.com/photo-1543466835-00a7907e9de1',
-            slot: slotStr,
-          }
-        })
+      reservierungen.value = resData.map((r) => {
+        const zeitAb = r.zeitAb.substring(0, 5)
+        const zeitBis = r.zeitBis.substring(0, 5)
+        return {
+          id: r.idReservierung,
+          hundId: r.hund?.id,
+          hundName: r.hund?.name,
+          mitgliedsnummer: r.mitglied?.mitgliedsnummer ? String(r.mitglied.mitgliedsnummer) : '',
+          zeitAb,
+          zeitBis,
+          zeit: `${zeitAb} - ${zeitBis} Uhr`,
+          bild: r.hund?.bild || 'https://images.unsplash.com/photo-1543466835-00a7907e9de1',
+        }
+      })
     }
   } catch (e) {
     console.error('Fehler beim Laden der Reservierungsdaten:', e)
@@ -368,26 +377,63 @@ watch(aktuellesDatumObj, () => {
   ladeDaten()
 })
 
-const aktuelleReservierungen = computed(() => {
-  const uniqueMap = new Map()
-  reservierungen.value.forEach((r) => {
-    if (!uniqueMap.has(r.hundId)) {
-      uniqueMap.set(r.hundId, r)
-    }
-  })
-  return Array.from(uniqueMap.values())
+const aktuelleReservierungen = computed(() =>
+  [...reservierungen.value].sort((a, b) => a.zeitAb.localeCompare(b.zeitAb)),
+)
+
+// Hintergrund: eine leere Zelle pro Hund und Slot
+const leereZellen = computed(() =>
+  sichtbareHunde.value.flatMap((h, i) =>
+    zeitSlots.value.map((slot, s) => ({
+      key: `${h.id}|${slot}`,
+      spalte: i + 2, // Spalte 1 sind die Uhrzeiten
+      zeile: s + 2, // Zeile 1 ist die Hunde-Kopfzeile
+    })),
+  ),
+)
+
+// Pro Reservierung ein Block über alle Slots, die sie berührt
+const bloecke = computed(() => {
+  const liste = []
+  for (const r of reservierungen.value) {
+    const spalte = sichtbareHunde.value.findIndex((h) => h.id === r.hundId)
+    if (spalte === -1) continue
+
+    const von = minutenVon(r.zeitAb)
+    const bis = minutenVon(r.zeitBis)
+    const treffer = []
+    zeitSlots.value.forEach((slot, i) => {
+      const [sVon, sBis] = slot.split(' - ').map(minutenVon)
+      if (von < sBis && bis > sVon) treffer.push(i)
+    })
+    if (treffer.length === 0) continue
+
+    liste.push({
+      id: r.id,
+      mitgliedsnummer: r.mitgliedsnummer,
+      spalte: spalte + 2,
+      zeile: treffer[0] + 2,
+      spanne: treffer.length,
+    })
+  }
+  return liste
 })
 
-const istReserviert = (hundId, slot) => {
-  return reservierungen.value.some((r) => r.hundId === hundId && r.slot === slot)
-}
+const sichtbareHunde = computed(() => {
+  const ids = new Set(reservierungen.value.map((r) => r.hundId))
+  return alleHunde.value.filter((h) => ids.has(h.id))
+})
+
+const gridStyle = computed(() => ({
+  gridTemplateColumns: `repeat(${sichtbareHunde.value.length + 1}, minmax(0, 1fr))`,
+}))
 
 const loescheReservierung = async (id) => {
   try {
     const grund = prompt('Bitte geben Sie einen Stornierungsgrund ein:', 'Storniert durch Admin')
     if (grund === null) return // Abgebrochen
 
-    const res = await fetch(`/reservierung/${id}?grund=${encodeURIComponent(grund)}`, {
+    const res = await fetch(`${API_BASE}/reservierung/${id}?grund=${encodeURIComponent(grund)}`, {
       method: 'DELETE',
     })
     if (res.ok) {
