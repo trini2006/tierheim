@@ -190,13 +190,10 @@ public class Hund {
         return hund;
     }
 
-    // evtl. überflüssig
-    public static Hund convertToSperren(SperrHundDTO sperrHundDTO) {
-        Hund hund = new Hund();
-        hund.setGesperrtVon(sperrHundDTO.gesperrtVon());
-        hund.setGesperrtBis(sperrHundDTO.gesperrtBis());
-        hund.setIstGesperrt(true);
-        hund.setSperrGrund(sperrHundDTO.sperrGrund());
-        return hund;
+    // istGesperrt setzt voraus, dass beide Daten gesetzt sind > != null
+    public boolean istGesperrtAm(LocalDate datum) {
+        return istGesperrt
+                && !datum.isBefore(gesperrtVon)
+                && !datum.isAfter(gesperrtBis);
     }
 }

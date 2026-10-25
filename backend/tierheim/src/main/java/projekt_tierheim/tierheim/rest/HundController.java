@@ -126,6 +126,9 @@ public class HundController {
         if(hund == null) {
             throw new NotFoundException("Hund mit der Id " + hundId + " nicht gefunden");
         }
+        if(!sperrHundDTO.gesperrtVon().isBefore(sperrHundDTO.gesperrtBis())) {
+            throw new IllegalArgumentException("Inkorrekter Zeitraum");
+        }
 
         hund.setIstGesperrt(true);
         hund.setGesperrtVon(sperrHundDTO.gesperrtVon());

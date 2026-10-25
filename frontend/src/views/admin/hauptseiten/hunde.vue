@@ -184,34 +184,29 @@ const router = useRouter()
 
 // Aktive Hunde (Linke Seite)
 const aktiveHunde = ref([])
-
 // Gesperrte Hunde (Rechte Seite)
 const gesperrteHunde = ref([])
 
+const farbeFuerErfahrung = (h) => (h.erfahrung ? 'bg-orange-500' : 'bg-green-500')
 // Hunde beim Laden der Komponente vom Backend abrufen
 const ladeHunde = async () => {
   try {
     const response = await fetch(`${API_BASE}/hund/${tierheimId}/all`)
     if (response.ok) {
+      const heute = new Date().toLocaleDateString('sv-SE')
+      const isAktuellGesperrt = (h) =>
+        h.istGesperrt && h.gesperrtVon <= heute && h.gesperrtBis >= heute
+
       const alleHunde = await response.json()
 
       // Aufteilung in aktive und gesperrte Hunde basierend auf dem Datenbankfeld 'istGesperrt'
       aktiveHunde.value = alleHunde
-        .filter((h) => !h.istGesperrt)
-        .map((h) => ({
-          ...h,
-          statusPunkt: 'bg-green-500',
-          ursruenglicherPunkt: 'bg-green-500',
-        }))
+        .filter((h) => !isAktuellGesperrt(h))
+        .map((h) => ({...h,statusPunkt: farbeFuerErfahrung(h)}))
 
       gesperrteHunde.value = alleHunde
-        .filter((h) => h.istGesperrt)
-        .map((h) => ({
-          ...h,
-          statusPunkt: 'bg-red-500',
-          ursruenglicherPunkt: 'bg-orange-400',
-          info: h.sperrGrund ? `${h.sperrGrund}` : 'Gesperrt',
-        }))
+        .filter((h) => isAktuellGesperrt(h))
+        .map((h) => ({...h, statusPunkt: 'bg-red-500', info: h.sperrGrund || 'Gesperrt'}))
     } else {
       console.error('Fehler beim Laden der Hunde')
     }
@@ -237,11 +232,18 @@ const geheZuPflegen = () => {
 // Hund sperren: Schickt ein PUT-Request an das Backend und verschiebt ihn nach rechts
 const sperreHund = async (id) => {
   try {
+    const sperrgrund = prompt('Bitte geben Sie einen Sperrgrund ein:', 'Gesperrt durch Admin')
+    if (!sperrgrund?.trim()) return
+
+    const heute = new Date()
+    const morgen = new Date()
+    morgen.setDate(heute.getDate() + 1)
+
     // Falls ein Sperrgrund benötigt wird, kannst du hier ein Objekt übergeben (entspricht SperrHundDTO)
     const sperrDaten = {
-      gesperrtVon: new Date().toISOString().split('T')[0],
-      gesperrtBis: null,
-      sperrGrund: 'Gesperrt',
+      gesperrtVon: heute.toLocaleDateString('sv-SE'),
+      gesperrtBis: morgen.toLocaleDateString('sv-SE'),
+      sperrGrund: sperrgrund,
     }
 
     const response = await fetch(`${API_BASE}/hund/sperren/${id}`, {
@@ -251,13 +253,9 @@ const sperreHund = async (id) => {
     })
 
     if (response.ok) {
-      const index = aktiveHunde.value.findIndex((h) => h.id === id)
-      if (index !== -1) {
-        const [hund] = aktiveHunde.value.splice(index, 1)
-        hund.statusPunkt = 'bg-red-500'
-        hund.info = 'Gesperrt'
-        gesperrteHunde.value.push(hund)
-      }
+      await ladeHunde()
+    } else {
+      alert(await response.text())
     }
   } catch (error) {
     console.error('Fehler beim Sperren des Hundes:', error)
@@ -272,12 +270,9 @@ const entsperreHund = async (id) => {
     })
 
     if (response.ok) {
-      const index = gesperrteHunde.value.findIndex((h) => h.id === id)
-      if (index !== -1) {
-        const [hund] = gesperrteHunde.value.splice(index, 1)
-        hund.statusPunkt = hund.ursruenglicherPunkt
-        aktiveHunde.value.push(hund)
-      }
+      await ladeHunde()
+    } else {
+      alert(await response.text())
     }
   } catch (error) {
     console.error('Fehler beim Entsperren des Hundes:', error)

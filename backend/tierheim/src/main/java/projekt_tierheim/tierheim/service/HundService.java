@@ -31,7 +31,7 @@ public class HundService {
         List<Hund> verfuegbareHunde = new ArrayList<>();
         for (Hund h : alleHunde) {
             if (reservierungService.liegtInGassiGehZeit(datum, von, bis)) continue;
-            if (h.isIstGesperrt()) continue;
+            if (h.istGesperrtAm(datum)) continue;
             if (reservierungService.istVerfuegbar(h, datum, von, bis)) continue;
             if (reservierungService.erfuelltDauer(von, bis, h)) continue;
             if (reservierungService.erfuelltErfahrung(h, mitglied)) continue;

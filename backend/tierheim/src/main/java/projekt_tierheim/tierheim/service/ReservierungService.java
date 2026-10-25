@@ -49,8 +49,8 @@ public class ReservierungService {
             throw new NotFoundException("Hund mit der Id " + reservierungDTO.hundId() + " nicht gefunden");
         }
 
-        if(hund.isIstGesperrt()) {
-            throw new IllegalArgumentException("Hund ist aktuell gesperrt");
+        if(hund.istGesperrtAm(reservierungDTO.datum())) {
+            throw new IllegalArgumentException("Hund ist an diesem Tag gesperrt");
         }
 
         pruefeGassiGehZeit(reservierungDTO.datum(), reservierungDTO.zeitAb(), reservierungDTO.zeitBis());
