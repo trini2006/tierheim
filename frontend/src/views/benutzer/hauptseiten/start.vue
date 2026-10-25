@@ -78,7 +78,7 @@
 import { ref, computed, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import NaechsterTermin from './naechstertermin.vue'
-import Nachrichten from '../../beides/benachrichtigungen.vue'
+//import Nachrichten from '../../beides/benachrichtigungen.vue'
 import ReservierungsUebersicht from './revuebersicht.vue'
 
 const router = useRouter()

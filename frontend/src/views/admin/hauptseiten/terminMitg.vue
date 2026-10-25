@@ -152,7 +152,7 @@ const changeDay = (dir) => {
 // Mitglieder vom Backend laden und ans Beispiel anhängen
 const ladeMitglieder = async () => {
   try {
-    const res = await fetch('/mitglied/all')
+    const res = await fetch('/api/mitglied/all')
     if (res.ok) {
       const data = await res.json()
       const backendMitglieder = data.map((m) => ({
@@ -171,7 +171,7 @@ const ladeMitglieder = async () => {
 
 const ladeZeitenVomBackend = async () => {
   try {
-    const res = await fetch('/gassiGehZeiten/all')
+    const res = await fetch('/api/gassiGehZeiten/all')
     if (res.ok) {
       gassiZeitenBackend.value = await res.json()
       aktualisiereSlotsFuerAktuellenTag()

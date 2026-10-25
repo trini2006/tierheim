@@ -53,9 +53,9 @@ const route = useRoute()
 const isIndexRoute = computed(() => route.path === '/app/admin')
 
 const menuItems = [
-  { name: 'Statistik', path: '/app/admin/statistik' },  
-  { name: 'Nachrichten', path: '/app/admin/nachrichten' },
-  { name: 'Veranstaltungen', path: '/app/admin/veranstaltungen' },
+  //{ name: 'Statistik', path: '/app/admin/statistik' },  
+  //{ name: 'Nachrichten', path: '/app/admin/nachrichten' },
+  //{ name: 'Veranstaltungen', path: '/app/admin/veranstaltungen' },
   { name: 'Reservierungen', path: '/app/admin/reservierungen' },
   { name: 'Reservierung hinzufügen', path: '/app/admin/termin-mitglied' },
   { name: 'Mitglieder', path: '/app/admin/mitglieder' },
@@ -82,7 +82,7 @@ async function ladeHeutigeTermine() {
     const heuteStr = new Date().toISOString().split('T')[0]
     
     // Nutzung des Endpunkts mit von, bis und Status AKTIV
-    const res = await fetch(`/all?von=${heuteStr}&bis=${heuteStr}&status=AKTIV`)
+    const res = await fetch(`/reservierung/all?von=${heuteStr}&bis=${heuteStr}&status=AKTIV`)
     
     const contentType = res.headers.get('content-type')
     if (res.ok && contentType && contentType.includes('application/json')) {
