@@ -73,17 +73,4 @@ public class ReservierungController {
 
         return reservierungRepository.saveAndFlush(reservierung);
     }
-
-    // theoretisch kann eine Überprüfung der HundId erfolgen, ist aber nicht zwingend
-    @DeleteMapping("/hund/{hundId}/alle")
-    public List<Reservierung> storniereAlleReservierung(@PathVariable("hundId") int hundId, @RequestParam(required = true) String grund) {
-        List<Reservierung> reservierungen = reservierungRepository.findReservierungByHundAndStatus(hundId, Reservierungsstatus.AKTIV);
-
-        for(Reservierung r : reservierungen) {
-            r.setStatus(Reservierungsstatus.STORNIERT);
-            r.setStornierungsgrund(grund);
-            r.setStorniertAm(LocalDateTime.now());
-        }
-        return reservierungRepository.saveAllAndFlush(reservierungen);
-    }
 }

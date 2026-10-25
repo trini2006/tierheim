@@ -34,4 +34,5 @@ public interface ReservierungRepository extends JpaRepository<Reservierung, Inte
 
     List<Reservierung> findByHundIdAndDatumAndStatus(int id, LocalDate datum, Reservierungsstatus reservierungsstatus);
     int countByHundIdAndStatusNot(int hundId, Reservierungsstatus status);
+    List<Reservierung> findByHundIdAndStatusAndDatumBetween(int hundId, Reservierungsstatus status, LocalDate von, LocalDate bis);
 }

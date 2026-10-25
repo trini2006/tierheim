@@ -1,14 +1,19 @@
 package projekt_tierheim.tierheim.service;
 
+import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import projekt_tierheim.tierheim.db.Hund.Hund;
 import projekt_tierheim.tierheim.db.Hund.HundRepository;
+import projekt_tierheim.tierheim.db.Hund.SperrHundDTO;
 import projekt_tierheim.tierheim.db.Mitglied.Mitglied;
+import projekt_tierheim.tierheim.db.Reservierung.Reservierung;
 import projekt_tierheim.tierheim.db.Reservierung.ReservierungRepository;
 import projekt_tierheim.tierheim.db.Reservierung.Reservierungsstatus;
+import projekt_tierheim.tierheim.exception.NotFoundException;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.*;
 
@@ -56,5 +61,39 @@ public class HundService {
                 .toList();
 
         return kandidaten.get(new Random().nextInt(kandidaten.size()));
+    }
+
+    @Transactional
+    public Hund sperreHund(int hundId, SperrHundDTO sperrHundDTO) {
+        Hund hund = hundRepository.findHundById(hundId);
+        if(hund == null) {
+            throw new NotFoundException("Hund mit der Id " + hundId + " nicht gefunden");
+        }
+        if(!sperrHundDTO.gesperrtVon().isBefore(sperrHundDTO.gesperrtBis())) {
+            throw new IllegalArgumentException("Inkorrekter Zeitraum");
+        }
+
+        hund.setIstGesperrt(true);
+        hund.setGesperrtVon(sperrHundDTO.gesperrtVon());
+        hund.setGesperrtBis(sperrHundDTO.gesperrtBis());
+        hund.setSperrGrund(sperrHundDTO.sperrGrund());
+
+        List<Reservierung> betroffene = reservierungRepository.findByHundIdAndStatusAndDatumBetween(
+                hundId, Reservierungsstatus.AKTIV, sperrHundDTO.gesperrtVon(), sperrHundDTO.gesperrtBis())
+                .stream()
+                .filter(r -> LocalDateTime.of(r.getDatum(), r.getZeitAb()).isAfter(LocalDateTime.now()))
+                .toList();
+
+        String grund = "Hund gesperrt";
+        if(sperrHundDTO.sperrGrund() != null && !sperrHundDTO.sperrGrund().isBlank()) {
+            grund += ": " + sperrHundDTO.sperrGrund();
+        }
+        for(Reservierung r : betroffene) {
+            r.setStatus(Reservierungsstatus.STORNIERT);
+            r.setStornierungsgrund(grund);
+            r.setStorniertAm(LocalDateTime.now());
+        }
+        reservierungRepository.saveAll(betroffene);
+        return hundRepository.saveAndFlush(hund);
     }
 }
