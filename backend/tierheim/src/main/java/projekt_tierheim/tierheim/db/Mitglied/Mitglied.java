@@ -9,6 +9,7 @@ import java.util.Objects;
 @Table(name = "mitglied")
 public class Mitglied {
 
+    // ToDO Benötigt Tierheim, dem ein Mitglied zugeordnet ist
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
@@ -20,8 +21,7 @@ public class Mitglied {
     public Mitglied() {
     }
 
-    public Mitglied(int id, int mitgliedsnummer, String passwort, boolean erfahrung) {
-        this.id = id;
+    public Mitglied(int mitgliedsnummer, String passwort, boolean erfahrung) {
         this.mitgliedsnummer = mitgliedsnummer;
         this.passwort = passwort;
         this.erfahrung = erfahrung;
@@ -29,9 +29,6 @@ public class Mitglied {
 
     public int getId() {
         return id;
-    }
-    public void setId(int id) {
-        this.id = id;
     }
 
     public int getMitgliedsnummer() {

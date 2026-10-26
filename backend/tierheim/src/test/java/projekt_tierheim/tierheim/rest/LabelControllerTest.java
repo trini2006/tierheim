@@ -32,11 +32,11 @@ class LabelControllerTest {
 
     // Methoden, die Testobjekte liefern
     public static Label getNormalLabel() {
-        return new Label(TEST_ID1, TEST_BEZEICHNUNG1, TEST_HINWEIS1);
+        return new Label(TEST_BEZEICHNUNG1, TEST_HINWEIS1);
     }
 
     public static Label getHinweisLabel() {
-        return new Label(TEST_ID2, TEST_BEZEICHNUNG2, TEST_HINWEIS2);
+        return new Label(TEST_BEZEICHNUNG2, TEST_HINWEIS2);
     }
 
     public static List<Label> getAlleLabel() {
@@ -98,7 +98,6 @@ class LabelControllerTest {
         jsonObject.put("hinweis", TEST_HINWEIS1);
 
         Label updatedLabel = new Label();
-        updatedLabel.setId(TEST_ID1);
         updatedLabel.setBezeichnung("Verspielt");
         updatedLabel.setHinweis(TEST_HINWEIS1);
 

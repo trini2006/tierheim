@@ -9,6 +9,7 @@ import java.util.Objects;
 @Table(name = "admin")
 public class Admin {
 
+    // ToDO Benötigt Tierheim, dem ein Admin zugeordnet ist
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
@@ -19,24 +20,21 @@ public class Admin {
 
     public Admin(){}
 
-    public Admin(int id, int personalnummer, String passwort) {
-        this.id = id;
+    public Admin(int personalnummer, String passwort) {
         this.personalnummer = personalnummer;
         this.passwort = passwort;
+    }
+
+    public Admin(int i, int i1, String geheim123) {
     }
 
     public int getId() {
         return id;
     }
 
-    public void setId(int id) {
-        this.id = id;
-    }
-
     public int getPersonalnummer() {
         return personalnummer;
     }
-
     public void setPersonalnummer(int personalnummer) {
         this.personalnummer = personalnummer;
     }
@@ -44,7 +42,6 @@ public class Admin {
     public String getPasswort() {
         return passwort;
     }
-
     public void setPasswort(String passwort) {
         this.passwort = passwort;
     }
