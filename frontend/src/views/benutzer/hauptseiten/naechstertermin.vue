@@ -27,8 +27,8 @@
 
             <!-- Charaktereigenschaften / Labels -->
             <div class="flex flex-wrap gap-1.5 pt-1">
-              <span 
-                v-for="label in (naechsterTermin.hund?.labels || [{name: 'ruhig'}, {name: 'zurückhaltend'}])" 
+              <span
+                v-for="label in (naechsterTermin.hund?.labels || [{name: 'ruhig'}, {name: 'zurückhaltend'}])"
                 :key="label.id || label.name"
                 class="bg-white/80 px-2 py-0.5 rounded-full text-[11px] text-gray-700 font-medium"
               >
@@ -93,8 +93,8 @@ const ladeErstenTermin = async () => {
     const inSechsMonaten = new Date(new Date().setMonth(new Date().getMonth() + 6)).toISOString().split('T')[0]
 
     // Abruf über den Backend-Endpunkt mit der Mitgliedsnummer
-    const res = await fetch(`/reservierung/all?von=${heute}&bis=${inSechsMonaten}&mitgliedId=${mitgliedId}`)
-    
+    const res = await fetch(`/api/reservierung/all?von=${heute}&bis=${inSechsMonaten}&mitgliedId=${mitgliedId}`)
+
     if (res.ok) {
       const data = await res.json()
       // Filtere nur aktive Termine heraus und nimm exakt den ersten Eintrag der Liste
@@ -132,7 +132,7 @@ const formatiereUhrzeit = (zeitStr) => {
 
 const terminStornieren = async (id) => {
   if (!confirm('Möchten Sie diesen Termin wirklich stornieren?')) return
-  
+
   try {
     const res = await fetch(`/reservierung/cancel/${id}`, {
       method: 'POST'

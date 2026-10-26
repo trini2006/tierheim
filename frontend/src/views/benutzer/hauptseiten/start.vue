@@ -2,7 +2,7 @@
   <div class="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-6xl mx-auto items-start p-4 md:p-6">
     <!-- LINKER BEREICH -->
     <div class="space-y-8 w-full max-w-md mx-auto md:mx-0">
-      
+
       <!-- 1. NACHRICHTEN BUTTON -->
       <button
         @click="navigate('nachrichten')"
@@ -35,10 +35,10 @@
 
         <!-- Dynamische Liste der Reservierungen -->
         <div v-if="benutzerReservierungen.length > 0" class="space-y-3">
-          <button 
-            v-for="res in benutzerReservierungen" 
-            :key="res.id" 
-            @click="navigate('reservierungen')" 
+          <button
+            v-for="res in benutzerReservierungen"
+            :key="res.id"
+            @click="navigate('reservierungen')"
             :class="['flex items-center justify-between p-3 rounded-full shadow-sm border transition-colors w-full', activeTab === 'reservierungen' ? 'bg-[#b8c9b4] border-emerald-700' : 'bg-[#D3DDD1] border-gray-200 hover:bg-[#c2cebf]']"
           >
             <div class="flex items-center gap-3">
@@ -103,12 +103,12 @@ const ladeReservierungenFuerMitglied = async () => {
 
     // Zeitraum definieren (z.B. von vor einem Monat bis in 6 Monate, passend zum Backend-Endpunkt)
     const heute = new Date()
-    const vorEinemMonat = new Date(new Date().setMonth(heute.getMonth() - 1)).toISOString().split('T')[0]
+    const vorEinemMonat = new Date(new Date().setMonth(heute.getMonth())).toISOString().split('T')[0]
     const inSechsMonaten = new Date(new Date().setMonth(heute.getMonth() + 6)).toISOString().split('T')[0]
 
     // Abruf über den Backend-Endpunkt mit übergebener mitgliedId
-    const res = await fetch(`/reservierung/all?von=${vorEinemMonat}&bis=${inSechsMonaten}&mitgliedId=${mitgliedId}`)
-    
+    const res = await fetch(`/api/reservierung/all?von=${vorEinemMonat}&bis=${inSechsMonaten}&mitgliedId=${mitgliedId}`)
+
     if (res.ok) {
       const data = await res.json()
       benutzerReservierungen.value = data
