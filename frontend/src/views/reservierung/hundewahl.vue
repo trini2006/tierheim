@@ -105,7 +105,7 @@ const ladeVerfuegbareHunde = async () => {
       return
     }
 
-    const res = await fetch(`/hund/all/available/${mitgliedId}?datum=${datum}&von=${von}&bis=${bis}`)
+    const res = await fetch(`/api/hund/all/available/${mitgliedId}?datum=${datum}&von=${von}&bis=${bis}`)
     if (res.ok) {
       const data = await res.json()
       if (data && data.length > 0) {

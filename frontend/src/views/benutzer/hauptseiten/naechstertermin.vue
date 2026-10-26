@@ -134,7 +134,7 @@ const terminStornieren = async (id) => {
   if (!confirm('Möchten Sie diesen Termin wirklich stornieren?')) return
 
   try {
-    const res = await fetch(`/reservierung/cancel/${id}`, {
+    const res = await fetch(`/api/reservierung/cancel/${id}`, {
       method: 'POST'
     })
     if (res.ok) {

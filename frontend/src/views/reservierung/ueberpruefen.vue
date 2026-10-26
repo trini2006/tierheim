@@ -96,9 +96,9 @@ const confirmBooking = () => {
   if (!booking.value) return
 
   if (isAdminMode.value) {
-    router.push('/app/admin/erfolgreichReserviert')
+    router.push('/api/app/admin/erfolgreichReserviert')
   } else {
-    router.push('/app/reservierung/erfolgreichReserviert')
+    router.push('/api/app/reservierung/erfolgreichReserviert')
   }
 }
 </script>
