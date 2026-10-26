@@ -100,30 +100,30 @@
     <div v-if="sperrModalAktiv" class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50 p-4">
       <div class="bg-white rounded-lg shadow-xl max-w-md w-full p-6 space-y-4">
         <h3 class="text-lg font-bold text-gray-800">Hund sperren: {{ ausgewaehlterHund?.name }}</h3>
-        
+
         <div class="space-y-3">
           <div>
             <label class="block text-xs font-semibold text-gray-600 mb-1">Gesperrt von</label>
-            <input 
-              type="date" 
-              v-model="sperrForm.gesperrtVon" 
+            <input
+              type="date"
+              v-model="sperrForm.gesperrtVon"
               @change="berechneBetroffeneReservierungen"
               class="w-full border border-gray-300 rounded p-2 text-sm"
             />
           </div>
           <div>
             <label class="block text-xs font-semibold text-gray-600 mb-1">Gesperrt bis</label>
-            <input 
-              type="date" 
-              v-model="sperrForm.gesperrtBis" 
+            <input
+              type="date"
+              v-model="sperrForm.gesperrtBis"
               @change="berechneBetroffeneReservierungen"
               class="w-full border border-gray-300 rounded p-2 text-sm"
             />
           </div>
           <div>
             <label class="block text-xs font-semibold text-gray-600 mb-1">Sperrgrund (optional)</label>
-            <textarea 
-              v-model="sperrForm.sperrGrund" 
+            <textarea
+              v-model="sperrForm.sperrGrund"
               placeholder="Grund für die Sperrung eingeben..."
               class="w-full border border-gray-300 rounded p-2 text-sm resize-none h-20"
             ></textarea>
@@ -139,14 +139,14 @@
         </div>
 
         <div class="flex justify-end gap-3 pt-2">
-          <button 
-            @click="sperrModalAktiv = false" 
+          <button
+            @click="sperrModalAktiv = false"
             class="px-4 py-2 bg-gray-200 text-gray-800 text-sm rounded hover:bg-gray-300"
           >
             Abbrechen
           </button>
-          <button 
-            @click="bestätigeSperrung" 
+          <button
+            @click="bestätigeSperrung"
             class="px-4 py-2 bg-red-600 text-white text-sm rounded hover:bg-red-700 font-semibold"
           >
             Sperrung bestätigen
@@ -215,7 +215,7 @@ onMounted(() => {
 // Modal für Sperrung öffnen und Standarddaten initialisieren
 const oeffneSperrModal = async (hund) => {
   ausgewaehlterHund.value = hund
-  
+
   const heute = new Date()
   const morgen = new Date()
   morgen.setDate(heute.getDate() + 1)
@@ -236,11 +236,11 @@ const berechneBetroffeneReservierungen = async () => {
   laedtBetroffene.value = true
   try {
     const response = await fetch(
-      `${API_BASE}/reservierung/count?hundId=${ausgewaehlterHund.value.id}&von=${sperrForm.value.gesperrtVon}&bis=${sperrForm.value.gesperrtBis}`
+      `${API_BASE}/reservierung/all?hundId=${ausgewaehlterHund.value.id}&von=${sperrForm.value.gesperrtVon}&bis=${sperrForm.value.gesperrtBis}`
     )
     if (response.ok) {
       const data = await response.json()
-      betroffeneReservierungenAnzahl.value = typeof data === 'number' ? data : (data.count || 0)
+      betroffeneReservierungenAnzahl.value = data.length || 999
     } else {
       betroffeneReservierungenAnzahl.value = 0
     }
