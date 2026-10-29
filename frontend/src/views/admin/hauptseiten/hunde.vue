@@ -1,98 +1,116 @@
 <template>
-  <div class="max-w-6xl mx-auto p-4 md:p-6 grid grid-cols-1 md:grid-cols-2 gap-16 items-start">
-    <!-- LINKE SEITE: Aktive Hunde -->
-    <div class="space-y-4">
-      <div class="flex items-center justify-between mb-6">
-        <h2 class="text-xl font-bold text-gray-800">Aktive Hunde</h2>
-      </div>
-
-      <!-- Liste der verfügbaren Hunde -->
-      <div class="space-y-3">
-        <div
-          v-for="hund in aktiveHunde"
-          :key="hund.id"
-          class="flex items-center justify-between p-3 rounded-full bg-[#D3DDD1] border border-gray-200 shadow-sm"
-        >
-          <div class="flex items-center gap-3">
-            <img :src="hund.bild" class="w-10 h-10 rounded-full object-cover" />
-            <div class="flex items-center gap-2">
-              <span class="w-3 h-3 rounded-full" :class="hund.statusPunkt"></span>
-              <span class="font-bold text-gray-800 text-sm">{{ hund.name }}</span>
-            </div>
-          </div>
-
-          <!-- Aktionen (Nur Sperren) -->
-          <div class="flex items-center gap-4 pr-2">
-            <!-- Sperren (rotes Verbots-Symbol) -->
-            <button @click="oeffneSperrModal(hund)" aria-label="Hund sperren">
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                fill="none"
-                viewBox="0 0 24 24"
-                stroke-width="1.5"
-                stroke="currentColor"
-                class="w-4 h-4 text-red-600 hover:text-red-800"
-              >
-                <path
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                  d="M18.364 18.364A9 9 0 0 0 5.636 5.636m12.728 12.728A9 9 0 0 1 5.636 5.636m12.728 12.728L5.636 5.636"
-                />
-              </svg>
-            </button>
-          </div>
-        </div>
-        <p v-if="aktiveHunde.length === 0" class="text-sm text-gray-500 italic">
-          Keine aktiven Hunde vorhanden...
-        </p>
-      </div>
+  <div class="max-w-6xl mx-auto p-4 md:p-6 space-y-6">
+    
+    <!-- Linksbuendiger Suchreiter für alle Hunde -->
+    <div class="max-w-md mx-auto w-full relative">
+      <input
+        type="text"
+        v-model="suchbegriff"
+        placeholder="Hunde durchsuchen (aktiv & gesperrt)..."
+        class="w-full pl-10 pr-4 py-2.5 rounded-full border border-gray-300 bg-white shadow-sm text-sm text-left focus:outline-none focus:border-gray-500"
+      />
+      <svg
+        xmlns="http://www.w3.org/2000/svg"
+        fill="none"
+        viewBox="0 0 24 24"
+        stroke-width="1.5"
+        stroke="currentColor"
+        class="w-4 h-4 text-gray-400 absolute left-3.5 top-1/2 -translate-y-1/2 pointer-events-none"
+      >
+        <path stroke-linecap="round" stroke-linejoin="round" d="m21 21-5.197-5.197m0 0A7.5 7.5 0 1 0 5.196 5.196a7.5 7.5 0 0 0 10.607 10.607z" />
+      </svg>
     </div>
 
-    <!-- RECHTE SEITE: Gesperrte Hunde -->
-    <div class="space-y-4">
-      <h2 class="text-xl font-bold text-gray-800 mb-6">Gesperrte Hunde</h2>
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-16 items-start">
+      <!-- LINKE SEITE: Aktive Hunde -->
+      <div class="space-y-4">
+        <div class="flex items-center justify-between mb-6">
+          <h2 class="text-xl font-bold text-gray-800">Aktive Hunde</h2>
+        </div>
 
-      <div class="space-y-3">
-        <div
-          v-for="hund in gesperrteHunde"
-          :key="hund.id"
-          class="flex items-center justify-between p-3 rounded-full bg-[#D3DDD1] border border-gray-200 shadow-sm"
-        >
-          <div class="flex items-center gap-3">
-            <img :src="hund.bild" class="w-10 h-10 rounded-full object-cover" />
-            <div class="flex items-center gap-2">
-              <span class="w-3 h-3 rounded-full" :class="hund.statusPunkt"></span>
-              <div>
-                <span class="font-bold text-gray-800 text-sm block leading-tight">{{
-                  hund.name
-                }}</span>
-                <span class="text-[11px] text-gray-600 block leading-tight" v-if="hund.info">{{
-                  hund.info
-                }}</span>
+        <div class="space-y-3">
+          <div
+            v-for="hund in gefilterteAktiveHunde"
+            :key="hund.id"
+            class="flex items-center justify-between p-3 rounded-full bg-[#D3DDD1] border border-gray-200 shadow-sm"
+          >
+            <div class="flex items-center gap-3">
+              <img :src="hund.bild" class="w-10 h-10 rounded-full object-cover" />
+              <div class="flex items-center gap-2">
+                <span class="w-3 h-3 rounded-full" :class="hund.statusPunkt"></span>
+                <span class="font-bold text-gray-800 text-sm">{{ hund.name }}</span>
               </div>
             </div>
-          </div>
 
-          <!-- Aktionen für gesperrte Hunde (Nur Entsperren) -->
-          <div class="flex items-center gap-4 pr-2">
-            <!-- Entsperren (Grüner Haken) -->
-            <button @click="entsperreHund(hund.id)" aria-label="Hund entsperren">
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                fill="none"
-                viewBox="0 0 24 24"
-                stroke-width="2"
-                stroke="currentColor"
-                class="w-4 h-4 text-green-700 hover:text-green-900"
-              >
-                <path stroke-linecap="round" stroke-linejoin="round" d="m4.5 12.75 6 6 9-13.5" />
-              </svg>
-            </button>
+            <div class="flex items-center gap-4 pr-2">
+              <button @click="oeffneSperrModal(hund)" aria-label="Hund sperren" class="cursor-pointer">
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke-width="1.5"
+                  stroke="currentColor"
+                  class="w-4 h-4 text-red-600 hover:text-red-800"
+                >
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    d="M18.364 18.364A9 9 0 0 0 5.636 5.636m12.728 12.728A9 9 0 0 1 5.636 5.636m12.728 12.728L5.636 5.636"
+                  />
+                </svg>
+              </button>
+            </div>
           </div>
+          <p v-if="gefilterteAktiveHunde.length === 0" class="text-sm text-gray-500 italic">
+            Keine aktiven Hunde gefunden...
+          </p>
         </div>
-        <p v-if="gesperrteHunde.length === 0" class="text-sm text-gray-500 italic">
-          Keine gesperrten Hunde...
-        </p>
+      </div>
+
+      <!-- RECHTE SEITE: Gesperrte Hunde -->
+      <div class="space-y-4">
+        <h2 class="text-xl font-bold text-gray-800 mb-6">Gesperrte Hunde</h2>
+
+        <div class="space-y-3">
+          <div
+            v-for="hund in gefilterteGesperrteHunde"
+            :key="hund.id"
+            class="flex items-center justify-between p-3 rounded-full bg-[#D3DDD1] border border-gray-200 shadow-sm"
+          >
+            <div class="flex items-center gap-3">
+              <img :src="hund.bild" class="w-10 h-10 rounded-full object-cover" />
+              <div class="flex items-center gap-2">
+                <span class="w-3 h-3 rounded-full" :class="hund.statusPunkt"></span>
+                <div>
+                  <span class="font-bold text-gray-800 text-sm block leading-tight">{{
+                    hund.name
+                  }}</span>
+                  <span class="text-[11px] text-gray-600 block leading-tight" v-if="hund.info">{{
+                    hund.info
+                  }}</span>
+                </div>
+              </div>
+            </div>
+
+            <div class="flex items-center gap-4 pr-2">
+              <button @click="entsperreHund(hund.id)" aria-label="Hund entsperren" class="cursor-pointer">
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke-width="2"
+                  stroke="currentColor"
+                  class="w-4 h-4 text-green-700 hover:text-green-900"
+                >
+                  <path stroke-linecap="round" stroke-linejoin="round" d="m4.5 12.75 6 6 9-13.5" />
+                </svg>
+              </button>
+            </div>
+          </div>
+          <p v-if="gefilterteGesperrteHunde.length === 0" class="text-sm text-gray-500 italic">
+            Keine gesperrten Hunde gefunden...
+          </p>
+        </div>
       </div>
     </div>
 
@@ -129,7 +147,6 @@
             ></textarea>
           </div>
 
-          <!-- Information zu betroffenen Reservierungen -->
           <div class="p-3 bg-gray-50 border border-gray-200 rounded text-sm text-gray-700">
             <span v-if="laedtBetroffene">Betroffene Reservierungen werden ermittelt...</span>
             <span v-else>
@@ -141,13 +158,13 @@
         <div class="flex justify-end gap-3 pt-2">
           <button 
             @click="sperrModalAktiv = false" 
-            class="px-4 py-2 bg-gray-200 text-gray-800 text-sm rounded hover:bg-gray-300"
+            class="px-4 py-2 bg-gray-200 text-gray-800 text-sm rounded hover:bg-gray-300 cursor-pointer"
           >
             Abbrechen
           </button>
           <button 
             @click="bestätigeSperrung" 
-            class="px-4 py-2 bg-red-600 text-white text-sm rounded hover:bg-red-700 font-semibold"
+            class="px-4 py-2 bg-red-600 text-white text-sm rounded hover:bg-red-700 font-semibold cursor-pointer"
           >
             Sperrung bestätigen
           </button>
@@ -158,17 +175,29 @@
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue'
+import { ref, onMounted, computed } from 'vue'
 
 const API_BASE = 'http://localhost:8085'
 const tierheimId = 1
 
-// Aktive Hunde (Linke Seite)
 const aktiveHunde = ref([])
-// Gesperrte Hunde (Rechte Seite)
 const gesperrteHunde = ref([])
+const suchbegriff = ref('')
 
-// Modal-Zustände
+const gefilterteAktiveHunde = computed(() => {
+  if (!suchbegriff.value.trim()) return aktiveHunde.value
+  return aktiveHunde.value.filter((h) =>
+    h.name.toLowerCase().includes(suchbegriff.value.toLowerCase())
+  )
+})
+
+const gefilterteGesperrteHunde = computed(() => {
+  if (!suchbegriff.value.trim()) return gesperrteHunde.value
+  return gesperrteHunde.value.filter((h) =>
+    h.name.toLowerCase().includes(suchbegriff.value.toLowerCase())
+  )
+})
+
 const sperrModalAktiv = ref(false)
 const ausgewaehlterHund = ref(null)
 const betroffeneReservierungenAnzahl = ref(0)
@@ -182,7 +211,6 @@ const sperrForm = ref({
 
 const farbeFuerErfahrung = (h) => (h.erfahrung ? 'bg-orange-500' : 'bg-green-500')
 
-// Hunde beim Laden der Komponente vom Backend abrufen
 const ladeHunde = async () => {
   try {
     const response = await fetch(`${API_BASE}/hund/${tierheimId}/all`)
@@ -212,7 +240,6 @@ onMounted(() => {
   ladeHunde()
 })
 
-// Modal für Sperrung öffnen und Standarddaten initialisieren
 const oeffneSperrModal = async (hund) => {
   ausgewaehlterHund.value = hund
   
@@ -230,7 +257,6 @@ const oeffneSperrModal = async (hund) => {
   await berechneBetroffeneReservierungen()
 }
 
-// Betroffene Reservierungen vom Backend abfragen
 const berechneBetroffeneReservierungen = async () => {
   if (!ausgewaehlterHund.value) return
   laedtBetroffene.value = true
@@ -252,7 +278,6 @@ const berechneBetroffeneReservierungen = async () => {
   }
 }
 
-// Hund sperren: Schickt ein PUT-Request an das Backend und schließt das Modal
 const bestätigeSperrung = async () => {
   if (!ausgewaehlterHund.value) return
   try {
@@ -279,7 +304,6 @@ const bestätigeSperrung = async () => {
   }
 }
 
-// Hund entsperren: Schickt ein PUT-Request an das Backend und verschiebt ihn nach links
 const entsperreHund = async (id) => {
   try {
     const response = await fetch(`${API_BASE}/hund/entsperren/${id}`, {
