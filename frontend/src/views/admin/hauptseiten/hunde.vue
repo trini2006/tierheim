@@ -240,7 +240,7 @@ const berechneBetroffeneReservierungen = async () => {
     )
     if (response.ok) {
       const data = await response.json()
-      betroffeneReservierungenAnzahl.value = data.length || 999
+      betroffeneReservierungenAnzahl.value = data.length || 0
     } else {
       betroffeneReservierungenAnzahl.value = 0
     }
