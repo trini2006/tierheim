@@ -73,7 +73,7 @@ const tagesMapping = ['SONNTAG', 'MONTAG', 'DIENSTAG', 'MITTWOCH', 'DONNERSTAG',
 // Gassi-Geh-Zeiten vom Backend laden
 const ladeZeitenVomBackend = async () => {
   try {
-    const res = await fetch('/gassiGehZeiten/all')
+    const res = await fetch('/api/gassiGehZeiten/all')
     if (res.ok) {
       gassiZeitenBackend.value = await res.json()
       aktualisiereSlotsFuerAktuellenTag()

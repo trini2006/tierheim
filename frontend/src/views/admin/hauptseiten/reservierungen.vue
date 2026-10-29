@@ -1,16 +1,19 @@
 <template>
   <div class="max-w-7xl mx-auto p-4 md:p-6 space-y-6 bg-white min-h-screen">
-    
     <!-- HEADER: KW-Auswahl, Datum-Navigation & Archiv-Button -->
     <div class="flex flex-col md:flex-row items-center justify-between gap-4">
-      
       <!-- Kalenderwochen (KW) -->
       <div class="flex items-center gap-2 flex-wrap justify-center">
-        <button 
-          v-for="kw in kalenderWochen" 
+        <button
+          v-for="kw in kalenderWochen"
           :key="kw.nummer"
           @click="waehleKW(kw.nummer)"
-          :class="['px-4 py-2 rounded-xl font-medium text-sm transition-colors', aktiveKW === kw.nummer ? 'bg-[#8FA18C] text-white shadow' : 'bg-[#D3DDD1] text-gray-700 hover:bg-[#c2cebf]']"
+          :class="[
+            'px-4 py-2 rounded-xl font-medium text-sm transition-colors',
+            aktiveKW === kw.nummer
+              ? 'bg-[#8FA18C] text-white shadow'
+              : 'bg-[#D3DDD1] text-gray-700 hover:bg-[#c2cebf]',
+          ]"
         >
           KW {{ kw.nummer }}
         </button>
@@ -19,29 +22,49 @@
       <!-- Tag / Datum Blätterer mit Pfeilen -->
       <div class="flex items-center gap-3">
         <!-- Zurück-Pfeil (Deaktiviert, wenn man am Wochenanfang oder heutigen Tag ist) -->
-        <button 
-          @click="tagZurueck" 
+        <button
+          @click="tagZurueck"
           :disabled="istErlaubterTagZurueck"
-          :class="['p-1 rounded-full transition-colors', istErlaubterTagZurueck ? 'opacity-30 cursor-not-allowed' : 'hover:bg-gray-100']"
+          :class="[
+            'p-1 rounded-full transition-colors',
+            istErlaubterTagZurueck ? 'opacity-30 cursor-not-allowed' : 'hover:bg-gray-100',
+          ]"
           aria-label="Vorheriger Tag"
         >
-          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor" class="w-5 h-5 text-gray-800">
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            fill="none"
+            viewBox="0 0 24 24"
+            stroke-width="2.5"
+            stroke="currentColor"
+            class="w-5 h-5 text-gray-800"
+          >
             <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 19.5 8.25 12l7.5-7.5" />
           </svg>
         </button>
-        
+
         <div class="px-5 py-2 bg-[#8FA18C] text-white font-medium rounded-xl shadow-sm text-sm">
           {{ formatiertesDatum }}
         </div>
 
         <!-- Vor-Pfeil (Deaktiviert am Ende der KW) -->
-        <button 
-          @click="tagVorkommen" 
+        <button
+          @click="tagVorkommen"
           :disabled="istLetzterTagDerWoche"
-          :class="['p-1 rounded-full transition-colors', istLetzterTagDerWoche ? 'opacity-30 cursor-not-allowed' : 'hover:bg-gray-100']"
+          :class="[
+            'p-1 rounded-full transition-colors',
+            istLetzterTagDerWoche ? 'opacity-30 cursor-not-allowed' : 'hover:bg-gray-100',
+          ]"
           aria-label="Nächster Tag"
         >
-          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor" class="w-5 h-5 text-gray-800">
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            fill="none"
+            viewBox="0 0 24 24"
+            stroke-width="2.5"
+            stroke="currentColor"
+            class="w-5 h-5 text-gray-800"
+          >
             <path stroke-linecap="round" stroke-linejoin="round" d="m8.25 4.5 7.5 7.5-7.5 7.5" />
           </svg>
         </button>
@@ -49,12 +72,13 @@
 
       <!-- Archiv Button -->
       <div class="hidden md:block">
-        <button class="px-4 py-2 bg-[#D3DDD1] hover:bg-[#c2cebf] text-gray-700 rounded-xl font-medium text-sm transition-colors">
+        <button
+          class="px-4 py-2 bg-[#D3DDD1] hover:bg-[#c2cebf] text-gray-700 rounded-xl font-medium text-sm transition-colors"
+        >
           Archiv
         </button>
       </div>
     </div>
-
 
     <!-- ========================================== -->
     <!-- MOBILE ANSICHT (Listen-Layout) -->
@@ -63,23 +87,40 @@
       <h3 class="text-lg font-bold text-gray-800 text-center mb-4">{{ wochenTagString }}</h3>
 
       <div class="space-y-3">
-        <div 
-          v-for="res in aktuelleReservierungen" 
+        <div
+          v-for="res in aktuelleReservierungen"
           :key="res.id"
           class="flex items-center justify-between p-3 rounded-full bg-[#D3DDD1] shadow-sm border border-gray-200"
         >
           <div class="flex items-center gap-3">
             <img :src="res.bild" class="w-11 h-11 rounded-full object-cover" />
             <div>
-              <span class="font-bold text-gray-800 text-sm block leading-tight">{{ res.hundName }}, {{ res.telefon }}</span>
+              <span class="font-bold text-gray-800 text-sm block leading-tight"
+                >{{ res.hundName }}, {{ res.mitgliedsnummer }}</span
+              >
               <span class="text-xs text-gray-700 block leading-tight mt-0.5">{{ res.zeit }}</span>
             </div>
           </div>
 
           <!-- Rotes Verbots-Symbol zum Löschen -->
-          <button @click="loescheReservierung(res.id)" class="pr-2" aria-label="Reservierung stornieren">
-            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6 text-red-600 hover:text-red-800">
-              <path stroke-linecap="round" stroke-linejoin="round" d="M18.364 18.364A9 9 0 0 0 5.636 5.636m12.728 12.728A9 9 0 0 1 5.636 5.636m12.728 12.728L5.636 5.636" />
+          <button
+            @click="loescheReservierung(res.id)"
+            class="pr-2"
+            aria-label="Reservierung stornieren"
+          >
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke-width="1.5"
+              stroke="currentColor"
+              class="w-6 h-6 text-red-600 hover:text-red-800"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                d="M18.364 18.364A9 9 0 0 0 5.636 5.636m12.728 12.728A9 9 0 0 1 5.636 5.636m12.728 12.728L5.636 5.636"
+              />
             </svg>
           </button>
         </div>
@@ -90,49 +131,68 @@
       </div>
     </div>
 
-
     <!-- ========================================================== -->
     <!-- TABLET & DESKTOP ANSICHT (Matrix-Layout) -->
     <!-- ========================================================== -->
     <div class="hidden md:block overflow-x-auto pt-4">
       <div class="min-w-[800px]">
-        
-        <!-- Hundereihe oben -->
-        <div class="grid grid-cols-8 gap-4 items-end pb-6 border-b border-gray-100">
-          <div class="text-xs text-gray-400">Zeit / Hund</div>
-          <div v-for="hund in alleHunde" :key="hund.id" class="text-center space-y-2">
-            <img :src="hund.bild" class="w-14 h-14 rounded-full object-cover mx-auto shadow-sm border" />
+        <p v-if="sichtbareHunde.length === 0" class="text-center text-gray-500 italic py-8">
+          Für diesen Tag gibt es keine Reservierungen.
+        </p>
+
+        <div v-else class="grid gap-x-4 gap-y-3" :style="gridStyle">
+          <!-- Kopfzeile -->
+          <div class="text-xs text-gray-400 self-end" style="grid-row: 1; grid-column: 1">
+            Zeit / Hund
+          </div>
+          <div
+            v-for="(hund, i) in sichtbareHunde"
+            :key="'kopf-' + hund.id"
+            class="text-center space-y-2 pb-3"
+            :style="{ gridRow: 1, gridColumn: i + 2 }"
+          >
+            <img
+              :src="hund.bild"
+              class="w-14 h-14 rounded-full object-cover mx-auto shadow-sm border"
+            />
             <span class="font-bold text-sm text-gray-800 block truncate">{{ hund.name }}</span>
           </div>
-        </div>
 
-        <!-- Zeitslots-Matrix -->
-        <div class="divide-y divide-gray-50">
-          <div v-for="slot in zeitSlots" :key="slot" class="grid grid-cols-8 gap-4 items-center py-3">
-            
-            <div class="bg-[#D3DDD1] text-gray-800 font-medium text-xs py-2 px-3 rounded-xl text-center shadow-sm border border-gray-200/50">
-              {{ slot }}
-            </div>
-
-            <div v-for="hund in alleHunde" :key="hund.id" class="flex justify-center">
-              <div 
-                :class="[
-                  'w-full h-10 rounded-xl border border-gray-200/60 shadow-sm transition-colors',
-                  istReserviert(hund.id, slot) ? 'bg-[#7A9A75]' : 'bg-[#E5E9E4]'
-                ]"
-              ></div>
-            </div>
-
+          <!-- Uhrzeiten -->
+          <div
+            v-for="(slot, s) in zeitSlots"
+            :key="'zeit-' + slot"
+            class="bg-[#D3DDD1] text-gray-800 font-medium text-xs py-2 px-3 rounded-xl text-center shadow-sm border border-gray-200/50 self-center"
+            :style="{ gridRow: s + 2, gridColumn: 1 }"
+          >
+            {{ slot }}
           </div>
-        </div>
 
+          <!-- Leere Zellen -->
+          <div
+            v-for="z in leereZellen"
+            :key="z.key"
+            class="h-10 rounded-xl border border-gray-200/60 shadow-sm bg-[#E5E9E4]"
+            :style="{ gridRow: z.zeile, gridColumn: z.spalte }"
+          ></div>
+
+          <!-- Reservierungsblöcke, liegen über den leeren Zellen -->
+          <div
+            v-for="b in bloecke"
+            :key="b.id"
+            class="rounded-xl border border-gray-200/60 shadow-sm bg-[#7A9A75]"
+            :title="`Mitgliedsnummer: ${b.mitgliedsnummer}`"
+            :style="{ gridRow: `${b.zeile} / span ${b.spanne}`, gridColumn: b.spalte }"
+          ></div>
+        </div>
       </div>
     </div>
-
   </div>
 </template>
 
 <script setup>
+const API_BASE = 'http://localhost:8085'
+const tierheimId = 1
 import { ref, computed, onMounted, watch } from 'vue'
 
 const getKW = (d) => {
@@ -148,7 +208,7 @@ const aktuelleKWNummer = getKW(heute)
 const kalenderWochen = ref([
   { nummer: aktuelleKWNummer },
   { nummer: aktuelleKWNummer + 1 },
-  { nummer: aktuelleKWNummer + 2 }
+  { nummer: aktuelleKWNummer + 2 },
 ])
 
 const aktiveKW = ref(aktuelleKWNummer)
@@ -169,7 +229,7 @@ const getMontagDerKW = (kw, jahr) => {
 const waehleKW = (kwNummer) => {
   aktiveKW.value = kwNummer
   const montag = getMontagDerKW(kwNummer, heute.getFullYear())
-  
+
   if (kwNummer === aktuelleKWNummer) {
     aktuellesDatumObj.value = new Date(heute)
   } else {
@@ -183,7 +243,10 @@ const istErlaubterTagZurueck = computed(() => {
   vorherigesDatum.setDate(vorherigesDatum.getDate() - 1)
 
   if (vorherigesDatum < montagKW) return true
-  if (aktiveKW.value === aktuelleKWNummer && vorherigesDatum < new Date(heute.getFullYear(), heute.getMonth(), heute.getDate())) {
+  if (
+    aktiveKW.value === aktuelleKWNummer &&
+    vorherigesDatum < new Date(heute.getFullYear(), heute.getMonth(), heute.getDate())
+  ) {
     return true
   }
   return false
@@ -224,55 +287,86 @@ const wochenTagString = computed(() => {
 const alleHunde = ref([])
 const reservierungen = ref([])
 
-const zeitSlots = [
-  '10:00 - 10:30',
-  '10:30 - 11:00',
-  '11:00 - 11:30',
-  '11:30 - 12:00',
-  '12:00 - 12:30',
-  '12:30 - 13:00',
-  '13:00 - 13:30',
-  '13:30 - 14:00'
-]
+/*
+      Task: Dynamische Anzeige der Zeitfenster
+      Author: Lili, 2026-10-17
+*/
+const zeitSlots = ref([]) // Daten für die Anzeige
+const slotMinuten = ref(30) // später: zeitblock aus Tierheim laden
+const TAGE = ['SO', 'MO', 'DI', 'MI', 'DO', 'FR', 'SA']
 
+const minutenVon = (zeit) => {
+  const [h, m] = zeit.split(':')
+  return Number(h) * 60 + Number(m)
+}
+const alsText = (min) =>
+  `${String(Math.floor(min / 60)).padStart(2, '0')}:${String(min % 60).padStart(2, '0')}`
+
+const erzeugeSlots = (fenster, dauer) => {
+  const slots = []
+  for (const f of fenster) {
+    const ende = minutenVon(f.bis)
+    for (let start = minutenVon(f.von); start + dauer <= ende; start += dauer) {
+      slots.push(`${alsText(start)} - ${alsText(start + dauer)}`)
+    }
+  }
+  return slots
+}
+
+const ladeZeitSlots = async () => {
+  const tag = TAGE[aktuellesDatumObj.value.getDay()]
+  try {
+    const res = await fetch(`${API_BASE}/gassiGehZeiten/tag/${tag}`)
+    if (!res.ok) {
+      zeitSlots.value = []
+      return
+    }
+    zeitSlots.value = erzeugeSlots(await res.json(), slotMinuten.value)
+  } catch (error) {
+    console.error('Fehler beim Laden der Zeiten:', error)
+  }
+}
+onMounted(ladeZeitSlots)
+watch(aktuellesDatumObj, ladeZeitSlots) // neu laden, wenn der Tag wechselt
+/*
+      Ende Task, Lili, 2026-10-17
+*/
 // Daten vom Backend laden
 const ladeDaten = async () => {
   try {
     // 1. Hunde laden (für die Matrix-Spalten)
-    const hundeRes = await fetch('/api/hund/all')
+    const hundeRes = await fetch(`${API_BASE}/hund/${tierheimId}/all`)
     if (hundeRes.ok) {
       const hundeData = await hundeRes.json()
-      alleHunde.value = hundeData.map(h => ({
+      alleHunde.value = hundeData.map((h) => ({
         id: h.id,
         name: h.name,
-        bild: h.bild || 'https://images.unsplash.com/photo-1543466835-00a7907e9de1'
+        bild: h.bild || 'https://images.unsplash.com/photo-1543466835-00a7907e9de1',
       }))
     }
 
     // 2. Reservierungen laden (mit dem aktuellen Datum als Filter)
-    const datumString = aktuellesDatumObj.value.toISOString().split('T')[0]
-    const resRes = await fetch(`/api/reservierung/all?von=${datumString}&bis=${datumString}`)
+    const datumString = aktuellesDatumObj.value.toLocaleDateString('sv-SE') // YYYY-MM-DD, lokale Zeit
+    const resRes = await fetch(
+      `${API_BASE}/reservierung/all?von=${datumString}&bis=${datumString}&status=AKTIV`,
+    )
     if (resRes.ok) {
       const resData = await resRes.json()
-      
-      reservierungen.value = resData
-        .filter(r => r.status === 'AKTIV') // Nur aktive Reservierungen anzeigen
-        .map(r => {
-          // Extrahiere Uhrzeit / Slot aus den Start- und Endzeiten der Reservierung
-          const startZeit = r.startZeit ? r.startZeit.substring(0, 5) : '10:00'
-          const endZeit = r.endZeit ? r.endZeit.substring(0, 5) : '10:30'
-          const slotStr = `${startZeit} - ${endZeit}`
 
-          return {
-            id: r.id,
-            hundId: r.hund?.id,
-            hundName: r.hund?.name || 'Unbekannt',
-            telefon: r.mitglied?.mitgliedsnummer ? String(r.mitglied.mitgliedsnummer) : '',
-            zeit: `${slotStr}Uhr`,
-            bild: r.hund?.bild || 'https://images.unsplash.com/photo-1543466835-00a7907e9de1',
-            slot: slotStr
-          }
-        })
+      reservierungen.value = resData.map((r) => {
+        const zeitAb = r.zeitAb.substring(0, 5)
+        const zeitBis = r.zeitBis.substring(0, 5)
+        return {
+          id: r.idReservierung,
+          hundId: r.hund?.id,
+          hundName: r.hund?.name,
+          mitgliedsnummer: r.mitglied?.mitgliedsnummer ? String(r.mitglied.mitgliedsnummer) : '',
+          zeitAb,
+          zeitBis,
+          zeit: `${zeitAb} - ${zeitBis} Uhr`,
+          bild: r.hund?.bild || 'https://images.unsplash.com/photo-1543466835-00a7907e9de1',
+        }
+      })
     }
   } catch (e) {
     console.error('Fehler beim Laden der Reservierungsdaten:', e)
@@ -285,27 +379,69 @@ watch(aktuellesDatumObj, () => {
   ladeDaten()
 })
 
-const aktuelleReservierungen = computed(() => {
-  const uniqueMap = new Map()
-  reservierungen.value.forEach(r => {
-    if (!uniqueMap.has(r.hundId)) {
-      uniqueMap.set(r.hundId, r)
-    }
-  })
-  return Array.from(uniqueMap.values())
+const aktuelleReservierungen = computed(() =>
+  [...reservierungen.value].sort((a, b) => a.zeitAb.localeCompare(b.zeitAb)),
+)
+
+// Hintergrund: eine leere Zelle pro Hund und Slot
+const leereZellen = computed(() =>
+  sichtbareHunde.value.flatMap((h, i) =>
+    zeitSlots.value.map((slot, s) => ({
+      key: `${h.id}|${slot}`,
+      spalte: i + 2, // Spalte 1 sind die Uhrzeiten
+      zeile: s + 2, // Zeile 1 ist die Hunde-Kopfzeile
+    })),
+  ),
+)
+
+// Pro Reservierung ein Block über alle Slots, die sie berührt
+const bloecke = computed(() => {
+  const liste = []
+  for (const r of reservierungen.value) {
+    const spalte = sichtbareHunde.value.findIndex((h) => h.id === r.hundId)
+    if (spalte === -1) continue
+
+    const von = minutenVon(r.zeitAb)
+    const bis = minutenVon(r.zeitBis)
+    const treffer = []
+    zeitSlots.value.forEach((slot, i) => {
+      const [sVon, sBis] = slot.split(' - ').map(minutenVon)
+      if (von < sBis && bis > sVon) treffer.push(i)
+    })
+    if (treffer.length === 0) continue
+
+    liste.push({
+      id: r.id,
+      mitgliedsnummer: r.mitgliedsnummer,
+      spalte: spalte + 2,
+      zeile: treffer[0] + 2,
+      spanne: treffer.length,
+    })
+  }
+  return liste
 })
 
-const istReserviert = (hundId, slot) => {
-  return reservierungen.value.some(r => r.hundId === hundId && r.slot === slot)
-}
+const sichtbareHunde = computed(() => {
+  const ids = new Set(reservierungen.value.map((r) => r.hundId))
+  return alleHunde.value.filter((h) => ids.has(h.id))
+})
+
+const gridStyle = computed(() => ({
+  gridTemplateColumns: `repeat(${sichtbareHunde.value.length + 1}, minmax(0, 1fr))`,
+}))
 
 const loescheReservierung = async (id) => {
+  console.log('Stornieren für:', id)
   try {
     const grund = prompt('Bitte geben Sie einen Stornierungsgrund ein:', 'Storniert durch Admin')
-    if (grund === null) return // Abgebrochen
+    if (!grund?.trim()) return // Abgebrochen
+    if (id == null) {
+      console.error('Reservierung ohne ID')
+      return
+    }
 
-    const res = await fetch(`/api/reservierung/${id}?grund=${encodeURIComponent(grund)}`, {
-      method: 'DELETE'
+    const res = await fetch(`${API_BASE}/reservierung/${id}?grund=${encodeURIComponent(grund)}`, {
+      method: 'DELETE',
     })
     if (res.ok) {
       // Nach erfolgreicher Stornierung die Liste aktualisieren

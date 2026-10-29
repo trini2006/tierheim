@@ -122,17 +122,7 @@ public class HundController {
     // HUND SPERREN
     @PutMapping("/sperren/{id}")
     public Hund sperrgrundHinzufuegen(@PathVariable("id") int hundId, @Valid @RequestBody SperrHundDTO sperrHundDTO) {
-        Hund hund = hundRepository.findHundById(hundId);
-        if(hund == null) {
-            throw new NotFoundException("Hund mit der Id " + hundId + " nicht gefunden");
-        }
-
-        hund.setIstGesperrt(true);
-        hund.setGesperrtVon(sperrHundDTO.gesperrtVon());
-        hund.setGesperrtBis(sperrHundDTO.gesperrtBis());
-        hund.setSperrGrund(sperrHundDTO.sperrGrund());
-
-        return hundRepository.saveAndFlush(hund);
+        return hundService.sperreHund(hundId, sperrHundDTO);
     }
 
     // HUND ENTSPERREN

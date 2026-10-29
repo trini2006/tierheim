@@ -31,7 +31,7 @@ public class Reservierung {
     // STORNIERUNG
     @Enumerated(EnumType.STRING)
     private Reservierungsstatus status = Reservierungsstatus.AKTIV;
-    private String stornierungsgrund; // ToDO evtl. redundant wegen Sperrgrund in Hund
+    private String stornierungsgrund;
     private LocalDateTime storniertAm;
 
     public Reservierung() {}
