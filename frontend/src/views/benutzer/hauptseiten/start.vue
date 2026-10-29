@@ -3,7 +3,7 @@
     <!-- LINKER BEREICH -->
     <div class="space-y-8 w-full max-w-md mx-auto md:mx-0">
       
-      <!-- 1. NACHRICHTEN BUTTON -->
+      <!-- 1. NACHRICHTEN BUTTON 
       <button
         @click="navigate('nachrichten')"
         :class="[
@@ -24,7 +24,7 @@
           </div>
         </div>
         <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor" class="w-4 h-4 text-gray-800 mr-1"><path stroke-linecap="round" stroke-linejoin="round" d="m8.25 4.5 7.5 7.5-7.5 7.5" /></svg>
-      </button>
+      </button>-->
 
       <!-- 2. RESERVIERUNGEN BEREICH -->
       <div class="space-y-3">
@@ -56,14 +56,14 @@
         <p v-else class="text-sm text-gray-500 italic pl-1 text-left">Aktuell keine Reservierungen vorhanden...</p>
       </div>
 
-      <!-- 3. VERANSTALTUNGEN -->
+      <!-- 3. VERANSTALTUNGEN 
       <div class="space-y-3">
         <div class="flex items-center gap-2 text-gray-800 font-bold">
           <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-5 h-5"><path stroke-linecap="round" stroke-linejoin="round" d="M6.75 3v2.25M17.25 3v2.25M3 18.75V7.5a2.25 2.25 0 0 1 2.25-2.25h13.5A2.25 2.25 0 0 1 21 7.5v11.25m-18 0A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75m-18 0v-7.5A2.25 2.25 0 0 1 5.25 9h13.5A2.25 2.25 0 0 1 21 11.25v7.5" /></svg>
           <h2 class="text-sm tracking-wide uppercase text-gray-600 text-left">Veranstaltungen</h2>
         </div>
         <p class="text-sm text-gray-500 italic pl-1 text-left">Aktuell keine geplanten Veranstaltungen...</p>
-      </div>
+      </div>-->
     </div>
 
     <!-- RECHTER BEREICH -->
