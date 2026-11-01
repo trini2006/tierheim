@@ -191,12 +191,12 @@ public class ReservierungService {
         }
     }
 
+    // ToDO flexible Deadline?
     public void pruefeDeadline(LocalDate datum) {
-        // ToDO flexible Deadline?
-        // Termine in der Vergangenheit werden nicht berücksichtigt
         LocalDate datHeute = LocalDate.now();
         LocalTime zeitHeute = LocalTime.now();
 
+        // Termine in der Vergangenheit werden nicht berücksichtigt
         if(datHeute.isAfter(datum)) {
             throw new IllegalArgumentException("Reservierung darf nicht in der Vergangenheit liegen");
         }

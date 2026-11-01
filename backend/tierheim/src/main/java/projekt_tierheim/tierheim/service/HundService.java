@@ -70,7 +70,7 @@ public class HundService {
         if(hund == null) {
             throw new NotFoundException("Hund mit der Id " + hundId + " nicht gefunden");
         }
-        if(!sperrHundDTO.gesperrtVon().isBefore(sperrHundDTO.gesperrtBis())) {
+        if(sperrHundDTO.gesperrtVon().isBefore(sperrHundDTO.gesperrtBis())) {
             throw new IllegalArgumentException("Inkorrekter Zeitraum");
         }
 
