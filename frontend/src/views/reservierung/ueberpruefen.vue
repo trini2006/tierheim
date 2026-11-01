@@ -92,13 +92,40 @@ const formatiertesDatum = computed(() => {
   }
 })
 
-const confirmBooking = () => {
+const confirmBooking = async () => {
   if (!booking.value) return
 
-  if (isAdminMode.value) {
-    router.push('/api/app/admin/erfolgreichReserviert')
-  } else {
-    router.push('/api/app/reservierung/erfolgreichReserviert')
+  try {
+    // Daten für den Backend-Endpunkt vorbereiten (anhand der Struktur von bookingFinal)
+    const payload = {
+      hundId: booking.value.dog?.id,
+      mitgliedId: booking.value.mitgliedId || localStorage.getItem('mitgliedId') || 1,
+      datum: booking.value.datum,
+      von: booking.value.von,
+      bis: booking.value.bis,
+      status: 'AKTIV'
+    }
+
+    // Anfrage über den Vite-Proxy an /api/reservierung/new senden
+    const response = await fetch('/api/reservierung/new', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload)
+    })
+
+    if (response.ok) {
+      if (isAdminMode.value) {
+        router.push('/app/admin/erfolgreichReserviert')
+      } else {
+        router.push('/app/reservierung/erfolgreichReserviert')
+      }
+    } else {
+      const errorText = await response.text()
+      alert('Fehler beim Speichern der Reservierung: ' + errorText)
+    }
+  } catch (error) {
+    console.error('Netzwerkfehler:', error)
+    alert('Verbindungsfehler zum Server.')
   }
 }
 </script>
