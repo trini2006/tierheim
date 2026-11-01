@@ -34,15 +34,15 @@ class MitgliedControllerTest {
     public static boolean TEST_ERFAHRUNG2 = true;
 
     public static Mitglied getTestMitglied1() {
-        return new Mitglied(TEST_ID1, TEST_MITGLIEDSNUMMER1, TEST_PASSWORT1, TEST_ERFAHRUNG1);
+        return new Mitglied(TEST_MITGLIEDSNUMMER1, TEST_PASSWORT1, TEST_ERFAHRUNG1);
     }
 
     public static Mitglied getUpdateMitglied1() {
-        return new Mitglied(TEST_ID1, TEST_MITGLIEDSNUMMER1, "geheim", TEST_ERFAHRUNG2);
+        return new Mitglied(TEST_MITGLIEDSNUMMER1, "geheim", TEST_ERFAHRUNG2);
     }
 
     public static Mitglied getTestMitglied2() {
-        return new Mitglied(TEST_ID2, TEST_MITGLIEDSNUMMER2, TEST_PASSWORT2, TEST_ERFAHRUNG2);
+        return new Mitglied(TEST_MITGLIEDSNUMMER2, TEST_PASSWORT2, TEST_ERFAHRUNG2);
     }
 
     public static List<Mitglied> getAllMitglieder() {

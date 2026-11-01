@@ -39,7 +39,6 @@ class TierheimControllerTest {
 
     public static Tierheim getTestTierheim() {
         return new Tierheim(
-                TEST_ID1,
                 TEST_NAME1,
                 TEST_STRASSE1,
                 TEST_HAUSNUMMER1,
@@ -47,7 +46,6 @@ class TierheimControllerTest {
                 TEST_ORT1,
                 TEST_BILD1,
                 TEST_TELEFONNR1,
-                "",
                 TEST_LINK1,
                 TEST_BILD1,
                 TEST_FARBE1,

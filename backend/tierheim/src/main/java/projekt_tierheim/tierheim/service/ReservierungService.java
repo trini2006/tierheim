@@ -14,12 +14,15 @@ import projekt_tierheim.tierheim.db.Reservierung.ReservierungDTO;
 import projekt_tierheim.tierheim.db.Reservierung.ReservierungRepository;
 import projekt_tierheim.tierheim.db.Reservierung.Reservierungsstatus;
 import projekt_tierheim.tierheim.db.Tierheim.Tierheim;
+import projekt_tierheim.tierheim.db.Tierheim.TierheimRepository;
 import projekt_tierheim.tierheim.exception.NotFoundException;
 
+import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.temporal.ChronoUnit;
+import java.util.Comparator;
 import java.util.List;
 
 @Service
@@ -28,17 +31,20 @@ public class ReservierungService {
     private final HundRepository hundRepository;
     private final MitgliedRepository mitgliedRepository;
     private final GassiGehZeitenRepository gassiGehZeitenRepository;
+    private final TierheimRepository tierheimRepository;
 
     @Autowired
-    public ReservierungService(ReservierungRepository reservierungRepository, HundRepository hundRepository, MitgliedRepository mitgliedRepository, GassiGehZeitenRepository gassiGehZeitenRepository) {
+    public ReservierungService(ReservierungRepository reservierungRepository, HundRepository hundRepository, MitgliedRepository mitgliedRepository, GassiGehZeitenRepository gassiGehZeitenRepository, TierheimRepository tierheimRepository) {
         this.reservierungRepository = reservierungRepository;
         this.hundRepository = hundRepository;
         this.mitgliedRepository = mitgliedRepository;
         this.gassiGehZeitenRepository = gassiGehZeitenRepository;
+        this.tierheimRepository = tierheimRepository;
     }
 
     public Reservierung erstelleReservierung(ReservierungDTO reservierungDTO) {
-        pruefeZeitraum(reservierungDTO.datum(), reservierungDTO.zeitAb(), reservierungDTO.zeitBis());
+        pruefeDeadline(reservierungDTO.datum());
+        pruefeZeitraum(reservierungDTO.zeitAb(), reservierungDTO.zeitBis());
 
         Mitglied mitglied = mitgliedRepository.findMitgliedById(reservierungDTO.mitgliedId());
         Hund hund = hundRepository.findHundById(reservierungDTO.hundId());
@@ -179,15 +185,37 @@ public class ReservierungService {
         }
     }
 
-    public void pruefeZeitraum(LocalDate datum, LocalTime zeitAb, LocalTime zeitBis) {
+    public void pruefeZeitraum(LocalTime zeitAb, LocalTime zeitBis) {
         if(!zeitAb.isBefore(zeitBis)) {
             throw new IllegalArgumentException("Terminbeginn muss vor Terminende sein");
         }
+    }
+
+    public void pruefeDeadline(LocalDate datum) {
         // ToDO flexible Deadline?
         // Termine in der Vergangenheit werden nicht berücksichtigt
-        // Termin muss mindestens zwei Stunden vor Zeitpunkt der Reservierung sein
-        if(LocalDateTime.of(datum, zeitAb).isBefore(LocalDateTime.now().plusHours(2))) {
-            throw new  IllegalArgumentException("Der Termin darf nicht in der Vergangenheit liegen");
+        LocalDate datHeute = LocalDate.now();
+        LocalTime zeitHeute = LocalTime.now();
+
+        if(datHeute.isAfter(datum)) {
+            throw new IllegalArgumentException("Reservierung darf nicht in der Vergangenheit liegen");
+        }
+
+        if(datHeute.equals(datum)) {
+            List<GassiGehZeiten> aktuelleZeiten = gassiGehZeitenRepository.findGassiGehZeitenByTag(Tage.von(datHeute.getDayOfWeek()));
+            GassiGehZeiten ersterZeitraum = aktuelleZeiten.stream()
+                    .min(Comparator.comparing(GassiGehZeiten::getVon)).orElse(null);
+            if(ersterZeitraum == null){
+                throw new NotFoundException("Es gibt keine Zeiträume für den gewählten Tag");
+            }
+
+            // Termin muss mindestens drei Stunden vor Arbeitsbeginn des Personals sein
+            LocalTime zeitDeadline = ersterZeitraum.getVon().minus(3, ChronoUnit.HOURS);
+            LocalDateTime datumZeitDeadline = LocalDateTime.of(datHeute, zeitDeadline);
+
+            if(LocalDateTime.of(datHeute, zeitHeute).isAfter(datumZeitDeadline)) {
+                throw new IllegalArgumentException("Die Deadline für heute ist abgelaufen. Die Reservierung muss 3h vor dem ersten Zeitraum erfolgen!");
+            }
         }
     }
 }

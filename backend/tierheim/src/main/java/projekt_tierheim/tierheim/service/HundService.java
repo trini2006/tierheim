@@ -30,7 +30,8 @@ public class HundService {
     }
 
     public List<Hund> ermittleVeruegbareHunde(Mitglied mitglied, LocalDate datum, LocalTime von, LocalTime bis) {
-        reservierungService.pruefeZeitraum(datum, von, bis);
+        reservierungService.pruefeDeadline(datum);
+        reservierungService.pruefeZeitraum(von, bis);
 
         List<Hund> alleHunde = hundRepository.findAll();
         List<Hund> verfuegbareHunde = new ArrayList<>();
