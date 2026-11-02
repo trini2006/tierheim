@@ -162,7 +162,7 @@ import {
   isSameDay,
 } from 'date-fns'
 import { de } from 'date-fns/locale'
-import { alsText, minutenVon, SLOT_MINUTEN } from '@/components/utils/slots.js'
+import { erzeugeSlots, SLOT_MINUTEN } from '@/components/utils/slots.js'
 
 const router = useRouter()
 const today = startOfToday()
@@ -282,24 +282,13 @@ const aktualisiereSlotsFuerAktuellenTag = () => {
     }
   }
 
-  const slots = []
-  tagesZeiten
-    .slice()
-    .sort((a, b) => a.von.localeCompare(b.von))
-    .forEach((g, fensterIndex) => {
-      const ende = minutenVon(g.bis)
-      for (let start = minutenVon(g.von); start + SLOT_MINUTEN <= ende; start += SLOT_MINUTEN) {
-        slots.push({
-          id: slots.length + 1,
-          fenster: fensterIndex,
-          label: `${alsText(start)} - ${alsText(start + SLOT_MINUTEN)} Uhr`,
-          vonFull: `${alsText(start)}:00`,
-          bisFull: `${alsText(start + SLOT_MINUTEN)}:00`,
-          booked: false,
-        })
-      }
-    })
-  zeitBloecke.value = slots
+  zeitBloecke.value = erzeugeSlots(tagesZeiten).map((s) => ({
+    ...s,
+    label: `${s.label} Uhr`,
+    vonFull: `${s.von}:00`,
+    bisFull: `${s.bis}:00`,
+    booked: false,
+  }))
 }
 
 onMounted(() => {
