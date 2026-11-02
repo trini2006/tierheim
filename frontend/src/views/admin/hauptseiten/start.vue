@@ -104,7 +104,7 @@ async function ladeHeutigeTermine() {
       const data = await res.json()
       gassiGeherHeute.value = data.map((termin) => ({
         id: termin.idReservierung,
-        uhrzeit: `${termin.von?.substring(0, 5)} – ${termin.bis?.substring(0, 5)} Uhr`,
+        uhrzeit: `${termin.zeitAb?.substring(0, 5)} – ${termin.zeitBis?.substring(0, 5)} Uhr`,
         hundName: termin.hund?.name || '',
         mitgliedsnummer: termin.mitglied?.mitgliedsnummer || '',
       }))
