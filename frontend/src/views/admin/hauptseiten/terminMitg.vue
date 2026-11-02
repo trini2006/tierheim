@@ -25,12 +25,12 @@
                 👤
               </div>
               <span class="font-bold text-gray-800 text-sm md:text-base">{{
-                mitglied.telefon
+                mitglied.mitgliedsnummer
               }}</span>
             </div>
             <span
               class="w-3 h-3 rounded-full"
-              :class="mitglied.aktiv ? 'bg-green-500' : 'bg-orange-400'"
+              :class="mitglied.hatErfahrung ? 'bg-orange-400' : 'bg-green-500'"
             ></span>
           </div>
 
@@ -87,7 +87,13 @@
 
         <!-- Zeitblöcke (Mehrfachauswahl per Array) -->
         <div class="space-y-3 pt-2">
-          <div v-for="zeit in zeitBloecke" :key="zeit.id" class="flex items-center justify-between">
+          <!-- Slot-Liste: Abstand zwischen den Fenstern, damit man die Pause sieht -->
+          <div
+            v-for="(zeit, i) in zeitBloecke"
+            :key="zeit.id"
+            class="flex items-center justify-between"
+            :class="{ 'mt-6': i > 0 && zeit.fenster !== zeitBloecke[i - 1].fenster }"
+          >
             <span class="text-xs font-semibold text-gray-700 w-28">{{ zeit.label }}</span>
             <div
               @click="toggleZeit(zeit.id)"
@@ -106,6 +112,15 @@
             </div>
           </div>
         </div>
+
+        <!-- HIER: Hinweise zur Auswahl -->
+        <p v-if="hinweis" class="text-xs text-red-700">{{ hinweis }}</p>
+        <p
+          v-else-if="ausgewaehlteZeiten.length > 0 && ausgewaehlteZeiten.length < minSlots"
+          class="text-xs text-gray-600"
+        >
+          Mindestens {{ minGassi }} Minuten
+        </p>
       </div>
     </div>
 
@@ -113,10 +128,10 @@
     <div class="flex justify-end mt-8">
       <button
         @click="weiterZuHundewahl"
-        :disabled="!ausgewaehltesMitglied || ausgewaehlteZeiten.length === 0"
+        :disabled="!ausgewaehltesMitglied || !auswahlGueltig"
         class="flex items-center gap-3 px-8 py-3 rounded-full shadow-md font-bold transition-all"
         :class="
-          !ausgewaehltesMitglied || ausgewaehlteZeiten.length === 0
+          !ausgewaehltesMitglied || !auswahlGueltig
             ? 'bg-gray-300 text-gray-500 cursor-not-allowed'
             : 'bg-[#D3DDD1] hover:bg-[#c2cebf] text-gray-800 border border-gray-300'
         "
@@ -147,6 +162,7 @@ import {
   isSameDay,
 } from 'date-fns'
 import { de } from 'date-fns/locale'
+import { alsText, minutenVon, SLOT_MINUTEN } from '@/components/utils/slots.js'
 
 const router = useRouter()
 const today = startOfToday()
@@ -174,6 +190,7 @@ const isEndOfWeek = computed(() => {
 const selectWeek = (kw) => {
   selectedWeek.value = kw
   currentDate.value = kw.startDate < today ? today : kw.startDate
+  hinweis.value = ''
   ausgewaehlteZeiten.value = []
   aktualisiereSlotsFuerAktuellenTag()
 }
@@ -186,6 +203,7 @@ const changeDay = (dir) => {
     nextDate <= endOfWeek(selectedWeek.value.startDate, { weekStartsOn: 1 })
   ) {
     currentDate.value = nextDate
+    hinweis.value = ''
     ausgewaehlteZeiten.value = []
     aktualisiereSlotsFuerAktuellenTag()
   }
@@ -198,12 +216,12 @@ const ladeMitglieder = async () => {
     if (res.ok) {
       const data = await res.json()
       const backendMitglieder = data.map((m) => ({
-        id: m.id ?? m.mitgliedsnummer,
-        telefon: String(m.telefon || m.mitgliedsnummer),
-        aktiv: m.erfahrung === true || m.erfahrung === 'true',
+        id: m.id,
+        mitgliedsnummer: String(m.mitgliedsnummer),
+        hatErfahrung: m.erfahrung,
       }))
       if (backendMitglieder.length > 0) {
-        mitgliederListe.value = [...mitgliederListe.value, ...backendMitglieder]
+        mitgliederListe.value = backendMitglieder
       }
     }
   } catch (e) {
@@ -264,56 +282,100 @@ const aktualisiereSlotsFuerAktuellenTag = () => {
     }
   }
 
-  tagesZeiten.forEach((g) => {
-    const [vonStunden, vonMinuten] = g.von.split(':').map(Number)
-    const [bisStunden, bisMinuten] = g.bis.split(':').map(Number)
-
-    const startMinuten = vonStunden * 60 + vonMinuten
-    const endMinuten = bisStunden * 60 + bisMinuten
-
-    for (let zeit = startMinuten; zeit + 30 <= endMinuten; zeit += 30) {
-      const ende = zeit + 30
-
-      const formatZeit = (minuten) => {
-        const stunden = Math.floor(minuten / 60)
-        const minutenRest = minuten % 60
-
-        return `${String(stunden).padStart(2, '0')}:${String(minutenRest).padStart(2, '0')}`
+  const slots = []
+  tagesZeiten
+    .slice()
+    .sort((a, b) => a.von.localeCompare(b.von))
+    .forEach((g, fensterIndex) => {
+      const ende = minutenVon(g.bis)
+      for (let start = minutenVon(g.von); start + SLOT_MINUTEN <= ende; start += SLOT_MINUTEN) {
+        slots.push({
+          id: slots.length + 1,
+          fenster: fensterIndex,
+          label: `${alsText(start)} - ${alsText(start + SLOT_MINUTEN)} Uhr`,
+          vonFull: `${alsText(start)}:00`,
+          bisFull: `${alsText(start + SLOT_MINUTEN)}:00`,
+          booked: false,
+        })
       }
-
-      const vonStr = formatZeit(zeit)
-      const bisStr = formatZeit(ende)
-
-      zeitBloecke.value.push({
-        id: zeitBloecke.value.length + 1,
-        label: `${vonStr} - ${bisStr} Uhr`,
-        vonFull: `${vonStr}:00`,
-        bisFull: `${bisStr}:00`,
-        booked: false,
-      })
-    }
-  })
+    })
+  zeitBloecke.value = slots
 }
 
 onMounted(() => {
   ladeMitglieder()
   ladeZeitenVomBackend()
+  ladeTierheim()
 })
 
 function waehleMitglied(mitglied) {
   ausgewaehltesMitglied.value = mitglied
 }
 
+const tierheimId = 1
+const maxGassi = ref(null)
+const minGassi = ref(null)
+
+const ladeTierheim = async () => {
+  try {
+    const res = await fetch(`/api/tierheim/${tierheimId}`)
+    if (res.ok) {
+      const t = await res.json()
+      maxGassi.value = t.maxGassi
+      minGassi.value = t.minGassi
+    }
+  } catch (e) {
+    console.error('Fehler beim Laden des Tierheims:', e)
+  }
+}
+
+const maxSlots = computed(() => (maxGassi.value ? Math.floor(maxGassi.value / SLOT_MINUTEN) : 0))
+const minSlots = computed(() => (minGassi.value ? Math.ceil(minGassi.value / SLOT_MINUTEN) : 1))
+const hinweis = ref('')
+const auswahlGueltig = computed(
+  () =>
+    ausgewaehlteZeiten.value.length >= minSlots.value &&
+    ausgewaehlteZeiten.value.length <= maxSlots.value,
+)
+
 function toggleZeit(zeitId) {
   if (!ausgewaehltesMitglied.value) return
-  const slot = zeitBloecke.value.find((z) => z.id === zeitId)
-  if (slot && slot.booked) return
+  if (maxSlots.value === 0) {
+    hinweis.value = 'Tierheim-Einstellungen konnten nicht geladen werden'
+    return
+  }
 
-  const index = ausgewaehlteZeiten.value.indexOf(zeitId)
-  if (index > -1) {
-    ausgewaehlteZeiten.value.splice(index, 1)
+  const slot = zeitBloecke.value.find((z) => z.id === zeitId)
+  if (!slot || slot.booked) return
+  hinweis.value = ''
+
+  const sel = ausgewaehlteZeiten.value
+  if (sel.length === 0) {
+    ausgewaehlteZeiten.value = [zeitId]
+    return
+  }
+
+  const ersterId = Math.min(...sel)
+  const letzterId = Math.max(...sel)
+
+  if (sel.includes(zeitId)) {
+    // Randblock abwählen, Klick in der Mitte startet neu mit diesem Slot
+    ausgewaehlteZeiten.value =
+      zeitId === ersterId || zeitId === letzterId ? sel.filter((id) => id !== zeitId) : [zeitId]
+    return
+  }
+
+  const erster = zeitBloecke.value.find((z) => z.id === ersterId)
+  const grenztAn = zeitId === ersterId - 1 || zeitId === letzterId + 1
+
+  if (slot.fenster === erster.fenster && grenztAn) {
+    if (sel.length >= maxSlots.value) {
+      hinweis.value = `Maximal ${maxGassi.value} Minuten pro Spaziergang`
+      return
+    }
+    ausgewaehlteZeiten.value = [...sel, zeitId]
   } else {
-    ausgewaehlteZeiten.value.push(zeitId)
+    ausgewaehlteZeiten.value = [zeitId] // nicht anschließend: neue Auswahl beginnt hier
   }
 }
 
@@ -328,7 +390,7 @@ function weiterZuHundewahl() {
 
     const daten = {
       mitgliedId: ausgewaehltesMitglied.value.id,
-      telefon: ausgewaehltesMitglied.value.telefon,
+      mitgliedsnummer: ausgewaehltesMitglied.value.mitgliedsnummer,
       datum: format(currentDate.value, 'yyyy-MM-dd'),
       von: vonZeit,
       bis: bisZeit,

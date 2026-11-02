@@ -82,7 +82,7 @@
           <div v-if="!editiertKontakt" class="space-y-1 text-sm text-gray-800">
             <p>{{ form.kontakt.strasse }}</p>
             <p>{{ form.kontakt.plzOrt }}</p>
-            <p>{{ form.kontakt.telefon }}</p>
+            <p>{{ form.kontakt.mitgliedsnummer }}</p>
             <p>{{ form.kontakt.notfall }} (Notfall)</p>
             <!-- Webseite als klickbarer Link, öffnet in neuem Tab -->
             <p>
@@ -94,7 +94,7 @@
           <div v-else class="space-y-2">
             <input v-model="form.kontakt.strasse" type="text" placeholder="Straße, Hausnummer" class="w-full text-sm border-b border-gray-400 bg-transparent focus:outline-none" />
             <input v-model="form.kontakt.plzOrt" type="text" placeholder="PLZ Ort" class="w-full text-sm border-b border-gray-400 bg-transparent focus:outline-none" />
-            <input v-model="form.kontakt.telefon" type="tel" placeholder="Telefon" class="w-full text-sm border-b border-gray-400 bg-transparent focus:outline-none" />
+            <input v-model="form.kontakt.mitgliedsnummer" type="tel" placeholder="Telefon" class="w-full text-sm border-b border-gray-400 bg-transparent focus:outline-none" />
             <input v-model="form.kontakt.notfall" type="tel" placeholder="Notfall-Telefon" class="w-full text-sm border-b border-gray-400 bg-transparent focus:outline-none" />
             <input v-model="form.kontakt.webseite" type="text" placeholder="Webseite" class="w-full text-sm border-b border-gray-400 bg-transparent focus:outline-none" />
           </div>
@@ -215,7 +215,7 @@ const form = ref({
   kontakt: {
     strasse: 'Schustermooslohe 96',
     plzOrt: '92637 Weiden i. d. Oberpfalz',
-    telefon: '0961 25780',
+    mitgliedsnummer: '0961 25780',
     notfall: '0176 47159671',
     webseite: 'tierheim-weiden.de',
   },

@@ -4,6 +4,7 @@ import jakarta.transaction.Transactional;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 public interface MitgliedRepository extends JpaRepository<Mitglied, Integer> {
+    // ToDO MitgliedResponseDTO?
     Mitglied findMitgliedByMitgliedsnummer(int mitgliedsnummer);
 
     Mitglied findMitgliedById(int testId1);

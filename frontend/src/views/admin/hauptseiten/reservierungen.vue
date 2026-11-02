@@ -191,6 +191,8 @@
 </template>
 
 <script setup>
+import { alsText, minutenVon, SLOT_MINUTEN } from '@/components/utils/slots.js'
+
 const API_BASE = 'http://localhost:8085'
 const tierheimId = 1
 import { ref, computed, onMounted, watch } from 'vue'
@@ -292,15 +294,7 @@ const reservierungen = ref([])
       Author: Lili, 2026-10-17
 */
 const zeitSlots = ref([]) // Daten für die Anzeige
-const slotMinuten = ref(30) // später: zeitblock aus Tierheim laden
 const TAGE = ['SO', 'MO', 'DI', 'MI', 'DO', 'FR', 'SA']
-
-const minutenVon = (zeit) => {
-  const [h, m] = zeit.split(':')
-  return Number(h) * 60 + Number(m)
-}
-const alsText = (min) =>
-  `${String(Math.floor(min / 60)).padStart(2, '0')}:${String(min % 60).padStart(2, '0')}`
 
 const erzeugeSlots = (fenster, dauer) => {
   const slots = []
@@ -321,7 +315,7 @@ const ladeZeitSlots = async () => {
       zeitSlots.value = []
       return
     }
-    zeitSlots.value = erzeugeSlots(await res.json(), slotMinuten.value)
+    zeitSlots.value = erzeugeSlots(await res.json(), SLOT_MINUTEN.value)
   } catch (error) {
     console.error('Fehler beim Laden der Zeiten:', error)
   }
