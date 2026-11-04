@@ -152,7 +152,7 @@
             :style="{ gridRow: 1, gridColumn: i + 2 }"
           >
             <img
-              :src="hund.bild"
+              :src="hund.bildUrl"
               class="w-14 h-14 rounded-full object-cover mx-auto shadow-sm border"
             />
             <span class="font-bold text-sm text-gray-800 block truncate">{{ hund.name }}</span>

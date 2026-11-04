@@ -9,8 +9,10 @@ import Startseite from './views/benutzer/hauptseiten/start.vue'
 import TierheimInfo from './views/benutzer/hauptseiten/tierheim.vue'
 import Einstellungen from './views/beides/systemEinstellungen.vue'
 import HundeBeschreibung from './views/beides/beschreibung.vue'
-import ReservierungsUebersicht from './views/benutzer/hauptseiten/revuebersicht.vue'
-import NaechsterTermin from './views/benutzer/hauptseiten/naechstertermin.vue'
+
+import { istMobilJetzt } from '@/composables/useIstMobil.js'
+import ReservierungDetailMobile from './views/benutzer/hauptseiten/ReservierungsDetailMobile.vue'
+import ReservierungDetail from './views/benutzer/hauptseiten/ReservierungsDetail.vue'
 
 import Zeitwahl from './views/reservierung/zeitwahl.vue'
 import Hundewahl from './views/reservierung/hundewahl.vue'
@@ -34,7 +36,7 @@ const routes = [
     path: '/',
     name: 'Login',
     component: LoginView,
-    meta: { title: 'Anmeldung' }
+    meta: { title: 'Anmeldung' },
   },
   {
     path: '/app',
@@ -42,34 +44,79 @@ const routes = [
     meta: { requiresAuth: true }, // <--- Hier wird der Bereich geschützt!
     children: [
       { path: '', component: Startseite, meta: { title: 'Willkommen' } },
-      { path: 'naechster-termin', component: NaechsterTermin, meta: { title: 'Nächster Termin' } },
+      {
+        path: 'reservierungen/:id',
+        component: ReservierungDetailMobile,
+        meta: { title: 'ReservierungsDetails' },
+        beforeEnter: () => (istMobilJetzt() ? true : '/app'),
+      },
       //{ path: 'nachrichten', component: Nachrichten, meta: { title: 'Nachrichten' } },
-      { path: 'reservierungen', component: ReservierungsUebersicht, meta: { title: 'Reservierungen' } },
       { path: 'tierheim', component: TierheimInfo, meta: { title: 'Tierheim Weiden' } },
       { path: 'einstellungen', component: Einstellungen, meta: { title: 'Einstellungen' } },
-      { path: 'hund/:id', name: 'beschreibung', component: HundeBeschreibung, meta: { title: 'Hundedetails' } },
-      
+      {
+        path: 'hund/:id',
+        name: 'beschreibung',
+        component: HundeBeschreibung,
+        meta: { title: 'Hundedetails' },
+      },
+
       { path: 'reservierung/zeitwahl', component: Zeitwahl, meta: { title: 'Termin auswählen' } },
       { path: 'reservierung/hundewahl', component: Hundewahl, meta: { title: 'Hund auswählen' } },
-      { path: 'reservierung/ueberpruefen', component: Ueberpruefung, meta: { title: 'Details bestätigen' } },
-      { path: 'reservierung/erfolgreichReserviert', component: Erfolg, meta: { title: 'Erfolgreich!' } },
+      {
+        path: 'reservierung/ueberpruefen',
+        component: Ueberpruefung,
+        meta: { title: 'Details bestätigen' },
+      },
+      {
+        path: 'reservierung/erfolgreichReserviert',
+        component: Erfolg,
+        meta: { title: 'Erfolgreich!' },
+      },
 
-      { path: 'admin', component: AdminStart, children: [
-        //{ path: 'nachrichten', component: Nachrichten },
-        //{ path: 'veranstaltungen', component: AdminVeranstaltungen }
-      ]},
+      {
+        path: 'admin',
+        component: AdminStart,
+        children: [
+          //{ path: 'nachrichten', component: Nachrichten },
+          //{ path: 'veranstaltungen', component: AdminVeranstaltungen }
+        ],
+      },
       { path: 'admin/hundepflegen', component: AdminHundepflegen, meta: { title: 'Hund pflegen' } },
       { path: 'admin/erfolgreichReserviert', component: Erfolg, meta: { title: 'Erfolgreich!' } },
-      { path: 'admin/ueberpruefen', component: Ueberpruefung, meta: { title: 'Details bestätigen' } },
+      {
+        path: 'admin/ueberpruefen',
+        component: Ueberpruefung,
+        meta: { title: 'Details bestätigen' },
+      },
       { path: 'admin/hundewahl', component: Hundewahl, meta: { title: 'Hund auswählen' } },
-      { path: 'admin/termin-mitglied', component: TerminMitglied, meta: { title: 'Termin wählen' } },
+      {
+        path: 'admin/termin-mitglied',
+        component: TerminMitglied,
+        meta: { title: 'Termin wählen' },
+      },
       //{ path: 'admin/statistik', component: AdminStatistik, meta: { title: 'Statistik' } },
-      { path: 'admin/reservierungen', component: AdminReservierungen, meta: { title: 'Reservierungen' } },
-      { path: 'admin/mitglieder', component: AdminMitglieder, meta: { title: 'Mitgliederverwaltung' } },
+      {
+        path: 'admin/reservierungen',
+        component: AdminReservierungen,
+        meta: { title: 'Reservierungen' },
+      },
+      {
+        path: 'admin/mitglieder',
+        component: AdminMitglieder,
+        meta: { title: 'Mitgliederverwaltung' },
+      },
       { path: 'admin/hunde', component: AdminHunde, meta: { title: 'Hundeverwaltung' } },
       //{ path: 'admin/veranstaltungen/hinzufuegen', component: AdminVeranstaltungHinzufuegen, meta: { title: 'Event hinzufügen' } },
-      { path: 'admin/einstellungen', component: AdminEinstellungen, meta: { title: 'Einstellungen' } },
-      { path: 'admin/profileinstellungen', component: AdminProfileinstellungen, meta: { title: 'Profileinstellungen' } },
+      {
+        path: 'admin/einstellungen',
+        component: AdminEinstellungen,
+        meta: { title: 'Einstellungen' },
+      },
+      {
+        path: 'admin/profileinstellungen',
+        component: AdminProfileinstellungen,
+        meta: { title: 'Profileinstellungen' },
+      },
     ],
   },
 ]
@@ -79,7 +126,7 @@ const router = createRouter({
   routes,
 })
 
-export const previousPath = ref('') 
+export const previousPath = ref('')
 
 // Navigation Guard: Überprüft jeden Seitenaufruf
 router.beforeEach((to, from, next) => {

@@ -137,8 +137,8 @@ public class TestdatenLader implements CommandLineRunner {
 
     private List<Mitglied> legeMitgliedAn() {
         List<Mitglied> mitglieder = new ArrayList<>();
-        mitglieder.add(new Mitglied(12345, passwordEncoder.encode("geheimMitglied1"), false));
-        mitglieder.add(new Mitglied(67890, passwordEncoder.encode("geheimMitglied2"), true));
+        mitglieder.add(new Mitglied(12345, passwordEncoder.encode("geheimMitglied"), false));
+        mitglieder.add(new Mitglied(67890, passwordEncoder.encode("geheimMitglied"), true));
         return mitgliedRepository.saveAll(mitglieder);
     }
 

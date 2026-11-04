@@ -27,7 +27,7 @@ public class AdminController {
     // Mitarbeiter nach Personalnummer zu suchen, macht mehr Sinn, als nach einer zufällig vergebenen id
     @GetMapping("/{personalnummer}")
     public AdminResponseDTO getAdminByPersonalnummer(@PathVariable("personalnummer") int personalnummer){
-        Admin admin = adminService.getAdminByPersonalnummer(personalnummer);
+        Admin admin = adminRepository.findAdminByPersonalnummer(personalnummer);
         if(admin == null){
             throw new NotFoundException("Admin mit der Personalnummer " +  personalnummer + " nicht gefunden");
         }
