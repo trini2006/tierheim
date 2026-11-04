@@ -57,6 +57,10 @@
           reservierung.status
         }}</span>
       </div>
+      <div v-if="istStorniert"  class="flex text-sm">
+        <span class="font-bold w-20 text-gray-700">Grund:</span>
+        {{ reservierung.stornierungsgrund }}
+      </div>
     </div>
 
     <div v-if="!istStorniert" class="mt-6 text-left px-2">

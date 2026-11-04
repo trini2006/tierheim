@@ -341,7 +341,7 @@ const ladeDaten = async () => {
         const zeitAb = r.zeitAb.substring(0, 5)
         const zeitBis = r.zeitBis.substring(0, 5)
         return {
-          id: r.idReservierung,
+          id: r.id,
           hundId: r.hund?.id,
           hundName: r.hund?.name,
           mitgliedsnummer: r.mitglied?.mitgliedsnummer ? String(r.mitglied.mitgliedsnummer) : '',
@@ -428,7 +428,6 @@ const loescheReservierung = async (id) => {
       method: 'DELETE',
     })
     if (res.ok) {
-      // Nach erfolgreicher Stornierung die Liste aktualisieren
       await ladeDaten()
     }
   } catch (e) {

@@ -10,7 +10,7 @@ export const useReservierungenStore = defineStore('reservierungen', () => {
   const aktive = computed(() => alle.value.filter((r) => r.status === 'AKTIV'))
   const naechste = computed(() => aktive.value[0] ?? null)
 
-  // NEU: gewählter Termin, sonst der nächste
+  // gewählter Termin, sonst der nächste
   const angezeigte = computed(
     () => alle.value.find((r) => r.id === ausgewaehltId.value) ?? naechste.value,
   )
@@ -18,7 +18,6 @@ export const useReservierungenStore = defineStore('reservierungen', () => {
     ausgewaehltId.value = id
   }
 
-  // NEU: z. B. beim Logout aufrufen
   const reset = () => {
     alle.value = []
     geladen.value = false
@@ -51,7 +50,7 @@ export const useReservierungenStore = defineStore('reservierungen', () => {
       alle.value = (await res.json())
         .filter((r) => new Date(`${r.datum}T${r.zeitBis}`) > jetzt)
         .sort((a, b) => `${a.datum}T${a.zeitAb}`.localeCompare(`${b.datum}T${b.zeitAb}`))
-      // NEU: Auswahl verwerfen, wenn der Termin nicht mehr existiert
+      // Auswahl verwerfen, wenn der Termin nicht mehr existiert
       if (!alle.value.some((r) => r.id === ausgewaehltId.value)) ausgewaehltId.value = null
       fehler.value = null
       geladen.value = true
