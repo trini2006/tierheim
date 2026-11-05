@@ -15,7 +15,7 @@
         <div class="flex-grow">
           <div class="flex justify-between items-start">
             <h3 class="text-lg font-bold">{{ vorschlagHund.name }}</h3>
-            <div :class="['w-4 h-4 rounded-full', vorschlagHund.color]" />
+            <div :class="['w-4 h-4 rounded-full', vorschlagHund.erfahrung]" />
           </div>
           <p class="text-sm">
             {{ vorschlagHund.breed }} • {{ vorschlagHund.age }} Jahre, {{ vorschlagHund.gender }}
@@ -68,7 +68,7 @@
           >
         </div>
       </div>
-      <div :class="['w-4 h-4 rounded-full mt-1 flex-shrink-0', dog.color]" />
+      <div :class="['w-4 h-4 rounded-full mt-1 flex-shrink-0', dog.erfahrung]" />
     </div>
 
     <p v-if="fehler" class="text-sm text-red-700">{{ fehler }}</p>
@@ -139,7 +139,7 @@ const ladeVerfuegbareHunde = async () => {
       age: h.jahre,
       gender: h.geschlecht ? 'Hündin' : 'Rüde',
       tags: (h.labels ?? []).map((l) => ({ id: l.id, name: l.bezeichnung, hinweis: l.hinweis })),
-      color: h.erfahrung ? 'bg-orange-500' : 'bg-green-500',
+      erfahrung: h.erfahrung ? 'bg-orange-500' : 'bg-green-500',
       image: h.bild,
     })
 

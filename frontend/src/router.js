@@ -54,7 +54,7 @@ const routes = [
       { path: 'tierheim', component: TierheimInfo, meta: { title: 'Tierheim Weiden' } },
       { path: 'einstellungen', component: Einstellungen, meta: { title: 'Einstellungen' } },
       {
-        path: 'hund/:id',
+        path: 'hund/:id?',
         name: 'beschreibung',
         component: HundeBeschreibung,
         meta: { title: 'Hundedetails' },

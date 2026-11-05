@@ -12,15 +12,12 @@
       <div class="max-w-7xl mx-auto px-8 h-20 flex items-center justify-between">
         <!-- Überschrift jetzt linksbündig ohne Logo-Platzhalter -->
         <h1 class="text-2xl font-bold tracking-wide">
-          {{ route.meta.title || 'Tierheim Weiden' }}
+          {{ route.meta.title || tierheimName }}
         </h1>
 
         <nav class="flex items-center gap-8">
           <!-- HOME / START BUTTON (Mit Klick-Handler zum Zurücksetzen) -->
-          <a
-            @click="goHome"
-            class="p-2 rounded-full hover:bg-black/10 transition cursor-pointer"
-          >
+          <a @click="goHome" class="p-2 rounded-full hover:bg-black/10 transition cursor-pointer">
             <svg class="w-9 h-9" fill="currentColor" viewBox="0 0 24 24">
               <path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z" />
             </svg>
@@ -92,7 +89,8 @@
         :to="isAdmin ? '/app/admin/hunde' : '/app/tierheim'"
         class="flex flex-col items-center text-gray-600"
       >
-        <span class="text-xl">🐾</span><span class="text-xs">{{ isAdmin ? 'Hunde' : 'Tierheim' }}</span>
+        <span class="text-xl">🐾</span
+        ><span class="text-xs">{{ isAdmin ? 'Hunde' : 'Tierheim' }}</span>
       </RouterLink>
       <RouterLink
         :to="isAdmin ? '/app/admin/einstellungen' : '/app/einstellungen'"
@@ -105,7 +103,7 @@
 </template>
 
 <script setup>
-import { ref, computed } from 'vue'
+import { ref, computed, onMounted } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 
 const route = useRoute()
@@ -116,13 +114,13 @@ const isAdmin = computed(() => route.path.toLowerCase().startsWith('/app/admin')
 
 const mobileTitle = computed(() => {
   if (route.meta?.title) return route.meta.title
-  return 'Tierheim Weiden'
+  return tierheimName
 })
 
 // Intelligente Home-Funktion: Navigiert zur Startseite und setzt den Tab zurück
 const goHome = async () => {
   const targetPath = isAdmin.value ? '/app/admin' : '/app'
-  
+
   // 1. Erst zum Start-Pfad navigieren
   await router.push(targetPath)
 
@@ -131,4 +129,23 @@ const goHome = async () => {
     routerViewRef.value.resetToDefault()
   }
 }
+
+const tierheimId = 1
+const tierheimName = ref([])
+const ladeTierheimDaten = async () => {
+  try {
+    const response = await fetch(`/api/tierheim/${tierheimId}`)
+    if (response.ok) {
+      const data = await response.json()
+      tierheimName.value = data.name
+    } else {
+      console.error('Fehler beim Laden des Tierheims')
+    }
+  } catch (error) {
+    console.error('Verbindungsfehler zum Backend:', error)
+  }
+}
+onMounted(() => {
+  ladeTierheimDaten()
+})
 </script>

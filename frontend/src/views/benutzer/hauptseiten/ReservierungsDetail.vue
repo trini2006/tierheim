@@ -30,7 +30,8 @@
             <span
               v-for="label in hund?.labels"
               :key="label.id"
-              class="bg-white/80 px-2 py-0.5 rounded-full text-[11px] text-gray-700 font-medium"
+              :class="label.hinweis ? 'bg-orange-500/50' : 'bg-white/50'"
+              class="px-2 py-0.5 rounded-full text-[11px] text-gray-700 font-medium"
             >
               {{ label.bezeichnung }}
             </span>
@@ -57,7 +58,7 @@
           reservierung.status
         }}</span>
       </div>
-      <div v-if="istStorniert"  class="flex text-sm">
+      <div v-if="istStorniert" class="flex text-sm">
         <span class="font-bold w-20 text-gray-700">Grund:</span>
         {{ reservierung.stornierungsgrund }}
       </div>

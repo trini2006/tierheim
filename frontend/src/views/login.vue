@@ -48,6 +48,7 @@ const benutzername = ref('')
 const passwort = ref('')
 const fehlermeldung = ref('')
 const id = ref('')
+const erfahrung = ref('')
 
 const loginPruefen = async () => {
   fehlermeldung.value = ''
@@ -96,9 +97,11 @@ const loginPruefen = async () => {
         if (res.ok) {
           const mitglied = await res.json()
           id.value = mitglied.id
+          erfahrung.value = mitglied.erfahrung
         }
 
         localStorage.setItem('userRole', 'user')
+        localStorage.setItem('erfahrung', erfahrung.value)
         localStorage.setItem('userName', benutzername.value)
         localStorage.setItem('userId', id.value)
         router.push('/app')
