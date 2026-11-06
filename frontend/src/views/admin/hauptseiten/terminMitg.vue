@@ -39,89 +39,8 @@
           </p>
         </div>
       </div>
-
-      <!-- RECHTE SEITE: Zeitwahl (Mehrfachauswahl, angelehnt an Bild 1) -->
-      <div
-        :class="{ 'opacity-50 pointer-events-none': !ausgewaehltesMitglied }"
-        class="transition-opacity space-y-4"
-      >
-        <!-- KW Auswahl zentriert über dem Datums-Block -->
-        <div class="flex justify-center gap-2">
-          <button
-            v-for="kw in weeks"
-            :key="kw.number"
-            @click="selectWeek(kw)"
-            class="px-4 py-2 rounded-xl text-xs font-bold transition-colors shadow-sm"
-            :class="
-              selectedWeek.number === kw.number
-                ? 'bg-[#4A6B5D] text-white'
-                : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
-            "
-          >
-            KW {{ kw.number }}
-          </button>
-        </div>
-
-        <!-- Datum-Navigationsleiste (wie in Bild 1) -->
-        <div
-          class="flex items-center justify-between bg-gray-50 p-4 rounded-2xl border border-gray-100 shadow-sm"
-        >
-          <button
-            @click="changeDay(-1)"
-            :disabled="isToday"
-            class="p-2 rounded-xl bg-white shadow-sm font-bold text-blue-600 hover:bg-gray-100 disabled:opacity-30"
-          >
-            ◀
-          </button>
-          <span class="text-base font-bold text-gray-900">
-            {{ format(currentDate, 'EEEE dd.MM.', { locale: de }) }}
-          </span>
-          <button
-            @click="changeDay(1)"
-            :disabled="isEndOfWeek"
-            class="p-2 rounded-xl bg-white shadow-sm font-bold text-blue-600 hover:bg-gray-100 disabled:opacity-30"
-          >
-            ▶
-          </button>
-        </div>
-
-        <!-- Zeitblöcke (Mehrfachauswahl per Array) -->
-        <div class="space-y-3 pt-2">
-          <!-- Slot-Liste: Abstand zwischen den Fenstern, damit man die Pause sieht -->
-          <div
-            v-for="(zeit, i) in zeitBloecke"
-            :key="zeit.id"
-            class="flex items-center justify-between"
-            :class="{ 'mt-6': i > 0 && zeit.fenster !== zeitBloecke[i - 1].fenster }"
-          >
-            <span class="text-xs font-semibold text-gray-700 w-28">{{ zeit.label }}</span>
-            <div
-              @click="toggleZeit(zeit.id)"
-              class="flex-1 ml-4 h-12 rounded-2xl cursor-pointer transition-colors flex items-center px-4 text-xs font-bold shadow-sm"
-              :class="[
-                zeit.booked
-                  ? 'bg-red-800 cursor-not-allowed text-white'
-                  : ausgewaehlteZeiten.includes(zeit.id)
-                    ? 'bg-emerald-700 text-white'
-                    : 'bg-gray-200 hover:bg-gray-300 text-gray-700',
-              ]"
-            >
-              {{
-                zeit.booked ? 'Belegt' : ausgewaehlteZeiten.includes(zeit.id) ? 'Ausgewählt' : ''
-              }}
-            </div>
-          </div>
-        </div>
-
-        <!-- HIER: Hinweise zur Auswahl -->
-        <p v-if="hinweis" class="text-xs text-red-700">{{ hinweis }}</p>
-        <p
-          v-else-if="ausgewaehlteZeiten.length > 0 && ausgewaehlteZeiten.length < minSlots"
-          class="text-xs text-gray-600"
-        >
-          Mindestens {{ minGassi }} Minuten
-        </p>
-      </div>
+      <!-- RECHTE SEITE -->
+      <ZeitAuswahl :deaktiviert="!ausgewaehltesMitglied" @change="auswahl = $event" />
     </div>
 
     <!-- UNTERER BEREICH: Weiter-Button -->
@@ -150,65 +69,16 @@
 <script setup>
 import { ref, computed, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
-import {
-  addDays,
-  subDays,
-  getISOWeek,
-  startOfWeek,
-  endOfWeek,
-  addWeeks,
-  format,
-  startOfToday,
-  isSameDay,
-} from 'date-fns'
-import { de } from 'date-fns/locale'
-import { erzeugeSlots, SLOT_MINUTEN } from '@/components/utils/slots.js'
+import ZeitAuswahl from '@/components/utils/ZeitAuswahl.vue'
 
 const router = useRouter()
-const today = startOfToday()
-const currentDate = ref(today)
-
 const mitgliederListe = ref([])
 const ausgewaehltesMitglied = ref(null)
-const ausgewaehlteZeiten = ref([])
-const zeitBloecke = ref([])
-const gassiZeitenBackend = ref([])
+const auswahl = ref(null)
 
-// Kalenderwochen (aktuelle Woche + die nächsten 2)
-const weeks = [0, 1, 2].map((i) => ({
-  number: getISOWeek(addWeeks(today, i)),
-  startDate: startOfWeek(addWeeks(today, i), { weekStartsOn: 1 }),
-}))
-const selectedWeek = ref(weeks[0])
-
-const isToday = computed(() => isSameDay(currentDate.value, today))
-const isEndOfWeek = computed(() => {
-  const end = endOfWeek(selectedWeek.value.startDate, { weekStartsOn: 1 })
-  return isSameDay(currentDate.value, end)
-})
-
-const selectWeek = (kw) => {
-  selectedWeek.value = kw
-  currentDate.value = kw.startDate < today ? today : kw.startDate
-  hinweis.value = ''
-  ausgewaehlteZeiten.value = []
-  aktualisiereSlotsFuerAktuellenTag()
+function waehleMitglied(mitglied) {
+  ausgewaehltesMitglied.value = mitglied
 }
-
-const changeDay = (dir) => {
-  const nextDate = dir > 0 ? addDays(currentDate.value, 1) : subDays(currentDate.value, 1)
-  if (
-    nextDate >= today &&
-    nextDate >= selectedWeek.value.startDate &&
-    nextDate <= endOfWeek(selectedWeek.value.startDate, { weekStartsOn: 1 })
-  ) {
-    currentDate.value = nextDate
-    hinweis.value = ''
-    ausgewaehlteZeiten.value = []
-    aktualisiereSlotsFuerAktuellenTag()
-  }
-}
-
 // Mitglieder vom Backend laden und ans Beispiel anhängen
 const ladeMitglieder = async () => {
   try {
@@ -229,166 +99,20 @@ const ladeMitglieder = async () => {
   }
 }
 
-const ladeZeitenVomBackend = async () => {
-  try {
-    const res = await fetch('/api/gassiGehZeiten/all')
-    if (res.ok) {
-      gassiZeitenBackend.value = await res.json()
-      aktualisiereSlotsFuerAktuellenTag()
-    }
-  } catch (e) {
-    console.error('Fehler beim Laden der Gassi-Geh-Zeiten:', e)
-  }
-}
+onMounted(ladeMitglieder)
 
-const tagesMapping = ['SO', 'MO', 'DI', 'MI', 'DO', 'FR', 'SA']
-
-const aktualisiereSlotsFuerAktuellenTag = () => {
-  const wochentagEnum = tagesMapping[currentDate.value.getDay()]
-  const tagesZeiten = gassiZeitenBackend.value.filter((g) => g.tag === wochentagEnum)
-
-  zeitBloecke.value = []
-
-  const jetzt = new Date()
-  const ausgewaehltesDatum = new Date(currentDate.value)
-
-  jetzt.setHours(0, 0, 0, 0)
-  ausgewaehltesDatum.setHours(0, 0, 0, 0)
-
-  const heute = new Date()
-  heute.setHours(0, 0, 0, 0)
-
-  const istHeute = ausgewaehltesDatum.getTime() === heute.getTime()
-
-  // Für heute muss die Reservierung mindestens 2 Stunden
-  // vor Beginn des ersten Zeitraums erfolgen.
-  if (istHeute) {
-    if (tagesZeiten.length === 0) {
-      return
-    }
-
-    const fruehesterBeginn = Math.min(
-      ...tagesZeiten.map((g) => {
-        const [stunden, minuten] = g.von.split(':').map(Number)
-        return stunden * 60 + minuten
-      }),
-    )
-
-    const aktuelleMinuten = new Date().getHours() * 60 + new Date().getMinutes()
-
-    // HIER STEHT DIE DEADLINE FEST DRIN - 3h davor
-    if (aktuelleMinuten >= fruehesterBeginn - 180) {
-      return
-    }
-  }
-
-  zeitBloecke.value = erzeugeSlots(tagesZeiten).map((s) => ({
-    ...s,
-    label: `${s.label} Uhr`,
-    vonFull: `${s.von}:00`,
-    bisFull: `${s.bis}:00`,
-    booked: false,
-  }))
-}
-
-onMounted(() => {
-  ladeMitglieder()
-  ladeZeitenVomBackend()
-  ladeTierheim()
-})
-
-function waehleMitglied(mitglied) {
-  ausgewaehltesMitglied.value = mitglied
-}
-
-const tierheimId = 1
-const maxGassi = ref(null)
-const minGassi = ref(null)
-
-const ladeTierheim = async () => {
-  try {
-    const res = await fetch(`/api/tierheim/${tierheimId}`)
-    if (res.ok) {
-      const t = await res.json()
-      maxGassi.value = t.maxGassi
-      minGassi.value = t.minGassi
-    }
-  } catch (e) {
-    console.error('Fehler beim Laden des Tierheims:', e)
-  }
-}
-
-const maxSlots = computed(() => (maxGassi.value ? Math.floor(maxGassi.value / SLOT_MINUTEN) : 0))
-const minSlots = computed(() => (minGassi.value ? Math.ceil(minGassi.value / SLOT_MINUTEN) : 1))
-const hinweis = ref('')
-const auswahlGueltig = computed(
-  () =>
-    ausgewaehlteZeiten.value.length >= minSlots.value &&
-    ausgewaehlteZeiten.value.length <= maxSlots.value,
-)
-
-function toggleZeit(zeitId) {
-  if (!ausgewaehltesMitglied.value) return
-  if (maxSlots.value === 0) {
-    hinweis.value = 'Tierheim-Einstellungen konnten nicht geladen werden'
-    return
-  }
-
-  const slot = zeitBloecke.value.find((z) => z.id === zeitId)
-  if (!slot || slot.booked) return
-  hinweis.value = ''
-
-  const sel = ausgewaehlteZeiten.value
-  if (sel.length === 0) {
-    ausgewaehlteZeiten.value = [zeitId]
-    return
-  }
-
-  const ersterId = Math.min(...sel)
-  const letzterId = Math.max(...sel)
-
-  if (sel.includes(zeitId)) {
-    // Randblock abwählen, Klick in der Mitte startet neu mit diesem Slot
-    ausgewaehlteZeiten.value =
-      zeitId === ersterId || zeitId === letzterId ? sel.filter((id) => id !== zeitId) : [zeitId]
-    return
-  }
-
-  const erster = zeitBloecke.value.find((z) => z.id === ersterId)
-  const grenztAn = zeitId === ersterId - 1 || zeitId === letzterId + 1
-
-  if (slot.fenster === erster.fenster && grenztAn) {
-    if (sel.length >= maxSlots.value) {
-      hinweis.value = `Maximal ${maxGassi.value} Minuten pro Spaziergang`
-      return
-    }
-    ausgewaehlteZeiten.value = [...sel, zeitId]
-  } else {
-    ausgewaehlteZeiten.value = [zeitId] // nicht anschließend: neue Auswahl beginnt hier
-  }
-}
+const kannWeiter = computed(() => !!ausgewaehltesMitglied.value && !!auswahl.value)
 
 function weiterZuHundewahl() {
-  if (ausgewaehltesMitglied.value && ausgewaehlteZeiten.value.length > 0) {
-    const selectedObjects = zeitBloecke.value
-      .filter((z) => ausgewaehlteZeiten.value.includes(z.id))
-      .sort((a, b) => a.id - b.id)
-
-    const vonZeit = selectedObjects[0].vonFull
-    const bisZeit = selectedObjects[selectedObjects.length - 1].bisFull
-
-    const daten = {
+  if (!kannWeiter.value) return
+  localStorage.setItem(
+    'terminData',
+    JSON.stringify({
       mitgliedId: ausgewaehltesMitglied.value.id,
       mitgliedsnummer: ausgewaehltesMitglied.value.mitgliedsnummer,
-      datum: format(currentDate.value, 'yyyy-MM-dd'),
-      von: vonZeit,
-      bis: bisZeit,
-      start: vonZeit,
-      end: bisZeit,
-      zeiten: ausgewaehlteZeiten.value,
-    }
-    localStorage.setItem('terminData', JSON.stringify(daten))
-    router.push('/app/admin/hundewahl')
-  }
+      ...auswahl.value,
+    }),
+  )
+  router.push('/app/admin/hundewahl')
 }
 </script>
