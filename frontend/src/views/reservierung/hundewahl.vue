@@ -9,7 +9,7 @@
     >
       <div class="flex gap-4">
         <img
-          :src="vorschlagHund.image || 'https://via.placeholder.com/150'"
+          :src="vorschlagHund.image || '🐾'"
           class="w-24 h-24 rounded-lg object-cover pointer-events-none"
         />
         <div class="flex-grow">
@@ -61,7 +61,7 @@
         <div class="flex gap-2 mt-2 flex-wrap">
           <span
             v-for="tag in dog.tags"
-            :key="tag"
+            :key="tag.id"
             :class="tag.hinweis ? 'bg-orange-500/50' : 'bg-white/50'"
             class="px-2 py-0.5 rounded-full text-xs"
             >{{ tag.name }}</span
@@ -108,7 +108,7 @@ onMounted(async () => {
 const redirectToTimeSelection = () => {
   const currentPath = route?.path || window.location.pathname
   if (currentPath.startsWith('/app/admin')) {
-    router.push('/app/admin/zeitwahl')
+    router.push('/app/admin/terminMitg')
   } else {
     router.push('/app/reservierung/zeitwahl')
   }

@@ -30,12 +30,8 @@
             <p class="pt-2"> {{ tierheim.telNummer }}</p>
             <p v-if="tierheim.notNummer"> {{ tierheim.notNummer }} (Notfall)</p>
             <p class="pt-2">
-              <a
-                href="https://tierheim-weiden.de"
-                target="_blank"
-                class="hover:underline text-emerald-800 font-semibold"
-              >
-                {{ tierheim.link }}
+              <a v-bind:href="[tierheim.link]" target="_blank" class="hover:underline text-emerald-800 font-semibold">
+                {{ tierheim.showLink }}
               </a>
             </p>
           </div>
@@ -156,6 +152,7 @@ const ladeTierheimDaten = async () => {
         notNummer: data.notfallnummer ? data.notfallnummer : '',
         email: data.email,
         link: data.link ? data.link : '',
+        showLink: data.link ? data.link.split('/').at(2) : ''
       }
     } else {
       console.error('Fehler beim Laden des Tierheims')
