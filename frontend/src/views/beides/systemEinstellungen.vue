@@ -1,22 +1,31 @@
 <template>
   <div class="w-full min-h-screen bg-white px-6 py-8 text-gray-800">
     <div class="w-full max-w-xl mx-auto space-y-10">
-      
       <!-- Sektion: Persönliches (nur sichtbar, wenn die vorherige Seite KEIN Admin-Pfad war) -->
-      <section v-if="!wasAdmin">
+      <section>
         <div class="flex items-center justify-between mb-2">
           <div class="flex items-center gap-3">
             <span class="text-2xl">👤</span>
             <h2 class="text-xl font-bold">Persönliches</h2>
           </div>
-          <div class="w-4 h-4 bg-orange-500 rounded-full"></div>
+          <div
+            v-if="erfahrung"
+            :class="[
+              'w-4 h-4 rounded-full mt-1 flex-shrink-0',
+              erfahrung == true ? 'bg-orange-500' : 'bg-green-500',
+            ]"
+          />
         </div>
         <div class="px-2">
-          <p class="text-gray-600 text-sm">Mitgliednummer: 1234567890</p>
+          <p class="text-gray-600 text-sm">
+            <span v-if="rolle==='admin'"> Personalnummer:</span>
+            <span v-else-if="rolle==='user'">Mitgliedsnummer:</span>
+            {{ username }}
+          </p>
         </div>
       </section>
 
-      <!-- Sektion 1: Allgemein 
+      <!-- Sektion 1: Allgemein
       <section>
         <div class="flex items-center gap-3 mb-6">
           <span class="text-2xl">🔧</span>
@@ -32,7 +41,7 @@
       </section>
       -->
 
-      <!-- Sektion 2: Benachrichtigungen 
+      <!-- Sektion 2: Benachrichtigungen
       <section>
         <div class="flex items-center gap-3 mb-6">
           <span class="text-2xl">🔔</span>
@@ -73,27 +82,26 @@
 
       <!-- Sektion 4: Abmelden / Logout -->
       <section class="px-2">
-        <button 
+        <button
           @click="ausloggen"
           class="w-full py-3 px-4 bg-red-50 hover:bg-red-100 text-red-700 font-semibold rounded-2xl border border-red-200 transition-colors flex items-center justify-center gap-2"
         >
           <span>🚪</span> Abmelden
         </button>
       </section>
-
     </div>
   </div>
 </template>
 
 <script setup>
-import { ref, computed } from 'vue'
+import { ref } from 'vue'
 import { useRouter } from 'vue-router'
-import { previousPath } from '@/router.js' 
+import { useReservierungenStore } from '@/stores/reservierungen.js'
 
 const router = useRouter()
-
-// Korrigierter Check (einfacher Slash statt doppeltem Slash)
-const wasAdmin = computed(() => previousPath.value.includes('app/admin'))
+const erfahrung = localStorage.getItem('erfahrung')
+const username = localStorage.getItem('userName')
+const rolle = localStorage.getItem('userRole')
 
 const fontSize = ref('normal')
 const sound = ref(true)
@@ -101,6 +109,10 @@ const reminder = ref(true)
 
 const ausloggen = () => {
   // Löscht die gespeicherte Rolle und leitet zum Login zurück
+  useReservierungenStore().reset()
+  localStorage.removeItem('userId')
+  localStorage.removeItem('erfahrung')
+  localStorage.removeItem('userName')
   localStorage.removeItem('userRole')
   router.push('/')
 }

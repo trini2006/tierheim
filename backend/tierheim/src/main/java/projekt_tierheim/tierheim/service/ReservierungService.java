@@ -125,7 +125,7 @@ public class ReservierungService {
 
     // Prüfung des Erfahrungslevels
     private void pruefeErfahrung(Hund hund, Mitglied mitglied) {
-        if(hund.getErfahrung() != mitglied.getErfahrung()) {
+        if(!erfuelltErfahrung(hund, mitglied)) {
             throw new IllegalArgumentException("Dieser Hund erfordert den Besuch eines Lehrgangs für schwierige Hunde");
         }
     }

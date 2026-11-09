@@ -2,7 +2,6 @@
 <template>
   <div class="min-h-screen bg-white">
     <div v-if="booking" class="p-6 max-w-xl mx-auto">
-      
       <!-- Hundekarte -->
       <div class="bg-[#BFCABF] p-4 rounded-2xl mb-8 flex items-center gap-4">
         <img :src="booking.dog.image" class="w-24 h-24 rounded-lg object-cover" />
@@ -13,10 +12,14 @@
           </div>
           <p class="text-sm text-gray-800">{{ booking.dog.breed }}</p>
           <p class="text-sm text-gray-800">{{ booking.dog.age }} Jahre, {{ booking.dog.gender }}</p>
-          <div class="flex gap-2 mt-2">
-            <span v-for="tag in booking.dog.tags" :key="tag" 
-                  class="bg-white/60 px-2 py-0.5 rounded-full text-xs">
-              {{ tag }}
+          <div class="flex gap-2 mt-2 flex-wrap">
+            <span
+              v-for="tag in booking.dog.tags"
+              :key="tag.id"
+              :class="tag.hinweis ? 'bg-orange-500/50' : 'bg-white/50'"
+              class="px-2 py-0.5 rounded-full text-xs"
+            >
+              {{ tag.name }}
             </span>
           </div>
         </div>
@@ -30,20 +33,25 @@
         </div>
         <div class="flex">
           <span class="w-32 font-semibold text-gray-600">Uhrzeit:</span>
-          <span>{{ booking.von && booking.bis ? `${booking.von} - ${booking.bis} Uhr` : '10:00 - 10:30 Uhr' }}</span>
+          <span>{{ `${booking.von.slice(0, 5)} - ${booking.bis.slice(0, 5)} Uhr` }}</span>
         </div>
 
         <!-- Wird NUR im Admin-Bereich angezeigt -->
         <div v-if="isAdminMode" class="flex">
           <span class="w-32 font-semibold text-gray-600">Mitglied:</span>
-          <span class="font-bold text-gray-800">{{ booking.telefon || booking.mitgliedId || 'Unbekannt' }}</span>
+          <span class="font-bold text-gray-800">{{
+            booking.mitgliedsnummer || booking.mitgliedId || 'Unbekannt'
+          }}</span>
         </div>
       </div>
 
       <!-- Bestätigen Button -->
       <div class="flex justify-center md:justify-start">
-        <button @click="confirmBooking" 
-                class="w-full md:w-64 bg-[#9CA99A] hover:bg-[#8b9889] py-4 rounded-full text-black font-bold shadow-md transition-colors">
+        <button
+          @click="confirmBooking"
+          :disabled="sending"
+          class="w-full md:w-64 bg-[#9CA99A] hover:bg-[#8b9889] py-4 rounded-full text-black font-bold shadow-md transition-colors"
+        >
           Termin Bestätigen
         </button>
       </div>
@@ -73,7 +81,6 @@ onMounted(() => {
 // Wandelt z.B. "2026-09-21" in "Montag 21.09.2026" um
 const formatiertesDatum = computed(() => {
   const datumStr = booking.value?.datum
-  if (!datumStr) return 'Montag 21.09.2026'
 
   try {
     // Falls das Format YYYY-MM-DD ist
@@ -81,51 +88,51 @@ const formatiertesDatum = computed(() => {
     if (!jahr || !monat || !tag) return datumStr
 
     const dateObj = new Date(jahr, monat - 1, tag)
-    
+
     // Wochentag und Datum auf Deutsch formatieren
     const optionsWochentag = { weekday: 'long' }
     const wochentag = dateObj.toLocaleDateString('de-DE', optionsWochentag)
-    
+
     return `${wochentag} ${tag}.${monat}.${jahr}`
   } catch (e) {
     return datumStr
   }
 })
 
+const sending = ref(false)
 const confirmBooking = async () => {
-  if (!booking.value) return
-
+  if (!booking.value || sending.value) return
+  sending.value = true
   try {
-    // Daten für den Backend-Endpunkt vorbereiten (anhand der Struktur von bookingFinal)
     const payload = {
       hundId: booking.value.dog?.id,
-      mitgliedId: booking.value.mitgliedId || localStorage.getItem('mitgliedId') || 1,
+      mitgliedId: booking.value.mitgliedId || localStorage.getItem('mitgliedId'), // ToDO Wo wird dieser Wert für den Nicht-Admin Fall gesetzt
       datum: booking.value.datum,
-      von: booking.value.von,
-      bis: booking.value.bis,
-      status: 'AKTIV'
+      zeitAb: booking.value.von,
+      zeitBis: booking.value.bis,
     }
-
-    // Anfrage über den Vite-Proxy an /api/reservierung/new senden
     const response = await fetch('/api/reservierung/new', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(payload)
+      body: JSON.stringify(payload),
     })
 
     if (response.ok) {
-      if (isAdminMode.value) {
-        router.push('/app/admin/erfolgreichReserviert')
-      } else {
-        router.push('/app/reservierung/erfolgreichReserviert')
-      }
+      localStorage.removeItem('terminData')
+      localStorage.removeItem('bookingFinal')
+      router.push(
+        isAdminMode.value
+          ? '/app/admin/erfolgreichReserviert'
+          : '/app/reservierung/erfolgreichReserviert',
+      )
     } else {
-      const errorText = await response.text()
-      alert('Fehler beim Speichern der Reservierung: ' + errorText)
+      alert('Fehler beim Speichern der Reservierung: ' + (await response.text()))
     }
   } catch (error) {
     console.error('Netzwerkfehler:', error)
     alert('Verbindungsfehler zum Server.')
+  } finally {
+    sending.value = false
   }
 }
 </script>

@@ -67,7 +67,6 @@ public class AdminService {
         if(admin == null){
             throw new NotFoundException("Admin mit der Personalnummer \" +  username + \" nicht gefunden");
         }
-
         return passwordEncoder.matches(
                 dto.passwort(), // eingegebenes Passwort
                 admin.getPasswort() // gespeicherter Hash

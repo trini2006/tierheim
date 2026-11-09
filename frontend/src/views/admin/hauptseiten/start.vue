@@ -24,7 +24,7 @@
             :key="termin.id"
             class="text-gray-800 border-b pb-2"
           >
-            {{ termin.uhrzeit }} – {{ termin.hundName }} mit {{ termin.mitgliednummer }}
+            {{ termin.uhrzeit }} – {{ termin.hundName }} mit {{ termin.mitgliedsnummer }}
           </li>
         </ul>
       </div>
@@ -50,7 +50,7 @@
             :key="termin.id"
             class="text-gray-800 border-b pb-2"
           >
-            {{ termin.uhrzeit }} – {{ termin.hundName }} mit {{ termin.mitgliednummer }}
+            {{ termin.uhrzeit }} – {{ termin.hundName }} mit {{ termin.mitgliedsnummer }}
           </li>
         </ul>
       </div>
@@ -104,9 +104,9 @@ async function ladeHeutigeTermine() {
       const data = await res.json()
       gassiGeherHeute.value = data.map((termin) => ({
         id: termin.idReservierung,
-        uhrzeit: `${termin.von?.substring(0, 5)} – ${termin.bis?.substring(0, 5)} Uhr`,
+        uhrzeit: `${termin.zeitAb?.substring(0, 5)} – ${termin.zeitBis?.substring(0, 5)} Uhr`,
         hundName: termin.hund?.name || '',
-        mitgliednummer: termin.mitglied?.mitgliedsnummer || '',
+        mitgliedsnummer: termin.mitglied?.mitgliedsnummer || '',
       }))
     } else {
       gassiGeherHeute.value = []

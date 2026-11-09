@@ -152,7 +152,7 @@
             :style="{ gridRow: 1, gridColumn: i + 2 }"
           >
             <img
-              :src="hund.bild"
+              :src="hund.bildUrl"
               class="w-14 h-14 rounded-full object-cover mx-auto shadow-sm border"
             />
             <span class="font-bold text-sm text-gray-800 block truncate">{{ hund.name }}</span>
@@ -161,11 +161,11 @@
           <!-- Uhrzeiten -->
           <div
             v-for="(slot, s) in zeitSlots"
-            :key="'zeit-' + slot"
+            :key="'zeit-' + slot.id"
             class="bg-[#D3DDD1] text-gray-800 font-medium text-xs py-2 px-3 rounded-xl text-center shadow-sm border border-gray-200/50 self-center"
             :style="{ gridRow: s + 2, gridColumn: 1 }"
           >
-            {{ slot }}
+            {{ slot.label }}
           </div>
 
           <!-- Leere Zellen -->
@@ -191,6 +191,8 @@
 </template>
 
 <script setup>
+import { erzeugeSlots, minutenVon } from '@/components/utils/slots.js'
+
 const API_BASE = 'http://localhost:8085'
 const tierheimId = 1
 import { ref, computed, onMounted, watch } from 'vue'
@@ -292,26 +294,7 @@ const reservierungen = ref([])
       Author: Lili, 2026-10-17
 */
 const zeitSlots = ref([]) // Daten für die Anzeige
-const slotMinuten = ref(30) // später: zeitblock aus Tierheim laden
 const TAGE = ['SO', 'MO', 'DI', 'MI', 'DO', 'FR', 'SA']
-
-const minutenVon = (zeit) => {
-  const [h, m] = zeit.split(':')
-  return Number(h) * 60 + Number(m)
-}
-const alsText = (min) =>
-  `${String(Math.floor(min / 60)).padStart(2, '0')}:${String(min % 60).padStart(2, '0')}`
-
-const erzeugeSlots = (fenster, dauer) => {
-  const slots = []
-  for (const f of fenster) {
-    const ende = minutenVon(f.bis)
-    for (let start = minutenVon(f.von); start + dauer <= ende; start += dauer) {
-      slots.push(`${alsText(start)} - ${alsText(start + dauer)}`)
-    }
-  }
-  return slots
-}
 
 const ladeZeitSlots = async () => {
   const tag = TAGE[aktuellesDatumObj.value.getDay()]
@@ -321,8 +304,9 @@ const ladeZeitSlots = async () => {
       zeitSlots.value = []
       return
     }
-    zeitSlots.value = erzeugeSlots(await res.json(), slotMinuten.value)
+    zeitSlots.value = res.ok ? erzeugeSlots(await res.json()) : []
   } catch (error) {
+    zeitSlots.value = []
     console.error('Fehler beim Laden der Zeiten:', error)
   }
 }
@@ -357,7 +341,7 @@ const ladeDaten = async () => {
         const zeitAb = r.zeitAb.substring(0, 5)
         const zeitBis = r.zeitBis.substring(0, 5)
         return {
-          id: r.idReservierung,
+          id: r.id,
           hundId: r.hund?.id,
           hundName: r.hund?.name,
           mitgliedsnummer: r.mitglied?.mitgliedsnummer ? String(r.mitglied.mitgliedsnummer) : '',
@@ -369,6 +353,7 @@ const ladeDaten = async () => {
       })
     }
   } catch (e) {
+    zeitSlots.value = []
     console.error('Fehler beim Laden der Reservierungsdaten:', e)
   }
 }
@@ -387,7 +372,7 @@ const aktuelleReservierungen = computed(() =>
 const leereZellen = computed(() =>
   sichtbareHunde.value.flatMap((h, i) =>
     zeitSlots.value.map((slot, s) => ({
-      key: `${h.id}|${slot}`,
+      key: `${h.id}|${slot.id}`,
       spalte: i + 2, // Spalte 1 sind die Uhrzeiten
       zeile: s + 2, // Zeile 1 ist die Hunde-Kopfzeile
     })),
@@ -405,8 +390,7 @@ const bloecke = computed(() => {
     const bis = minutenVon(r.zeitBis)
     const treffer = []
     zeitSlots.value.forEach((slot, i) => {
-      const [sVon, sBis] = slot.split(' - ').map(minutenVon)
-      if (von < sBis && bis > sVon) treffer.push(i)
+      if (von < slot.bisMin && bis > slot.vonMin) treffer.push(i)
     })
     if (treffer.length === 0) continue
 
@@ -444,7 +428,6 @@ const loescheReservierung = async (id) => {
       method: 'DELETE',
     })
     if (res.ok) {
-      // Nach erfolgreicher Stornierung die Liste aktualisieren
       await ladeDaten()
     }
   } catch (e) {
