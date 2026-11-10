@@ -1,6 +1,7 @@
 package projekt_tierheim.tierheim.service;
 
 import jakarta.transaction.Transactional;
+import org.aspectj.weaver.patterns.ConcreteCflowPointcut;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
@@ -8,6 +9,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import projekt_tierheim.tierheim.db.Admin.Admin;
+import projekt_tierheim.tierheim.db.GassiGehZeiten.GassiGehZeiten;
+import projekt_tierheim.tierheim.db.GassiGehZeiten.GassiGehZeitenRepository;
+import projekt_tierheim.tierheim.db.GassiGehZeiten.Tage;
 import projekt_tierheim.tierheim.db.Hund.Groesse;
 import projekt_tierheim.tierheim.db.Hund.Hund;
 import projekt_tierheim.tierheim.db.Hund.HundRepository;
@@ -19,6 +23,8 @@ import projekt_tierheim.tierheim.db.Tierheim.Tierheim;
 
 import java.time.LocalDate;
 import java.time.LocalTime;
+import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -34,6 +40,8 @@ class HundServiceTest {
     ReservierungService reservierungService;
     @Autowired
     MitgliedRepository mitgliedRepository;
+    @Autowired
+    GassiGehZeitenRepository gassiGehZeitenRepository;
 
     HundService hundService;
 
@@ -43,7 +51,8 @@ class HundServiceTest {
         hundService = new HundService(
                 hundRepository,
                 reservierungRepository,
-                reservierungService
+                reservierungService,
+                gassiGehZeitenRepository
         );
     }
 
@@ -118,5 +127,34 @@ class HundServiceTest {
 
         verfuegbareHunde.forEach(h ->
                 System.out.println(h.getName()));
+    }
+
+    record SlotBelegung(LocalTime von, LocalTime bis, List<Integer> freieHunde) {}
+    @Test
+    public void berechneSlotBelegung() {
+        Mitglied mitglied = mitgliedRepository.findMitgliedById(1);
+        List<GassiGehZeiten> heuteFenster = gassiGehZeitenRepository.findGassiGehZeitenByTag(Tage.von(datum.getDayOfWeek()));
+        heuteFenster = heuteFenster.stream()
+                .sorted(Comparator.comparing(GassiGehZeiten::getVon))
+                .toList();
+
+        List<SlotBelegung> alleSlots = new ArrayList<SlotBelegung>();
+        for (GassiGehZeiten fenster : heuteFenster) {
+            System.out.println("Von :" + fenster.getVon() + " " + "Bis: " + fenster.getBis());
+
+            for(LocalTime von = fenster.getVon();
+                !von.plusMinutes(30).isAfter(fenster.getBis());
+                von = von.plusMinutes(30)) {
+                LocalTime bis = von.plusMinutes(30);
+
+                List<Integer> freieHunde = hundService.findeFreieHunde(mitglied, datum, von, bis).stream()
+                        .map(Hund::getId).toList();
+                alleSlots.add(new SlotBelegung(von, bis, freieHunde));
+            }
+
+            for(SlotBelegung s : alleSlots) {
+                System.out.println("Von :" + s.von + "Bis: " + s.bis + "Anzahl Hunde: " + s.freieHunde.size());
+            }
+        }
     }
 }

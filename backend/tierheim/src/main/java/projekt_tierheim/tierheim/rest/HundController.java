@@ -57,6 +57,8 @@ public class HundController {
         return hundRepository.findAllByTierheimId(tierheimId);
     }
 
+
+    public record HundAuswahlResponse(List<Hund> verfuegbareHunde, Hund vorschlag) { }
     @GetMapping("/all/available/{mitgliedId}")
     public HundAuswahlResponse getAlleHundeAvailable(
             @PathVariable("mitgliedId") int mitgliedId,
@@ -71,6 +73,18 @@ public class HundController {
         Hund vorschlag = hundService.waehleVorschlag(verfuegbareHunde);
 
         return new HundAuswahlResponse(verfuegbareHunde, vorschlag);
+    }
+
+    // Endpunkt, an dem die Belegung eines Tages berechnet wird
+    @GetMapping("/belegung/{mitgliedId}")
+    public List<HundService.SlotBelegung> slotBelegungEinesTages(
+            @PathVariable("mitgliedId") int mitgliedId,
+            @RequestParam LocalDate datum) {
+        Mitglied mitglied = mitgliedRepository.findMitgliedById(mitgliedId);
+        if (mitglied == null) {
+            throw new NotFoundException("Mitglied mit der Id " + mitgliedId + " nicht gefunden");
+        }
+        return hundService.berechneSlotBelegung(datum, mitglied);
     }
 
     @GetMapping("/search")

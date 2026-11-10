@@ -1,6 +1,6 @@
 <template>
   <div class="max-w-md md:max-w-3xl mx-auto p-4 md:p-8 space-y-6">
-    <ZeitAuswahl heute-sperren @change="auswahl = $event" />
+    <ZeitAuswahl heute-sperren :mitglied-id="mitgliedId" @change="auswahl = $event" />
 
     <div class="flex justify-end">
       <button
@@ -39,9 +39,9 @@ const leseMitgliedId = () => {
     return null
   }
 }
+const mitgliedId = leseMitgliedId()
 
 function weiter() {
-  const mitgliedId = leseMitgliedId()
   if (!auswahl.value) return
   if (!mitgliedId) {
     router.push('/')

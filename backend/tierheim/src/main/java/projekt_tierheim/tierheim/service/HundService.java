@@ -3,10 +3,14 @@ package projekt_tierheim.tierheim.service;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import projekt_tierheim.tierheim.db.GassiGehZeiten.GassiGehZeiten;
+import projekt_tierheim.tierheim.db.GassiGehZeiten.GassiGehZeitenRepository;
+import projekt_tierheim.tierheim.db.GassiGehZeiten.Tage;
 import projekt_tierheim.tierheim.db.Hund.Hund;
 import projekt_tierheim.tierheim.db.Hund.HundRepository;
 import projekt_tierheim.tierheim.db.Hund.SperrHundDTO;
 import projekt_tierheim.tierheim.db.Mitglied.Mitglied;
+import projekt_tierheim.tierheim.db.Mitglied.MitgliedRepository;
 import projekt_tierheim.tierheim.db.Reservierung.Reservierung;
 import projekt_tierheim.tierheim.db.Reservierung.ReservierungRepository;
 import projekt_tierheim.tierheim.db.Reservierung.Reservierungsstatus;
@@ -16,17 +20,20 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.*;
+import java.util.stream.Collectors;
 
 @Service
 public class HundService {
     private final HundRepository hundRepository;
     private final ReservierungRepository reservierungRepository;
     private final ReservierungService reservierungService;
+    private final GassiGehZeitenRepository gassiGehZeitenRepository;
 
-    public HundService(HundRepository hundRepository, ReservierungRepository reservierungRepository, ReservierungService reservierungService) {
+    public HundService(HundRepository hundRepository, ReservierungRepository reservierungRepository, ReservierungService reservierungService, GassiGehZeitenRepository gassiGehZeitenRepository) {
         this.hundRepository = hundRepository;
         this.reservierungRepository = reservierungRepository;
         this.reservierungService = reservierungService;
+        this.gassiGehZeitenRepository = gassiGehZeitenRepository;
     }
 
     public List<Hund> ermittleVeruegbareHunde(Mitglied mitglied, LocalDate datum, LocalTime von, LocalTime bis) {
@@ -45,6 +52,18 @@ public class HundService {
             verfuegbareHunde.add(h);
         }
         return verfuegbareHunde;
+    }
+
+    // reine Berechnung, wirft nichts
+    public List<Hund> findeFreieHunde(Mitglied mitglied, LocalDate datum, LocalTime von, LocalTime bis) {
+        if (!reservierungService.liegtInGassiGehZeit(datum, von, bis)) return List.of();
+
+        return hundRepository.findAllByTierheimId(1).stream()
+                .filter(h -> !h.istGesperrtAm(datum))
+                .filter(h -> reservierungService.istVerfuegbar(h, datum, von, bis))
+                .filter(h -> reservierungService.erfuelltDauer(von, bis, h))
+                .filter(h -> reservierungService.erfuelltErfahrung(h, mitglied))
+                .toList();
     }
 
     public Hund waehleVorschlag(List<Hund> verfuegbareHunde) {
@@ -97,5 +116,28 @@ public class HundService {
         }
         reservierungRepository.saveAll(betroffene);
         return hundRepository.saveAndFlush(hund);
+    }
+
+    public record SlotBelegung(LocalTime von, LocalTime bis, List<Integer> freieHunde) {}
+    private static final int SLOT_MINUTEN = 30;
+    public List<SlotBelegung> berechneSlotBelegung(LocalDate datum, Mitglied mitglied) {
+        List<GassiGehZeiten> heuteFenster = gassiGehZeitenRepository.findGassiGehZeitenByTag(Tage.von(datum.getDayOfWeek()));
+        heuteFenster = heuteFenster.stream()
+                .sorted(Comparator.comparing(GassiGehZeiten::getVon))
+                .toList();
+
+        List<SlotBelegung> alleSlots = new ArrayList<SlotBelegung>();
+        for (GassiGehZeiten fenster : heuteFenster) {
+            for(LocalTime von = fenster.getVon();
+                !von.plusMinutes(SLOT_MINUTEN).isAfter(fenster.getBis());
+                von = von.plusMinutes(SLOT_MINUTEN)) {
+                LocalTime bis = von.plusMinutes(SLOT_MINUTEN);
+
+                List<Integer> freieHunde = findeFreieHunde(mitglied, datum, von, bis).stream()
+                        .map(Hund::getId).toList();
+                alleSlots.add(new SlotBelegung(von, bis, freieHunde));
+            }
+        }
+        return alleSlots;
     }
 }

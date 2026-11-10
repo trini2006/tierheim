@@ -103,10 +103,11 @@ import { erzeugeSlots, SLOT_MINUTEN } from '@/components/utils/slots.js'
 const props = defineProps({
   deaktiviert: { type: Boolean, default: false }, // Admin: solange kein Mitglied gewählt ist
   heuteSperren: { type: Boolean, default: false }, // Benutzer: nur bis zum Vortag buchbar
+  mitgliedId: { type: [Number, String], default: null },
 })
 const emit = defineEmits(['change']) // liefert die Auswahl oder null
 
-const VORLAUF_MINUTEN = 180 // Admin: heute frühestens 3 h vor Beginn
+const VORLAUF_MINUTEN = 180 // heute frühestens 3 h vor Beginn
 const tierheimId = 1
 const tagesMapping = ['SO', 'MO', 'DI', 'MI', 'DO', 'FR', 'SA']
 
@@ -118,6 +119,7 @@ const gassiZeitenBackend = ref([])
 const hinweis = ref('')
 const maxGassi = ref(null)
 const minGassi = ref(null)
+const belegung = ref([])
 
 // ---------- Wochen / Tage ----------
 const weeks = [0, 1, 2].map((i) => ({
@@ -133,7 +135,9 @@ const isEndOfWeek = computed(() =>
 const tagGewechselt = () => {
   hinweis.value = ''
   ausgewaehlteZeiten.value = []
+  belegung.value = []
   aktualisiereSlotsFuerAktuellenTag()
+  ladeBelegung()
 }
 const selectWeek = (kw) => {
   selectedWeek.value = kw
@@ -178,8 +182,24 @@ const ladeTierheim = async () => {
 }
 onMounted(() => {
   ladeZeitenVomBackend()
+  ladeBelegung()
   ladeTierheim()
 })
+
+const ladeBelegung = async () => {
+  if (!props.mitgliedId) return
+  const datum = format(currentDate.value, 'yyyy-MM-dd')
+  try {
+    const res = await fetch(`/api/hund/belegung/${props.mitgliedId}?datum=${datum}`)
+    if (!res.ok) return
+    const daten = await res.json()
+    if (datum !== format(currentDate.value, 'yyyy-MM-dd')) return // Tag wurde inzwischen gewechselt
+    belegung.value = daten
+    aktualisiereSlotsFuerAktuellenTag()
+  } catch (e) {
+    console.error('Fehler beim Laden der Belegung:', e)
+  }
+}
 
 // ---------- Slots ----------
 const aktualisiereSlotsFuerAktuellenTag = () => {
@@ -201,13 +221,18 @@ const aktualisiereSlotsFuerAktuellenTag = () => {
     if (jetzt.getHours() * 60 + jetzt.getMinutes() >= frueh - VORLAUF_MINUTEN) return
   }
 
-  zeitBloecke.value = erzeugeSlots(tagesZeiten).map((s) => ({
-    ...s,
-    label: `${s.label} Uhr`,
-    vonFull: `${s.von}:00`,
-    bisFull: `${s.bis}:00`,
-    booked: false,
-  }))
+  zeitBloecke.value = erzeugeSlots(tagesZeiten).map((s) => {
+    // passenden Slot aus dem Backend suchen ('08:00:00' -> '08:00')
+    const b = belegung.value.find((x) => x.von.substring(0, 5) === s.von)
+    return {
+      ...s,
+      label: `${s.label} Uhr`,
+      vonFull: `${s.von}:00`,
+      bisFull: `${s.bis}:00`,
+      freieHunde: b ? b.freieHunde : null, // für spätere Überprüfung, ob Hund über mehrere Slots durchgehend frei ist
+      booked: b ? b.freieHunde.length === 0 : false,
+    }
+  })
 }
 
 // ---------- Auswahl ----------
@@ -274,4 +299,15 @@ const auswahl = computed(() => {
   }
 })
 watch(auswahl, (a) => emit('change', a), { immediate: true })
+
+// Admin: anderes Mitglied gewählt -> Belegung neu berechnen (Erfahrung kann sich ändern)
+watch(
+  () => props.mitgliedId,
+  () => {
+    ausgewaehlteZeiten.value = []
+    belegung.value = []
+    aktualisiereSlotsFuerAktuellenTag()
+    ladeBelegung()
+  },
+)
 </script>
