@@ -36,25 +36,6 @@ public class HundService {
         this.gassiGehZeitenRepository = gassiGehZeitenRepository;
     }
 
-    public List<Hund> ermittleVeruegbareHunde(Mitglied mitglied, LocalDate datum, LocalTime von, LocalTime bis) {
-        reservierungService.pruefeDeadline(datum);
-        reservierungService.pruefeZeitraum(von, bis);
-
-        List<Hund> alleHunde = hundRepository.findAll();
-        List<Hund> verfuegbareHunde = new ArrayList<>();
-
-        for (Hund h : alleHunde) {
-            if (!reservierungService.liegtInGassiGehZeit(datum, von, bis)) continue;
-            if (h.istGesperrtAm(datum)) continue;
-            if (!reservierungService.istVerfuegbar(h, datum, von, bis)) continue;
-            if (!reservierungService.erfuelltDauer(von, bis, h)) continue;
-            if (!reservierungService.erfuelltErfahrung(h, mitglied)) continue;
-            verfuegbareHunde.add(h);
-        }
-        return verfuegbareHunde;
-    }
-
-    // reine Berechnung, wirft nichts
     public List<Hund> findeFreieHunde(Mitglied mitglied, LocalDate datum, LocalTime von, LocalTime bis) {
         if (!reservierungService.liegtInGassiGehZeit(datum, von, bis)) return List.of();
 

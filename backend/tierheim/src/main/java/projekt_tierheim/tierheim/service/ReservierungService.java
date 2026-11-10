@@ -21,6 +21,7 @@ import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
+import java.time.temporal.ChronoField;
 import java.time.temporal.ChronoUnit;
 import java.util.Comparator;
 import java.util.List;
@@ -43,6 +44,7 @@ public class ReservierungService {
     }
 
     public Reservierung erstelleReservierung(ReservierungDTO reservierungDTO) {
+        pruefeVorlauf(reservierungDTO.datum());
         pruefeDeadline(reservierungDTO.datum());
         pruefeZeitraum(reservierungDTO.zeitAb(), reservierungDTO.zeitBis());
 
@@ -216,6 +218,17 @@ public class ReservierungService {
             if(LocalDateTime.of(datHeute, zeitHeute).isAfter(datumZeitDeadline)) {
                 throw new IllegalArgumentException("Die Deadline für heute ist abgelaufen. Die Reservierung muss 3h vor dem ersten Zeitraum erfolgen!");
             }
+        }
+    }
+
+    // ToDO Anpassbare Wochen, die im voraus gebucht werden können
+    public void pruefeVorlauf(LocalDate datum) {
+        LocalDate datHeute = LocalDate.now();
+        LocalDate anfangWoche = datHeute.minusDays(datHeute.getDayOfWeek().get(ChronoField.DAY_OF_WEEK) - 1);
+        LocalDate bisVorlauf = anfangWoche.plusWeeks(3);
+
+        if(!datum.isBefore(bisVorlauf)) {
+            throw new IllegalArgumentException("Die Reservierungen können maximal 2 KW in voraus gebucht werden!");
         }
     }
 }

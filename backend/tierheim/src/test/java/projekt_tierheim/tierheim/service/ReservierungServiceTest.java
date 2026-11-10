@@ -18,6 +18,7 @@ import projekt_tierheim.tierheim.rest.AdminController;
 
 import java.time.LocalDate;
 import java.time.LocalTime;
+import java.time.temporal.ChronoField;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -70,5 +71,14 @@ class ReservierungServiceTest {
         // Für Tage ohne Zeitraum
         pruefeDeadline(LocalDate.now(), "Es gibt keine Zeiträume für den gewählten Tag");
         //pruefeDeadline(LocalDate.now(), "Die Deadline für heute ist abgelaufen. Die Reservierung muss 3h vor dem ersten Zeitraum erfolgen!");
+    }
+
+    @Test
+    void pruefeVorlauf() {
+        LocalDate datHeute = LocalDate.now();
+        LocalDate anfangWoche = datHeute.minusDays(datHeute.getDayOfWeek().get(ChronoField.DAY_OF_WEEK) - 1);
+        LocalDate bisVorlauf = anfangWoche.plusDays(20);
+
+
     }
 }

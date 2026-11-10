@@ -69,7 +69,7 @@ public class HundController {
         if(mitglied == null) {
             throw new NotFoundException("Mitglied mit der Id " +  mitgliedId + " nicht gefunden");
         }
-        List<Hund> verfuegbareHunde = hundService.ermittleVeruegbareHunde(mitglied, datum, von, bis);
+        List<Hund> verfuegbareHunde = hundService.findeFreieHunde(mitglied, datum, von, bis);
         Hund vorschlag = hundService.waehleVorschlag(verfuegbareHunde);
 
         return new HundAuswahlResponse(verfuegbareHunde, vorschlag);

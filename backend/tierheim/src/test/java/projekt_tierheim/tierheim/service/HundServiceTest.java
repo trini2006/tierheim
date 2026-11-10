@@ -113,7 +113,7 @@ class HundServiceTest {
         LocalTime bis = LocalTime.of(12, 30);
 
         List<Hund> verfuegbareHunde =
-                hundService.ermittleVeruegbareHunde(
+                hundService.findeFreieHunde(
                         mitglied,
                         datum,
                         von,
