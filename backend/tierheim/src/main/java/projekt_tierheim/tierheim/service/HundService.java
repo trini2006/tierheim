@@ -1,7 +1,6 @@
 package projekt_tierheim.tierheim.service;
 
 import jakarta.transaction.Transactional;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import projekt_tierheim.tierheim.db.GassiGehZeiten.GassiGehZeiten;
 import projekt_tierheim.tierheim.db.GassiGehZeiten.GassiGehZeitenRepository;
@@ -9,8 +8,8 @@ import projekt_tierheim.tierheim.db.GassiGehZeiten.Tage;
 import projekt_tierheim.tierheim.db.Hund.Hund;
 import projekt_tierheim.tierheim.db.Hund.HundRepository;
 import projekt_tierheim.tierheim.db.Hund.SperrHundDTO;
+import projekt_tierheim.tierheim.db.Hund.TeilFenster;
 import projekt_tierheim.tierheim.db.Mitglied.Mitglied;
-import projekt_tierheim.tierheim.db.Mitglied.MitgliedRepository;
 import projekt_tierheim.tierheim.db.Reservierung.Reservierung;
 import projekt_tierheim.tierheim.db.Reservierung.ReservierungRepository;
 import projekt_tierheim.tierheim.db.Reservierung.Reservierungsstatus;
@@ -71,7 +70,7 @@ public class HundService {
         if(hund == null) {
             throw new NotFoundException("Hund mit der Id " + hundId + " nicht gefunden");
         }
-        if(sperrHundDTO.gesperrtVon().isBefore(sperrHundDTO.gesperrtBis())) {
+        if(sperrHundDTO.gesperrtVon().isAfter(sperrHundDTO.gesperrtBis())) {
             throw new IllegalArgumentException("Inkorrekter Zeitraum");
         }
 
@@ -120,5 +119,58 @@ public class HundService {
             }
         }
         return alleSlots;
+    }
+
+
+    // Logik für das Anzeigen der Hunde, die nur teilweise im gewählten Zeitraum Zeit haben
+    public record Zeitraum(LocalTime von, LocalTime bis) {}
+
+    public List<TeilFenster> findeTeilweiseFreieHunde(Mitglied mitglied, LocalDate datum, LocalTime von, LocalTime bis) {
+        // vorhandene Slot-Berechnung wiederverwenden, nur den gewählten Bereich behalten
+        List<SlotBelegung> slots = berechneSlotBelegung(datum, mitglied).stream()
+                .filter(s -> !s.von().isBefore(von) && !s.bis().isAfter(bis))
+                .sorted(Comparator.comparing(SlotBelegung::von))
+                .toList();
+
+        Map<Integer, Hund> hunde = hundRepository.findAllByTierheimId(1).stream()   // ToDO: Tierheim des Mitglieds
+                .collect(Collectors.toMap(Hund::getId, h -> h));
+
+        // alle Hunde, die in mindestens einem Slot frei sind
+        Set<Integer> kandidaten = slots.stream()
+                .flatMap(s -> s.freieHunde().stream())
+                .collect(Collectors.toSet());
+
+        Map<Zeitraum, List<Hund>> gruppen = new HashMap<>();
+        for (Integer id : kandidaten) {
+            Hund h = hunde.get(id);
+            LocalTime start = null;
+            LocalTime ende = null;
+
+            for (SlotBelegung s : slots) {
+                boolean frei = s.freieHunde().contains(id);
+                boolean schliesstAn = ende != null && ende.equals(s.von());
+
+                if (frei && start != null && schliesstAn) {
+                    ende = s.bis();                                         // Abschnitt verlängern
+                } else {
+                    if (start != null) sammleAbschnitt(gruppen, h, start, ende, von, bis);   // Abschnitt abschließen
+                    start = frei ? s.von() : null;
+                    ende = frei ? s.bis() : null;
+                }
+            }
+            if (start != null) sammleAbschnitt(gruppen, h, start, ende, von, bis);
+        }
+
+        return gruppen.entrySet().stream()
+                .map(e -> new TeilFenster(e.getKey().von(), e.getKey().bis(), e.getValue()))
+                .sorted(Comparator.comparing(TeilFenster::von).thenComparing(TeilFenster::bis))
+                .toList();
+    }
+
+    private void sammleAbschnitt(Map<Zeitraum, List<Hund>> gruppen, Hund h,
+                                 LocalTime start, LocalTime ende, LocalTime von, LocalTime bis) {
+        if (start.equals(von) && ende.equals(bis)) return;                     // ganz frei -> steht in der Hauptliste
+        if (!reservierungService.erfuelltDauer(start, ende, h)) return;        // kürzer als die Mindestdauer
+        gruppen.computeIfAbsent(new Zeitraum(start, ende), k -> new ArrayList<>()).add(h);
     }
 }

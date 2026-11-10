@@ -57,8 +57,6 @@ public class HundController {
         return hundRepository.findAllByTierheimId(tierheimId);
     }
 
-
-    public record HundAuswahlResponse(List<Hund> verfuegbareHunde, Hund vorschlag) { }
     @GetMapping("/all/available/{mitgliedId}")
     public HundAuswahlResponse getAlleHundeAvailable(
             @PathVariable("mitgliedId") int mitgliedId,
@@ -71,8 +69,9 @@ public class HundController {
         }
         List<Hund> verfuegbareHunde = hundService.findeFreieHunde(mitglied, datum, von, bis);
         Hund vorschlag = hundService.waehleVorschlag(verfuegbareHunde);
+        List<TeilFenster> teilweise = hundService.findeTeilweiseFreieHunde(mitglied, datum, von, bis);
 
-        return new HundAuswahlResponse(verfuegbareHunde, vorschlag);
+        return new HundAuswahlResponse(verfuegbareHunde, vorschlag, teilweise);
     }
 
     // Endpunkt, an dem die Belegung eines Tages berechnet wird

@@ -12,7 +12,7 @@
             v-if="erfahrung"
             :class="[
               'w-4 h-4 rounded-full mt-1 flex-shrink-0',
-              erfahrung ? 'bg-orange-500' : 'bg-green-500',
+              erfahrung === 'true' ? 'bg-orange-500' : 'bg-green-500',
             ]"
           />
         </div>
