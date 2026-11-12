@@ -40,17 +40,21 @@
         </div>
       </div>
       <!-- RECHTE SEITE -->
-      <ZeitAuswahl :deaktiviert="!ausgewaehltesMitglied" @change="auswahl = $event" />
+      <ZeitAuswahl
+        :deaktiviert="!ausgewaehltesMitglied"
+        :mitglied-id="ausgewaehltesMitglied?.id"
+        @change="auswahl = $event"
+      />
     </div>
 
     <!-- UNTERER BEREICH: Weiter-Button -->
     <div class="flex justify-end mt-8">
       <button
         @click="weiterZuHundewahl"
-        :disabled="!ausgewaehltesMitglied || !auswahlGueltig"
+        :disabled="!kannWeiter"
         class="flex items-center gap-3 px-8 py-3 rounded-full shadow-md font-bold transition-all"
         :class="
-          !ausgewaehltesMitglied || !auswahlGueltig
+          !kannWeiter
             ? 'bg-gray-300 text-gray-500 cursor-not-allowed'
             : 'bg-[#D3DDD1] hover:bg-[#c2cebf] text-gray-800 border border-gray-300'
         "
@@ -79,7 +83,6 @@ const auswahl = ref(null)
 function waehleMitglied(mitglied) {
   ausgewaehltesMitglied.value = mitglied
 }
-// Mitglieder vom Backend laden und ans Beispiel anhängen
 const ladeMitglieder = async () => {
   try {
     const res = await fetch('/api/mitglied/all')

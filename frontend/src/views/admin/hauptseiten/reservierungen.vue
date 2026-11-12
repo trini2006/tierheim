@@ -152,9 +152,17 @@
             :style="{ gridRow: 1, gridColumn: i + 2 }"
           >
             <img
+              v-if="hund.bildUrl"
               :src="hund.bildUrl"
+              :alt="hund.bildUrl"
               class="w-14 h-14 rounded-full object-cover mx-auto shadow-sm border"
             />
+            <div
+              v-else
+              class="w-14 h-14 rounded-full bg-[#94A684]/40 mx-auto flex items-center justify-center text-3xl flex-shrink-0"
+            >
+              🐾
+            </div>
             <span class="font-bold text-sm text-gray-800 block truncate">{{ hund.name }}</span>
           </div>
 
@@ -325,7 +333,7 @@ const ladeDaten = async () => {
       alleHunde.value = hundeData.map((h) => ({
         id: h.id,
         name: h.name,
-        bild: h.bild || 'https://images.unsplash.com/photo-1543466835-00a7907e9de1',
+        bild: h.bild,
       }))
     }
 
@@ -348,7 +356,7 @@ const ladeDaten = async () => {
           zeitAb,
           zeitBis,
           zeit: `${zeitAb} - ${zeitBis} Uhr`,
-          bild: r.hund?.bild || 'https://images.unsplash.com/photo-1543466835-00a7907e9de1',
+          bild: r.hund.bild,
         }
       })
     }

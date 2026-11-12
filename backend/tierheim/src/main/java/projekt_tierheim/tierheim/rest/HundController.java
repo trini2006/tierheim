@@ -67,10 +67,23 @@ public class HundController {
         if(mitglied == null) {
             throw new NotFoundException("Mitglied mit der Id " +  mitgliedId + " nicht gefunden");
         }
-        List<Hund> verfuegbareHunde = hundService.ermittleVeruegbareHunde(mitglied, datum, von, bis);
+        List<Hund> verfuegbareHunde = hundService.findeFreieHunde(mitglied, datum, von, bis);
         Hund vorschlag = hundService.waehleVorschlag(verfuegbareHunde);
+        List<TeilFenster> teilweise = hundService.findeTeilweiseFreieHunde(mitglied, datum, von, bis);
 
-        return new HundAuswahlResponse(verfuegbareHunde, vorschlag);
+        return new HundAuswahlResponse(verfuegbareHunde, vorschlag, teilweise);
+    }
+
+    // Endpunkt, an dem die Belegung eines Tages berechnet wird
+    @GetMapping("/belegung/{mitgliedId}")
+    public List<HundService.SlotBelegung> slotBelegungEinesTages(
+            @PathVariable("mitgliedId") int mitgliedId,
+            @RequestParam LocalDate datum) {
+        Mitglied mitglied = mitgliedRepository.findMitgliedById(mitgliedId);
+        if (mitglied == null) {
+            throw new NotFoundException("Mitglied mit der Id " + mitgliedId + " nicht gefunden");
+        }
+        return hundService.berechneSlotBelegung(datum, mitglied);
     }
 
     @GetMapping("/search")
