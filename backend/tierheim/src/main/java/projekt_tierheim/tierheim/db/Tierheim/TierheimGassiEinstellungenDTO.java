@@ -10,8 +10,6 @@ public record TierheimGassiEinstellungenDTO(
         @Positive int minGassi
 )
 {
-    @AssertTrue(message = "Der Zeitblock muss 30, 45 oder 60 Minuten betragen")
-    public boolean isZeitblockGueltig() {
-        return zeitblock == 30 || zeitblock == 45 || zeitblock == 60;
-    }
+    @AssertTrue(message = "Der Zeitblock muss 30 Minuten betragen")
+    public boolean isZeitblockGueltig() { return zeitblock == 30; }
 }

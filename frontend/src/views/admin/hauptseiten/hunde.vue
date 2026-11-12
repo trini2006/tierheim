@@ -1,6 +1,5 @@
 <template>
   <div class="max-w-6xl mx-auto p-4 md:p-6 space-y-6">
-
     <!-- Linksbuendiger Suchreiter für alle Hunde -->
     <div class="max-w-md mx-auto w-full relative">
       <input
@@ -17,7 +16,11 @@
         stroke="currentColor"
         class="w-4 h-4 text-gray-400 absolute left-3.5 top-1/2 -translate-y-1/2 pointer-events-none"
       >
-        <path stroke-linecap="round" stroke-linejoin="round" d="m21 21-5.197-5.197m0 0A7.5 7.5 0 1 0 5.196 5.196a7.5 7.5 0 0 0 10.607 10.607z" />
+        <path
+          stroke-linecap="round"
+          stroke-linejoin="round"
+          d="m21 21-5.197-5.197m0 0A7.5 7.5 0 1 0 5.196 5.196a7.5 7.5 0 0 0 10.607 10.607z"
+        />
       </svg>
     </div>
 
@@ -43,7 +46,11 @@
             </div>
 
             <div class="flex items-center gap-4 pr-2">
-              <button @click="oeffneSperrModal(hund)" aria-label="Hund sperren" class="cursor-pointer">
+              <button
+                @click="oeffneSperrModal(hund)"
+                aria-label="Hund sperren"
+                class="cursor-pointer"
+              >
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
                   fill="none"
@@ -93,7 +100,11 @@
             </div>
 
             <div class="flex items-center gap-4 pr-2">
-              <button @click="entsperreHund(hund.id)" aria-label="Hund entsperren" class="cursor-pointer">
+              <button
+                @click="entsperreHund(hund.id)"
+                aria-label="Hund entsperren"
+                class="cursor-pointer"
+              >
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
                   fill="none"
@@ -115,7 +126,10 @@
     </div>
 
     <!-- SPERR-MODAL -->
-    <div v-if="sperrModalAktiv" class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50 p-4">
+    <div
+      v-if="sperrModalAktiv"
+      class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50 p-4"
+    >
       <div class="bg-white rounded-lg shadow-xl max-w-md w-full p-6 space-y-4">
         <h3 class="text-lg font-bold text-gray-800">Hund sperren: {{ ausgewaehlterHund?.name }}</h3>
 
@@ -139,7 +153,9 @@
             />
           </div>
           <div>
-            <label class="block text-xs font-semibold text-gray-600 mb-1">Sperrgrund (optional)</label>
+            <label class="block text-xs font-semibold text-gray-600 mb-1"
+              >Sperrgrund (optional)</label
+            >
             <textarea
               v-model="sperrForm.sperrGrund"
               placeholder="Grund für die Sperrung eingeben..."
@@ -150,7 +166,8 @@
           <div class="p-3 bg-gray-50 border border-gray-200 rounded text-sm text-gray-700">
             <span v-if="laedtBetroffene">Betroffene Reservierungen werden ermittelt...</span>
             <span v-else>
-              Von dieser Sperrung wären <strong>{{ betroffeneReservierungenAnzahl }}</strong> Reservierung(en) betroffen.
+              Von dieser Sperrung wären
+              <strong>{{ betroffeneReservierungenAnzahl }}</strong> Reservierung(en) betroffen.
             </span>
           </div>
         </div>
@@ -187,14 +204,14 @@ const suchbegriff = ref('')
 const gefilterteAktiveHunde = computed(() => {
   if (!suchbegriff.value.trim()) return aktiveHunde.value
   return aktiveHunde.value.filter((h) =>
-    h.name.toLowerCase().includes(suchbegriff.value.toLowerCase())
+    h.name.toLowerCase().includes(suchbegriff.value.toLowerCase()),
   )
 })
 
 const gefilterteGesperrteHunde = computed(() => {
   if (!suchbegriff.value.trim()) return gesperrteHunde.value
   return gesperrteHunde.value.filter((h) =>
-    h.name.toLowerCase().includes(suchbegriff.value.toLowerCase())
+    h.name.toLowerCase().includes(suchbegriff.value.toLowerCase()),
   )
 })
 
@@ -206,7 +223,7 @@ const laedtBetroffene = ref(false)
 const sperrForm = ref({
   gesperrtVon: '',
   gesperrtBis: '',
-  sperrGrund: ''
+  sperrGrund: '',
 })
 
 const farbeFuerErfahrung = (h) => (h.erfahrung ? 'bg-orange-500' : 'bg-green-500')
@@ -223,11 +240,11 @@ const ladeHunde = async () => {
 
       aktiveHunde.value = alleHunde
         .filter((h) => !isAktuellGesperrt(h))
-        .map((h) => ({...h, statusPunkt: farbeFuerErfahrung(h)}))
+        .map((h) => ({ ...h, statusPunkt: farbeFuerErfahrung(h) }))
 
       gesperrteHunde.value = alleHunde
         .filter((h) => isAktuellGesperrt(h))
-        .map((h) => ({...h, statusPunkt: 'bg-red-500', info: h.sperrGrund || 'Gesperrt'}))
+        .map((h) => ({ ...h, statusPunkt: 'bg-red-500', info: h.sperrGrund || 'Gesperrt' }))
     } else {
       console.error('Fehler beim Laden der Hunde')
     }
@@ -250,7 +267,7 @@ const oeffneSperrModal = async (hund) => {
   sperrForm.value = {
     gesperrtVon: heute.toLocaleDateString('sv-SE'),
     gesperrtBis: morgen.toLocaleDateString('sv-SE'),
-    sperrGrund: ''
+    sperrGrund: '',
   }
 
   sperrModalAktiv.value = true
@@ -262,11 +279,11 @@ const berechneBetroffeneReservierungen = async () => {
   laedtBetroffene.value = true
   try {
     const response = await fetch(
-      `${API_BASE}/reservierung/count?hundId=${ausgewaehlterHund.value.id}&von=${sperrForm.value.gesperrtVon}&bis=${sperrForm.value.gesperrtBis}`
+      `${API_BASE}/reservierung/all?hundId=${ausgewaehlterHund.value.id}&von=${sperrForm.value.gesperrtVon}&bis=${sperrForm.value.gesperrtBis}`,
     )
     if (response.ok) {
       const data = await response.json()
-      betroffeneReservierungenAnzahl.value = typeof data === 'number' ? data : (data.count || 0)
+      betroffeneReservierungenAnzahl.value = data.length || 999
     } else {
       betroffeneReservierungenAnzahl.value = 0
     }

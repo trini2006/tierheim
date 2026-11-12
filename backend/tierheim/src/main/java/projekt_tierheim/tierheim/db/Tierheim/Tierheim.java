@@ -24,7 +24,7 @@ public class Tierheim {
     private String bannerfarbe;
 
     // Gassi/ Hunde Einstellungen
-    private int zeitblock; // 30min, 45min, 60min > Auswahl der gewünschten Zeit
+    private int zeitblock; // 30min IMMER
     private int ruhezeit; // Pause, die ein Hund zwingend zwischen Spaziergängen haben muss
     private int maxGassi; // maximale Zeit, die ein Hund am Stück spazieren gehen darf
     private int minGassi; // Zeit, die ein Hund mindestens spazieren gehen muss
