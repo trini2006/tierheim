@@ -116,6 +116,6 @@ function weiterZuHundewahl() {
       ...auswahl.value,
     }),
   )
-  router.push('/app/admin/hundewahl')
+  router.push('/app/reservierung/hundewahl')
 }
 </script>

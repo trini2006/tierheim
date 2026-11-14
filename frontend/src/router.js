@@ -41,7 +41,7 @@ const routes = [
   {
     path: '/app',
     component: AppLayout,
-    meta: { requiresAuth: true }, // <--- Hier wird der Bereich geschützt!
+    meta: { requiresAuth: true, role: 'user' },
     children: [
       { path: '', component: Startseite, meta: { title: 'Willkommen' } },
       {
@@ -54,10 +54,7 @@ const routes = [
       { path: 'tierheim', component: TierheimInfo, meta: { title: 'Tierheim Weiden' } },
       { path: 'einstellungen', component: Einstellungen, meta: { title: 'Einstellungen' } },
       {
-        path: 'hund/:id?',
-        name: 'beschreibung',
-        component: HundeBeschreibung,
-        meta: { title: 'Hundedetails' },
+        path: 'hund/:id?', name: 'beschreibung', component: HundeBeschreibung, meta: { title: 'Hundedetails' },
       },
 
       { path: 'reservierung/zeitwahl', component: Zeitwahl, meta: { title: 'Termin auswählen' } },
@@ -76,6 +73,7 @@ const routes = [
       {
         path: 'admin',
         component: AdminStart,
+        meta: { requiresAuth: true, role: 'admin' },
         children: [
           //{ path: 'nachrichten', component: Nachrichten },
           //{ path: 'veranstaltungen', component: AdminVeranstaltungen }
@@ -132,16 +130,24 @@ export const previousPath = ref('')
 router.beforeEach((to, from, next) => {
   previousPath.value = from.path || '/'
 
-  const isEingeloggt = localStorage.getItem('userRole') // Prüft ob eine Rolle hinterlegt ist
+  const userRole = localStorage.getItem('userRole')
 
-  // Wenn die Zielseite einen Login erfordert (requiresAuth: true)...
-  if (to.meta.requiresAuth && !isEingeloggt) {
-    // ...und der User ist NICHT eingeloggt -> Zwangsumleitung zum Login (/)
-    next({ name: 'Login' })
-  } else {
-    // Ansonsten ganz normal fortfahren
-    next()
+  if (to.name === 'Login' && userRole) {
+    next(userRole === 'admin' ? '/app/admin' : '/app')
+    return
   }
+
+  if (to.meta.requiresAuth && !userRole) {
+    next({ name: 'Login' })
+    return
+  }
+
+  if (to.meta.role && userRole && to.meta.role !== userRole) {
+    next(userRole === 'admin' ? '/app/admin' : '/app')
+    return
+  }
+
+  next()
 })
 
 export default router
