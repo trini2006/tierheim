@@ -67,8 +67,7 @@ const loginPruefen = async () => {
     })
 
     if (adminResponse.ok) {
-      const isAdminGueltig = true 
-      //await adminResponse.json()
+      const isAdminGueltig = await adminResponse.json()
       if (isAdminGueltig) {
         const res = await fetch(`/api/admin/${benutzername.value}`)
         if (res.ok) {
@@ -93,8 +92,7 @@ const loginPruefen = async () => {
 
     if (mitgliedResponse.ok) {
       
-      const isMitgliedGueltig = true
-      //await mitgliedResponse.json()
+      const isMitgliedGueltig = await mitgliedResponse.json()
       console.log('Mitglied-Login erfolgreich       ' + isMitgliedGueltig)
       if (isMitgliedGueltig) {
         

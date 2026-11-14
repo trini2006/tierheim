@@ -100,13 +100,23 @@ const formatiertesDatum = computed(() => {
 })
 
 const sending = ref(false)
+const getStoredUserId = () => {
+  const raw = localStorage.getItem('userId')
+  if (raw === null || raw === 'undefined') return null
+  try {
+    return Number(JSON.parse(raw))
+  } catch {
+    return Number(raw)
+  }
+}
+
 const confirmBooking = async () => {
   if (!booking.value || sending.value) return
   sending.value = true
   try {
     const payload = {
       hundId: booking.value.dog?.id,
-      mitgliedId: booking.value.mitgliedId || localStorage.getItem('mitgliedId'), // ToDO Wo wird dieser Wert für den Nicht-Admin Fall gesetzt
+      mitgliedId: booking.value.mitgliedId ?? getStoredUserId(),
       datum: booking.value.datum,
       zeitAb: booking.value.von,
       zeitBis: booking.value.bis,

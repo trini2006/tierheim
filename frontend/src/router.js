@@ -41,7 +41,7 @@ const routes = [
   {
     path: '/app',
     component: AppLayout,
-    meta: { requiresAuth: true, role: 'user' },
+    meta: { requiresAuth: true },
     children: [
       { path: '', component: Startseite, meta: { title: 'Willkommen' } },
       {
@@ -131,6 +131,8 @@ router.beforeEach((to, from, next) => {
   previousPath.value = from.path || '/'
 
   const userRole = localStorage.getItem('userRole')
+  const isAdminRoute = to.path.startsWith('/app/admin')
+  const isUserRoute = to.path.startsWith('/app') && !isAdminRoute
 
   if (to.name === 'Login' && userRole) {
     next(userRole === 'admin' ? '/app/admin' : '/app')
@@ -142,8 +144,13 @@ router.beforeEach((to, from, next) => {
     return
   }
 
-  if (to.meta.role && userRole && to.meta.role !== userRole) {
-    next(userRole === 'admin' ? '/app/admin' : '/app')
+  if (isAdminRoute && userRole !== 'admin') {
+    next(userRole === 'user' ? '/app' : { name: 'Login' })
+    return
+  }
+
+  if (isUserRoute && userRole === 'admin') {
+    next('/app/admin')
     return
   }
 
