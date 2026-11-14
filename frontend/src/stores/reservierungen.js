@@ -62,11 +62,15 @@ export const useReservierungenStore = defineStore('reservierungen', () => {
 
   const ladeFallsNoetig = () => (geladen.value ? Promise.resolve() : lade())
 
-  const stornieren = async (id) => {
-    const res = await fetch(
-      `/api/reservierung/${id}?grund=${encodeURIComponent('Storniert durch Mitglied')}`,
-      { method: 'DELETE' },
-    )
+  const stornieren = async (id, grund = 'Storniert durch Mitglied') => {
+    const saubererGrund = String(grund || '').trim()
+    if (!saubererGrund) {
+      throw new Error('Bitte gib einen Grund für die Stornierung an.')
+    }
+
+    const res = await fetch(`/api/reservierung/${id}?grund=${encodeURIComponent(saubererGrund)}`, {
+      method: 'DELETE',
+    })
     if (!res.ok) throw new Error(await res.text())
     await lade()
   }

@@ -63,12 +63,17 @@ public class ReservierungController {
 
     @DeleteMapping("/{reservierungId}")
     public Reservierung storniereReservierung(@PathVariable("reservierungId") int reservierungsId, @RequestParam(required = true) String grund) {
+        String saubererGrund = grund == null ? "" : grund.trim();
+        if (saubererGrund.isEmpty()) {
+            throw new IllegalArgumentException("Ein Stornierungsgrund ist erforderlich");
+        }
+
         Reservierung reservierung = reservierungRepository.findReservierungById(reservierungsId);
         if(reservierung == null) {
             throw new NotFoundException("Reservierung mit der Id " +  reservierungsId + " nicht gefunden");
         }
         reservierung.setStatus(Reservierungsstatus.STORNIERT);
-        reservierung.setStornierungsgrund(grund);
+        reservierung.setStornierungsgrund(saubererGrund);
         reservierung.setStorniertAm(LocalDateTime.now());
 
         return reservierungRepository.saveAndFlush(reservierung);

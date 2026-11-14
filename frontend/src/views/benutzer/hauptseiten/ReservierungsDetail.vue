@@ -66,13 +66,66 @@
 
     <div v-if="!istStorniert" class="mt-6 text-left px-2">
       <button
-        @click="stornieren"
+        @click="openCancelDialog"
         :disabled="laeuft"
         class="bg-red-400 hover:bg-red-500 disabled:opacity-50 text-gray-900 font-bold px-6 py-2.5 rounded-full shadow-sm transition-colors text-sm"
       >
         Termin stornieren
       </button>
       <p v-if="fehlertext" class="text-sm text-red-700 mt-2">{{ fehlertext }}</p>
+    </div>
+
+    <div
+      v-if="showCancelDialog"
+      class="fixed inset-0 z-50 flex items-center justify-center bg-black/40 px-4"
+      @click.self="closeCancelDialog"
+    >
+      <div class="w-full max-w-md rounded-2xl bg-white p-6 shadow-xl">
+        <div class="flex items-start justify-between gap-4">
+          <div>
+            <h3 class="text-lg font-bold text-gray-900">Termin stornieren</h3>
+            <p class="mt-2 text-sm text-gray-600">Bitte gib einen Grund für die Stornierung an.</p>
+          </div>
+          <button
+            type="button"
+            @click="closeCancelDialog"
+            class="text-gray-400 hover:text-gray-600 text-xl leading-none"
+            aria-label="Schließen"
+          >
+            ×
+          </button>
+        </div>
+
+        <div class="mt-5">
+          <label for="cancel-reason" class="block text-sm font-medium text-gray-700 mb-2">Grund</label>
+          <textarea
+            id="cancel-reason"
+            v-model="stornierungsgrund"
+            rows="3"
+            maxlength="500"
+            class="w-full rounded-xl border border-gray-300 bg-gray-50 px-3 py-2 text-sm text-gray-800 focus:border-red-400 focus:outline-none resize-none"
+            placeholder="z. B. Krankheit, Termin fällt weg, andere Verfügbarkeit..."
+          />
+        </div>
+
+        <div class="mt-6 flex justify-end gap-3">
+          <button
+            type="button"
+            @click="closeCancelDialog"
+            class="px-4 py-2 rounded-full border border-gray-300 text-sm text-gray-700 hover:bg-gray-100"
+          >
+            Abbrechen
+          </button>
+          <button
+            type="button"
+            @click="stornieren"
+            :disabled="laeuft || !stornierungsgrund.trim()"
+            class="px-4 py-2 rounded-full bg-red-500 text-sm font-semibold text-white hover:bg-red-600 disabled:opacity-60"
+          >
+            {{ laeuft ? 'Wird storniert...' : 'Ja, stornieren' }}
+          </button>
+        </div>
+      </div>
     </div>
   </div>
 
@@ -91,13 +144,34 @@ const hund = computed(() => props.reservierung?.hund)
 const istStorniert = computed(() => props.reservierung?.status === 'STORNIERT')
 const laeuft = ref(false)
 const fehlertext = ref('')
+const showCancelDialog = ref(false)
+const stornierungsgrund = ref('')
+
+const openCancelDialog = () => {
+  fehlertext.value = ''
+  stornierungsgrund.value = ''
+  showCancelDialog.value = true
+}
+
+const closeCancelDialog = () => {
+  if (laeuft.value) return
+  stornierungsgrund.value = ''
+  showCancelDialog.value = false
+}
 
 const stornieren = async () => {
-  if (!window.confirm('Diesen Termin wirklich stornieren?')) return
+  const grund = stornierungsgrund.value.trim()
+  if (!grund) {
+    fehlertext.value = 'Bitte gib einen Grund für die Stornierung an.'
+    return
+  }
+
   laeuft.value = true
   fehlertext.value = ''
   try {
-    await store.stornieren(props.reservierung.idReservierung)
+    await store.stornieren(props.reservierung.idReservierung, grund)
+    stornierungsgrund.value = ''
+    showCancelDialog.value = false
   } catch (e) {
     fehlertext.value = e.message || 'Stornieren fehlgeschlagen.'
   } finally {
