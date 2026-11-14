@@ -132,6 +132,8 @@ class ReservierungControllerTest {
     public void storniereReservierung() throws Exception {
         Reservierung storniertReservierung = getTestReservierung();
         storniertReservierung.setStatus(Reservierungsstatus.STORNIERT);
+        storniertReservierung.setStornierungsgrund("Testgrund");
+        storniertReservierung.setStorniertAm(java.time.LocalDateTime.now());
 
         Mockito.when(reservierungRepository.findReservierungById(TEST_ID1)).thenReturn(getTestReservierung());
         Mockito.when(reservierungRepository.saveAndFlush(Mockito.any(Reservierung.class))).thenReturn(storniertReservierung);
@@ -141,7 +143,9 @@ class ReservierungControllerTest {
                         .accept(MediaType.APPLICATION_JSON))
                 .andExpectAll(
                         status().isOk(),
-                        jsonPath("status").value(Reservierungsstatus.STORNIERT.toString())
+                        jsonPath("status").value(Reservierungsstatus.STORNIERT.toString()),
+                        jsonPath("stornierungsgrund").value("Testgrund"),
+                        jsonPath("storniertAm").exists()
                 );
     }
 
