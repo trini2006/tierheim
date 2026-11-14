@@ -202,7 +202,7 @@ const mappeHund = (h) => ({
   gender: h.geschlecht ? 'Hündin' : 'Rüde',
   tags: (h.labels ?? []).map((l) => ({ id: l.id, name: l.bezeichnung, hinweis: l.hinweis })),
   erfahrung: h.erfahrung ? 'bg-orange-500' : 'bg-green-500',
-  image: h.bild,
+  image: h.bildURL,
 })
 
 const ladeVerfuegbareHunde = async () => {

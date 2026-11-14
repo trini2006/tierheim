@@ -6,8 +6,8 @@
           class="w-28 h-28 rounded-xl overflow-hidden bg-[#94A684]/40 flex-shrink-0 flex items-center justify-center"
         >
           <img
-            v-if="hund?.bild"
-            :src="hund.bild"
+            v-if="hund?.bildURL"
+            :src="hund.bildURL"
             :alt="hund.name"
             class="w-full h-full object-cover"
           />

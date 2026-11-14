@@ -41,10 +41,6 @@ public class MitgliedService {
             throw new NotFoundException("Mitglied mit der Mitgliedsnummer " +  mitgliedsnummer + " nicht gefunden");
         }
 
-        // Neues Passwort hashen
-        String hash = passwordEncoder.encode(mitgliedDTO.passwort());
-        mitglied.setPasswort(hash);
-
         mitglied.setErfahrung(mitgliedDTO.erfahrung());
 
         Mitglied gespeichert = mitgliedRepository.saveAndFlush(mitglied);
