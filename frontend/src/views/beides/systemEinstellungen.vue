@@ -9,7 +9,7 @@
             <h2 class="text-xl font-bold">Persönliches</h2>
           </div>
           <div
-            v-if="erfahrung"
+            v-if="erfahrung && rolle==='user'"
             :class="[
               'w-4 h-4 rounded-full mt-1 flex-shrink-0',
               erfahrung === 'true' ? 'bg-orange-500' : 'bg-green-500',
