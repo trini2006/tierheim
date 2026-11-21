@@ -38,7 +38,18 @@
             class="flex items-center justify-between p-3 rounded-full bg-[#D3DDD1] border border-gray-200 shadow-sm"
           >
             <div class="flex items-center gap-3">
-              <img :src="hund.bild" class="w-10 h-10 rounded-full object-cover" />
+              <img
+                v-if="hund.bild"
+                :src="hund.bild"
+                :alt="hund.bild"
+                class="w-14 h-14 rounded-full object-cover mx-auto shadow-sm border"
+              />
+              <div
+                v-else
+                class="w-10 h-10 rounded-full flex items-center justify-center text-3xl object-cover"
+              >
+                🐾
+              </div>
               <div class="flex items-center gap-2">
                 <span class="w-3 h-3 rounded-full" :class="hund.statusPunkt"></span>
                 <span class="font-bold text-gray-800 text-sm">{{ hund.name }}</span>
@@ -85,7 +96,18 @@
             class="flex items-center justify-between p-3 rounded-full bg-[#D3DDD1] border border-gray-200 shadow-sm"
           >
             <div class="flex items-center gap-3">
-              <img :src="hund.bild" class="w-10 h-10 rounded-full object-cover" />
+              <img
+                v-if="hund.bild"
+                :src="hund.bild"
+                :alt="hund.bild"
+                class="w-14 h-14 rounded-full object-cover mx-auto shadow-sm border"
+              />
+              <div
+                v-else
+                class="w-10 h-10 rounded-full flex items-center justify-center text-3xl object-cover"
+              >
+                🐾
+              </div>
               <div class="flex items-center gap-2">
                 <span class="w-3 h-3 rounded-full" :class="hund.statusPunkt"></span>
                 <div>
@@ -283,7 +305,7 @@ const berechneBetroffeneReservierungen = async () => {
     )
     if (response.ok) {
       const data = await response.json()
-      betroffeneReservierungenAnzahl.value = data.length || 999
+      betroffeneReservierungenAnzahl.value = data.length || 0
     } else {
       betroffeneReservierungenAnzahl.value = 0
     }

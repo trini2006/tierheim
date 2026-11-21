@@ -27,10 +27,14 @@
           <div v-if="tierheim" class="space-y-1 text-sm md:text-base text-gray-700">
             <p class="font-medium">{{ tierheim.strasse }} {{ tierheim.hausnummer }}</p>
             <p class="font-medium">{{ tierheim.plz }} {{ tierheim.ort }}</p>
-            <p class="pt-2"> {{ tierheim.telNummer }}</p>
-            <p v-if="tierheim.notNummer"> {{ tierheim.notNummer }} (Notfall)</p>
+            <p class="pt-2">{{ tierheim.telNummer }}</p>
+            <p v-if="tierheim.notNummer">{{ tierheim.notNummer }} (Notfall)</p>
             <p class="pt-2">
-              <a v-bind:href="[tierheim.link]" target="_blank" class="hover:underline text-emerald-800 font-semibold">
+              <a
+                :href="tierheim.link"
+                target="_blank"
+                class="hover:underline text-emerald-800 font-semibold"
+              >
                 {{ tierheim.showLink }}
               </a>
             </p>
@@ -78,10 +82,17 @@
             class="bg-[#E3E9DD] hover:bg-[#d6decb] rounded-full p-2 pl-3 pr-6 flex items-center justify-between cursor-pointer shadow-sm transition-all hover:translate-x-1"
           >
             <div class="flex items-center gap-4">
+              <img
+                v-if="hund.bildURL"
+                :src="hund.bildURL"
+                :alt="hund.name"
+                class="w-10 h-10 rounded-lg object-cover pointer-events-none flex-shrink-0"
+              />
               <div
-                class="w-11 h-11 rounded-full bg-white flex items-center justify-center border border-gray-200"
+                v-else
+                class="w-10 h-10 rounded-lg flex items-center justify-center text-3xl flex-shrink-0"
               >
-                <span class="text-xl">🐶</span>
+                🐾
               </div>
               <span class="font-bold text-gray-800 text-sm md:text-base">{{ hund.name }}</span>
             </div>
@@ -152,7 +163,7 @@ const ladeTierheimDaten = async () => {
         notNummer: data.notfallnummer ? data.notfallnummer : '',
         email: data.email,
         link: data.link ? data.link : '',
-        showLink: data.link ? data.link.split('/').at(2) : ''
+        showLink: data.link ? data.link.split('/').at(2) : '',
       }
     } else {
       console.error('Fehler beim Laden des Tierheims')

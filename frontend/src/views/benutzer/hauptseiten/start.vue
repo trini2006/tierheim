@@ -63,7 +63,7 @@
               <div
                 :class="[
                   'w-8 h-8 rounded-full text-white flex items-center justify-center text-sm',
-                  res.status === 'STORNIERT' ? 'bg-red-800' : 'bg-emerald-800',
+                  res.status === 'STORNIERT' ? 'bg-red-800' : 'bg-[#94A684]/40',
                 ]"
               >
                 {{ res.status === 'STORNIERT' ? '🚫' : '🐾' }}
