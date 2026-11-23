@@ -1,5 +1,6 @@
 import { defineStore } from 'pinia'
 import { ref, computed } from 'vue'
+import { useToast } from '@/composables/useToast.js'
 
 const TIERHEIM_ID = 1 // ToDo: aus dem Login ableiten
 
@@ -25,10 +26,14 @@ export const useBenachrichtigungenStore = defineStore('benachrichtigungen', () =
   // das Backend liefert neueste zuerst
   const neuesteUngelesene = computed(() => alle.value.find((n) => !n.gelesen) ?? null)
 
+  const toast = useToast()
+  const bekannteIds = new Set()
+
   const reset = () => {
     alle.value = []
     geladen.value = false
     fehler.value = null
+    bekannteIds.clear()
   }
 
   const lade = async () => {
@@ -40,7 +45,19 @@ export const useBenachrichtigungenStore = defineStore('benachrichtigungen', () =
     try {
       const res = await fetch(`/api/benachrichtigung/${empfaenger}`)
       if (!res.ok) throw new Error(`HTTP ${res.status}`)
-      alle.value = await res.json()
+      const daten = await res.json()
+
+      const neu = daten.filter((n) => !n.gelesen && !bekannteIds.has(n.id))
+      daten.forEach((n) => bekannteIds.add(n.id))
+      // nicht beim ersten Laden (da zeigt schon der Zähler, was offen ist)
+      if (geladen.value && neu.length > 0) {
+        toast.info(
+          neu.length === 1 ? `Neue Nachricht: ${neu[0].text}` : `${neu.length} neue Nachrichten`,
+          8000,
+        )
+      }
+
+      alle.value = daten
       fehler.value = null
       geladen.value = true
     } catch (e) {

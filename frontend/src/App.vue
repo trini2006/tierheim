@@ -1,10 +1,11 @@
 <template>
   <!-- Hier wird die jeweils aktive Route (z. B. dein AppLayout oder deine Testseite) geladen -->
   <RouterView />
+  <ToastContainer />
 </template>
 
 <script setup>
-// Hier brauchst du aktuell erst mal keine Logik reinschreiben
+  import ToastContainer from '@/components/utils/ToastContainer.vue'
 </script>
 
 <style scoped>

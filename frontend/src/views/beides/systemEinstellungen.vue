@@ -9,7 +9,7 @@
             <h2 class="text-xl font-bold">Persönliches</h2>
           </div>
           <div
-            v-if="erfahrung && rolle==='user'"
+            v-if="erfahrung && rolle === 'user'"
             :class="[
               'w-4 h-4 rounded-full mt-1 flex-shrink-0',
               erfahrung === 'true' ? 'bg-orange-500' : 'bg-green-500',
@@ -18,8 +18,8 @@
         </div>
         <div class="px-2">
           <p class="text-gray-600 text-sm">
-            <span v-if="rolle==='admin'"> Personalnummer:</span>
-            <span v-else-if="rolle==='user'">Mitgliedsnummer:</span>
+            <span v-if="rolle === 'admin'"> Personalnummer:</span>
+            <span v-else-if="rolle === 'user'">Mitgliedsnummer:</span>
             {{ username }}
           </p>
         </div>
@@ -97,6 +97,7 @@
 import { ref } from 'vue'
 import { useRouter } from 'vue-router'
 import { useReservierungenStore } from '@/stores/reservierungen.js'
+import { useBenachrichtigungenStore } from '@/stores/benachrichtigungen.js'
 
 const router = useRouter()
 const erfahrung = localStorage.getItem('erfahrung')
@@ -110,6 +111,7 @@ const reminder = ref(true)
 const ausloggen = () => {
   // Löscht die gespeicherte Rolle und leitet zum Login zurück
   useReservierungenStore().reset()
+  useBenachrichtigungenStore().reset()
   localStorage.removeItem('userId')
   localStorage.removeItem('erfahrung')
   localStorage.removeItem('userName')

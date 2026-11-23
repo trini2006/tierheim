@@ -48,6 +48,7 @@ export const useReservierungenStore = defineStore('reservierungen', () => {
       if (!res.ok) throw new Error(`HTTP ${res.status}`)
       const jetzt = new Date()
       alle.value = (await res.json())
+        .map((r) => ({ ...r, idReservierung: r.idReservierung ?? r.id }))
         .filter((r) => new Date(`${r.datum}T${r.zeitBis}`) > jetzt)
         .sort((a, b) => `${a.datum}T${a.zeitAb}`.localeCompare(`${b.datum}T${b.zeitAb}`))
       // Auswahl verwerfen, wenn der Termin nicht mehr existiert
@@ -62,16 +63,25 @@ export const useReservierungenStore = defineStore('reservierungen', () => {
 
   const ladeFallsNoetig = () => (geladen.value ? Promise.resolve() : lade())
 
-  const stornieren = async (id, grund = 'Storniert durch Mitglied') => {
-    const saubererGrund = String(grund || '').trim()
-    if (!saubererGrund) {
-      throw new Error('Bitte gib einen Grund für die Stornierung an.')
+  const fehlerText = async (res) => {
+    const text = await res.text()
+    try {
+      return JSON.parse(text).message || text
+    } catch {
+      return text
     }
+  }
 
-    const res = await fetch(`/api/reservierung/${id}?grund=${encodeURIComponent(saubererGrund)}`, {
-      method: 'DELETE',
-    })
-    if (!res.ok) throw new Error(await res.text())
+  const stornieren = async (id, stornierungsGrund) => {
+    if (id == null)
+      throw new Error('Diese Reservierung hat keine ID und kann nicht storniert werden.')
+    const res = await fetch(
+      `/api/reservierung/${id}?grund=${encodeURIComponent(stornierungsGrund)}`,
+      {
+        method: 'DELETE',
+      },
+    )
+    if (!res.ok) throw new Error(await fehlerText(res))
     await lade()
   }
 

@@ -97,7 +97,9 @@
         </div>
 
         <div class="mt-5">
-          <label for="cancel-reason" class="block text-sm font-medium text-gray-700 mb-2">Grund</label>
+          <label for="cancel-reason" class="block text-sm font-medium text-gray-700 mb-2"
+            >Grund</label
+          >
           <textarea
             id="cancel-reason"
             v-model="stornierungsgrund"
@@ -136,6 +138,9 @@
 import { ref, computed } from 'vue'
 import { useReservierungenStore } from '@/stores/reservierungen.js'
 import { formatiereDatumLang, formatiereUhrzeit } from '@/components/utils/datum.js'
+import { useToast } from '@/composables/useToast.js'
+
+const toast = useToast()
 
 const props = defineProps({ reservierung: { type: Object, default: null } })
 const store = useReservierungenStore()
@@ -160,20 +165,14 @@ const closeCancelDialog = () => {
 }
 
 const stornieren = async () => {
-  const grund = stornierungsgrund.value.trim()
-  if (!grund) {
-    fehlertext.value = 'Bitte gib einen Grund für die Stornierung an.'
-    return
-  }
-
   laeuft.value = true
-  fehlertext.value = ''
   try {
-    await store.stornieren(props.reservierung.idReservierung, grund)
-    stornierungsgrund.value = ''
-    showCancelDialog.value = false
+    await store.stornieren(props.reservierung.idReservierung, stornierungsgrund.value)
+    toast.erfolg('Der Termin wurde storniert.')
   } catch (e) {
-    fehlertext.value = e.message || 'Stornieren fehlgeschlagen.'
+    toast.fehler(
+      e instanceof TypeError ? 'Keine Verbindung zum Server.' : e.message || 'Stornieren fehlgeschlagen.',
+    )
   } finally {
     laeuft.value = false
   }
