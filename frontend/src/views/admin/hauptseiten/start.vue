@@ -61,6 +61,8 @@
 <script setup>
 import { ref, onMounted, computed } from 'vue'
 import { useRouter, useRoute, RouterView } from 'vue-router'
+import { usePush } from '@/composables/usePush.js'
+const push = usePush()
 
 const router = useRouter()
 const route = useRoute()
@@ -117,5 +119,5 @@ async function ladeHeutigeTermine() {
   }
 }
 
-onMounted(ladeHeutigeTermine)
+onMounted(ladeHeutigeTermine, push.synchronisiere())
 </script>

@@ -150,6 +150,9 @@ import ReservierungsDetail from '@/views/benutzer/hauptseiten/ReservierungsDetai
 import { useIstMobil } from '@/composables/useIstMobil.js'
 import { useBenachrichtigungenStore } from '@/stores/benachrichtigungen.js'
 
+import { usePush } from '@/composables/usePush.js'
+const push = usePush()
+
 const router = useRouter()
 const store = useReservierungenStore()
 const nachrichten = useBenachrichtigungenStore()
@@ -159,6 +162,7 @@ onMounted(() => {
   store.waehle(null)
   store.lade()
   nachrichten.starteAbfrage()
+  push.synchronisiere()
 })
 
 onUnmounted(() => nachrichten.stoppeAbfrage())

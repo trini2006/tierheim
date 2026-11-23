@@ -1,21 +1,7 @@
 import { defineStore } from 'pinia'
 import { ref, computed } from 'vue'
 import { useToast } from '@/composables/useToast.js'
-
-const TIERHEIM_ID = 1 // ToDo: aus dem Login ableiten
-
-// Wessen Posteingang? Admin -> Tierheim, sonst das angemeldete Mitglied
-const leseEmpfaenger = () => {
-  const istAdmin = (localStorage.getItem('userRole') ?? '').toLowerCase() === 'admin'
-  if (istAdmin) return `tierheim/${TIERHEIM_ID}`
-  let id = null
-  try {
-    id = JSON.parse(localStorage.getItem('userId'))
-  } catch {
-    /* nicht eingeloggt */
-  }
-  return id ? `mitglied/${id}` : null
-}
+import { leseEmpfaengerPfad } from '@/components/utils/empfaenger.js'
 
 export const useBenachrichtigungenStore = defineStore('benachrichtigungen', () => {
   const alle = ref([])
@@ -37,7 +23,7 @@ export const useBenachrichtigungenStore = defineStore('benachrichtigungen', () =
   }
 
   const lade = async () => {
-    const empfaenger = leseEmpfaenger()
+    const empfaenger = leseEmpfaengerPfad()
     if (!empfaenger) {
       reset()
       return

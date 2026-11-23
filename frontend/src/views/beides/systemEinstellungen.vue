@@ -41,30 +41,58 @@
       </section>
       -->
 
-      <!-- Sektion 2: Benachrichtigungen
+      <!-- Sektion 2: Benachrichtigungen -->
       <section>
         <div class="flex items-center gap-3 mb-6">
           <span class="text-2xl">🔔</span>
           <h2 class="text-xl font-bold">Benachrichtigungen</h2>
         </div>
-        <div class="space-y-4 px-2">
-          <div class="flex items-center justify-between">
-            <span class="text-gray-800">Nachrichtenton</span>
-            <div class="bg-gray-100 p-1 rounded-full flex gap-1">
-              <button @click="sound = true" :class="[sound ? 'bg-[#536B53] text-white' : 'hover:bg-gray-200']" class="px-5 py-1.5 rounded-full text-sm font-medium transition">Ja</button>
-              <button @click="sound = false" :class="[!sound ? 'bg-[#536B53] text-white' : 'hover:bg-gray-200']" class="px-5 py-1.5 rounded-full text-sm font-medium transition">Nein</button>
+        <div class="px-2 space-y-3">
+          <div class="flex items-center justify-between gap-4">
+            <div>
+              <span class="text-gray-800 block">Push-Nachrichten</span>
+              <span class="text-xs text-gray-500">
+                Meldung aufs Gerät, wenn ein Termin storniert wird.
+              </span>
+            </div>
+            <div
+              v-if="status === 'an' || status === 'aus'"
+              class="bg-gray-100 p-1 rounded-full flex gap-1 flex-shrink-0"
+            >
+              <button
+                @click="schalte(true)"
+                :disabled="laeuft"
+                :class="[status === 'an' ? 'bg-[#536B53] text-white' : 'hover:bg-gray-200']"
+                class="px-5 py-1.5 rounded-full text-sm font-medium transition"
+              >
+                An
+              </button>
+              <button
+                @click="schalte(false)"
+                :disabled="laeuft"
+                :class="[status === 'aus' ? 'bg-[#536B53] text-white' : 'hover:bg-gray-200']"
+                class="px-5 py-1.5 rounded-full text-sm font-medium transition"
+              >
+                Aus
+              </button>
             </div>
           </div>
-          <div class="flex items-center justify-between">
-            <span class="text-gray-800">Erinnerung</span>
-            <div class="bg-gray-100 p-1 rounded-full flex gap-1">
-              <button @click="reminder = true" :class="[reminder ? 'bg-[#536B53] text-white' : 'hover:bg-gray-200']" class="px-5 py-1.5 rounded-full text-sm font-medium transition">Ja</button>
-              <button @click="reminder = false" :class="[!reminder ? 'bg-[#536B53] text-white' : 'hover:bg-gray-200']" class="px-5 py-1.5 rounded-full text-sm font-medium transition">Nein</button>
-            </div>
-          </div>
+
+          <p v-if="status === 'ios-installieren'" class="text-sm text-gray-600">
+            Auf dem iPhone und iPad geht das nur, wenn die App auf dem Home-Bildschirm liegt: Im
+            Safari auf „Teilen“ tippen, „Zum Home-Bildschirm“ wählen und die App von dort öffnen.
+          </p>
+          <p v-else-if="status === 'nicht-unterstuetzt'" class="text-sm text-gray-600">
+            Dieser Browser unterstützt keine Push-Nachrichten. Neue Nachrichten findest du in der
+            App unter „Nachrichten“.
+          </p>
+          <p v-else-if="status === 'blockiert'" class="text-sm text-gray-600">
+            Benachrichtigungen sind in diesem Browser blockiert. Du kannst sie in den
+            Seiteneinstellungen (Schloss-Symbol neben der Adresse) wieder erlauben.
+          </p>
+          <p v-if="fehler" class="text-sm text-red-700">{{ fehler }}</p>
         </div>
       </section>
-      -->
 
       <!-- Sektion 3: App-Sprache -->
       <section>
@@ -94,10 +122,26 @@
 </template>
 
 <script setup>
-import { ref } from 'vue'
+import { ref, onMounted } from 'vue'
+import { usePush } from '@/composables/usePush.js'
+import { useToast } from '@/composables/useToast.js'
 import { useRouter } from 'vue-router'
 import { useReservierungenStore } from '@/stores/reservierungen.js'
 import { useBenachrichtigungenStore } from '@/stores/benachrichtigungen.js'
+
+const toast = useToast()
+const { status, laeuft, fehler, pruefeStatus, aktivieren, deaktivieren, beimAbmelden } = usePush()
+
+onMounted(pruefeStatus)
+
+const schalte = async (an) => {
+  if (an === (status.value === 'an')) return
+  const ok = an ? await aktivieren() : await deaktivieren()
+  if (ok)
+    toast.erfolg(
+      an ? 'Push-Nachrichten sind eingeschaltet.' : 'Push-Nachrichten sind ausgeschaltet.',
+    )
+}
 
 const router = useRouter()
 const erfahrung = localStorage.getItem('erfahrung')
@@ -108,7 +152,8 @@ const fontSize = ref('normal')
 const sound = ref(true)
 const reminder = ref(true)
 
-const ausloggen = () => {
+const ausloggen = async () => {
+  await beimAbmelden()
   // Löscht die gespeicherte Rolle und leitet zum Login zurück
   useReservierungenStore().reset()
   useBenachrichtigungenStore().reset()

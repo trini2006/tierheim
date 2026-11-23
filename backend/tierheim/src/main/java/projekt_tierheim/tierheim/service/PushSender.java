@@ -1,10 +1,9 @@
 package projekt_tierheim.tierheim.service;
 
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-
 import nl.martijndwars.webpush.Notification;
 import nl.martijndwars.webpush.PushService;
+import org.apache.http.HttpResponse;
 import org.bouncycastle.jce.provider.BouncyCastleProvider;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -14,8 +13,6 @@ import projekt_tierheim.tierheim.db.Push.PushAbonnement;
 import projekt_tierheim.tierheim.db.Push.PushAbonnementRepository;
 import tools.jackson.databind.ObjectMapper;
 
-
-import java.net.http.HttpResponse;
 import java.security.GeneralSecurityException;
 import java.security.Security;
 import java.util.List;
@@ -56,17 +53,28 @@ public class PushSender {
     public void sende(List<PushAbonnement> abos, String titel, String text, String url) {
         if (pushService == null || abos.isEmpty()) return;
         String payload;
-        payload = objectMapper.writeValueAsString(Map.of("title", titel, "body", text, "url", url));
+        try {
+            payload = objectMapper.writeValueAsString(Map.of("title", titel, "body", text, "url", url));
+        } catch (Exception e) {
+            log.error("Push-Nachricht konnte nicht erstellt werden", e);
+            return;
+        }
         for (PushAbonnement a : abos) {
             try {
-                HttpResponse response = (HttpResponse) pushService.send(
+                HttpResponse response = pushService.send(
                         new Notification(a.getEndpoint(), a.getP256dh(), a.getAuth(), payload));
-                int status = ((org.apache.http.HttpResponse) response).getStatusLine().getStatusCode();
+                int status = (response).getStatusLine().getStatusCode();
                 if (status == 404 || status == 410) {
                     repository.delete(a);       // Abo ist abgelaufen oder wurde im Browser widerrufen
                     log.info("Abgelaufenes Push-Abo entfernt");
                 } else if (status >= 300) {
-                    log.warn("Push wurde abgelehnt (Status {})", status);
+                    String antwort = "";
+                    try {
+                        antwort = org.apache.http.util.EntityUtils.toString(response.getEntity());
+                    } catch (Exception ignored) {
+                    }
+                    log.warn("Push von {} abgelehnt (Status {}): {}",
+                            java.net.URI.create(a.getEndpoint()).getHost(), status, antwort);
                 }
             } catch (Exception ex) {
                 log.warn("Push-Versand fehlgeschlagen", ex);
