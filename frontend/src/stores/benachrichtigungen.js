@@ -36,7 +36,7 @@ export const useBenachrichtigungenStore = defineStore('benachrichtigungen', () =
       const neu = daten.filter((n) => !n.gelesen && !bekannteIds.has(n.id))
       daten.forEach((n) => bekannteIds.add(n.id))
       // nicht beim ersten Laden (da zeigt schon der Zähler, was offen ist)
-      if (geladen.value && neu.length > 0) {
+      if (geladen.value && neu.length > 0 && document.visibilityState === 'visible') {
         toast.info(
           neu.length === 1 ? `Neue Nachricht: ${neu[0].text}` : `${neu.length} neue Nachrichten`,
           8000,

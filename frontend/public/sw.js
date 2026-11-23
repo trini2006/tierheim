@@ -23,23 +23,24 @@ self.addEventListener('push', (event) => {
   )
 })
 
-// Klick auf die Benachrichtigung -> App öffnen bzw. nach vorne holen
-self.addEventListener('notificationclick', (event) => {
-  event.notification.close()
-  const ziel = new URL(event.notification.data?.url || '/app/nachrichten', self.location.origin)
-    .href
+self.addEventListener('push', (event) => {
+  let daten = {}
+  try {
+    daten = event.data ? event.data.json() : {}
+  } catch {
+    daten = { body: event.data ? event.data.text() : '' }
+  }
 
   event.waitUntil(
     (async () => {
+      await self.registration.showNotification(daten.title || 'Gassi-App', {
+        body: daten.body || '',
+        icon: '/icons/icon-192.png',
+        data: { url: daten.url || '/app/nachrichten' },
+      })
+      // offene App-Fenster informieren, damit sie sofort nachladen
       const fenster = await self.clients.matchAll({ type: 'window', includeUncontrolled: true })
-      for (const f of fenster) {
-        if ('focus' in f) {
-          await f.focus()
-          if ('navigate' in f) await f.navigate(ziel)
-          return
-        }
-      }
-      await self.clients.openWindow(ziel)
+      fenster.forEach((f) => f.postMessage({ type: 'neue-nachricht' }))
     })(),
   )
 })

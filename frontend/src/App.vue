@@ -5,7 +5,23 @@
 </template>
 
 <script setup>
+  import { onMounted, onUnmounted } from 'vue'
   import ToastContainer from '@/components/utils/ToastContainer.vue'
+  import { useBenachrichtigungenStore } from '@/stores/benachrichtigungen.js'
+
+  const nachrichten = useBenachrichtigungenStore()
+
+  const beiNachrichtVomServiceWorker = (e) => {
+    if (e.data?.type === 'neue-nachricht') nachrichten.lade()
+  }
+
+  onMounted(() => {
+    nachrichten.lade() // Grundstand laden, damit nur wirklich neue Nachrichten einen Toast auslösen
+    navigator.serviceWorker?.addEventListener('message', beiNachrichtVomServiceWorker)
+  })
+  onUnmounted(() => {
+    navigator.serviceWorker?.removeEventListener('message', beiNachrichtVomServiceWorker)
+  })
 </script>
 
 <style scoped>
