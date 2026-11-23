@@ -2,28 +2,53 @@
   <div class="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-6xl mx-auto items-start p-4 md:p-6">
     <!-- LINKER BEREICH -->
     <div class="space-y-8 w-full max-w-md mx-auto md:mx-0">
-      <!-- 1. NACHRICHTEN BUTTON
+      <!-- 1. NACHRICHTEN BUTTON -->
       <button
-        @click="navigate('nachrichten')"
-        :class="[
-          'flex items-center justify-between p-3 rounded-full shadow-sm border transition-colors w-full',
-          activeTab === 'nachrichten' ? 'bg-[#b8c9b4] border-emerald-700' : 'bg-[#D3DDD1] border-gray-200 hover:bg-[#c2cebf]'
-        ]"
+        @click="router.push('/app/nachrichten')"
+        class="flex items-center justify-between p-3 rounded-full shadow-sm border border-gray-200 bg-[#D3DDD1] hover:bg-[#c2cebf] transition-colors w-full"
       >
-        <div class="flex items-center gap-3">
-          <div class="relative">
-            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-7 h-7 text-gray-800">
-              <path stroke-linecap="round" stroke-linejoin="round" d="M21.75 6.75v10.5a2.25 2.25 0 0 1-2.25 2.25h-15a2.25 2.25 0 0 1-2.25-2.25V6.75m19.5 0A2.25 2.25 0 0 0 19.5 4.5h-15a2.25 2.25 0 0 0-2.25 2.25m19.5 0v.243a2.25 2.25 0 0 1-1.07 1.916l-7.5 4.615a2.25 2.25 0 0 1-2.36 0L3.32 8.91a2.25 2.25 0 0 1-1.07-1.916V6.75" />
+        <div class="flex items-center gap-3 min-w-0">
+          <div class="relative flex-shrink-0">
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke-width="1.5"
+              stroke="currentColor"
+              class="w-7 h-7 text-gray-800"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                d="M21.75 6.75v10.5a2.25 2.25 0 0 1-2.25 2.25h-15a2.25 2.25 0 0 1-2.25-2.25V6.75m19.5 0A2.25 2.25 0 0 0 19.5 4.5h-15a2.25 2.25 0 0 0-2.25 2.25m19.5 0v.243a2.25 2.25 0 0 1-1.07 1.916l-7.5 4.615a2.25 2.25 0 0 1-2.36 0L3.32 8.91a2.25 2.25 0 0 1-1.07-1.916V6.75"
+              />
             </svg>
-            <span class="absolute -top-1 -right-1 bg-red-500 text-white text-[9px] font-bold w-4 h-4 rounded-full flex items-center justify-center border border-white">1</span>
+            <span
+              v-if="nachrichten.ungelesen > 0"
+              class="absolute -top-1 -right-1 bg-red-500 text-white text-[9px] font-bold min-w-4 h-4 px-1 rounded-full flex items-center justify-center border border-white"
+              >{{ nachrichten.ungelesen }}</span
+            >
           </div>
-          <div class="text-left leading-tight">
+          <div class="text-left leading-tight min-w-0">
             <span class="font-bold text-gray-800 block text-sm">Nachrichten</span>
-            <span class="text-xs text-red-600 font-semibold">Hund Akito wurde gesperrt! ...</span>
+            <span
+              v-if="nachrichten.neuesteUngelesene"
+              class="text-xs text-red-600 font-semibold block truncate"
+              >{{ nachrichten.neuesteUngelesene.text }}</span
+            >
           </div>
         </div>
-        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor" class="w-4 h-4 text-gray-800 mr-1"><path stroke-linecap="round" stroke-linejoin="round" d="m8.25 4.5 7.5 7.5-7.5 7.5" /></svg>
-      </button>-->
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          fill="none"
+          viewBox="0 0 24 24"
+          stroke-width="2.5"
+          stroke="currentColor"
+          class="w-4 h-4 text-gray-800 mr-1 flex-shrink-0"
+        >
+          <path stroke-linecap="round" stroke-linejoin="round" d="m8.25 4.5 7.5 7.5-7.5 7.5" />
+        </svg>
+      </button>
 
       <!-- 2. RESERVIERUNGEN BEREICH -->
       <div class="space-y-3">
@@ -117,21 +142,26 @@
 </template>
 
 <script setup>
-import { onMounted } from 'vue'
+import { onMounted, onUnmounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { useReservierungenStore } from '@/stores/reservierungen.js'
 import { formatiereDatumKurz as formatiereDatumAnzeige } from '@/components/utils/datum.js'
 import ReservierungsDetail from '@/views/benutzer/hauptseiten/ReservierungsDetail.vue'
 import { useIstMobil } from '@/composables/useIstMobil.js'
+import { useBenachrichtigungenStore } from '@/stores/benachrichtigungen.js'
 
 const router = useRouter()
 const store = useReservierungenStore()
+const nachrichten = useBenachrichtigungenStore()
 
 // einziger Ladepunkt der Seite; Beim erstmaligen Laden wieder "nächster Termin"
 onMounted(() => {
   store.waehle(null)
   store.lade()
+  nachrichten.starteAbfrage()
 })
+
+onUnmounted(() => nachrichten.stoppeAbfrage())
 
 const istMobil = useIstMobil()
 const waehle = (id) => {

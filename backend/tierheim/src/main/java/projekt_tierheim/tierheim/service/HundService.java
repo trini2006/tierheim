@@ -10,6 +10,7 @@ import projekt_tierheim.tierheim.db.Hund.HundRepository;
 import projekt_tierheim.tierheim.db.Hund.SperrHundDTO;
 import projekt_tierheim.tierheim.db.Hund.TeilFenster;
 import projekt_tierheim.tierheim.db.Mitglied.Mitglied;
+import projekt_tierheim.tierheim.db.Reservierung.Akteur;
 import projekt_tierheim.tierheim.db.Reservierung.Reservierung;
 import projekt_tierheim.tierheim.db.Reservierung.ReservierungRepository;
 import projekt_tierheim.tierheim.db.Reservierung.Reservierungsstatus;
@@ -89,12 +90,7 @@ public class HundService {
         if(sperrHundDTO.sperrGrund() != null && !sperrHundDTO.sperrGrund().isBlank()) {
             grund += ": " + sperrHundDTO.sperrGrund();
         }
-        for(Reservierung r : betroffene) {
-            r.setStatus(Reservierungsstatus.STORNIERT);
-            r.setStornierungsgrund(grund);
-            r.setStorniertAm(LocalDateTime.now());
-        }
-        reservierungRepository.saveAll(betroffene);
+        reservierungService.storniereAlle(betroffene, grund, Akteur.TIERHEIM);
         return hundRepository.saveAndFlush(hund);
     }
 

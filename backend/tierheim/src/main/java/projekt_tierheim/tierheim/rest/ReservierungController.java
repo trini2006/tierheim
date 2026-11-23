@@ -7,10 +7,7 @@ import projekt_tierheim.tierheim.db.Hund.Hund;
 import projekt_tierheim.tierheim.db.Hund.HundRepository;
 import projekt_tierheim.tierheim.db.Mitglied.Mitglied;
 import projekt_tierheim.tierheim.db.Mitglied.MitgliedRepository;
-import projekt_tierheim.tierheim.db.Reservierung.Reservierung;
-import projekt_tierheim.tierheim.db.Reservierung.ReservierungDTO;
-import projekt_tierheim.tierheim.db.Reservierung.ReservierungRepository;
-import projekt_tierheim.tierheim.db.Reservierung.Reservierungsstatus;
+import projekt_tierheim.tierheim.db.Reservierung.*;
 import projekt_tierheim.tierheim.exception.NotFoundException;
 import projekt_tierheim.tierheim.service.ReservierungService;
 
@@ -61,21 +58,16 @@ public class ReservierungController {
         return reservierungService.erstelleReservierung(reservierungDTO);
     }
 
+    // ToDO Akteur ist NICHT fälschungssicher bis Loginlogik und Rollen (Authentifizierung) stehen
     @DeleteMapping("/{reservierungId}")
-    public Reservierung storniereReservierung(@PathVariable("reservierungId") int reservierungsId, @RequestParam(required = true) String grund) {
+    public Reservierung storniereReservierung(
+            @PathVariable("reservierungId") int reservierungsId,
+            @RequestParam(required = true) String grund,
+            @RequestParam(defaultValue = "MITGLIED") Akteur von) {
         String saubererGrund = grund == null ? "" : grund.trim();
         if (saubererGrund.isEmpty()) {
             throw new IllegalArgumentException("Ein Stornierungsgrund ist erforderlich");
         }
-
-        Reservierung reservierung = reservierungRepository.findReservierungById(reservierungsId);
-        if(reservierung == null) {
-            throw new NotFoundException("Reservierung mit der Id " +  reservierungsId + " nicht gefunden");
-        }
-        reservierung.setStatus(Reservierungsstatus.STORNIERT);
-        reservierung.setStornierungsgrund(saubererGrund);
-        reservierung.setStorniertAm(LocalDateTime.now());
-
-        return reservierungRepository.saveAndFlush(reservierung);
+        return reservierungService.storniere(reservierungsId, saubererGrund, von);
     }
 }

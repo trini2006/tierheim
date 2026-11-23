@@ -70,7 +70,7 @@ const isIndexRoute = computed(() => route.path === '/app/admin')
 
 const menuItems = [
   //{ name: 'Statistik', path: '/app/admin/statistik' },
-  //{ name: 'Nachrichten', path: '/app/admin/nachrichten' },
+  { name: 'Nachrichten', path: '/app/admin/nachrichten' },
   //{ name: 'Veranstaltungen', path: '/app/admin/veranstaltungen' },
   { name: 'Reservierungen', path: '/app/admin/reservierungen' },
   { name: 'Reservierung hinzufügen', path: '/app/admin/termin-mitglied' },

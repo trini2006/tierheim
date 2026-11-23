@@ -1,114 +1,67 @@
 <template>
-  <div class="max-w-md mx-auto px-4 py-2">
-    <!-- Header-Bereich: Alle als gelesen markieren -->
-    <div class="flex justify-end items-center gap-2 mb-6">
+  <div class="max-w-md md:max-w-2xl mx-auto p-4 md:p-6 space-y-4">
+    <div class="flex items-center justify-between">
+      <button @click="router.back()" class="text-sm text-gray-700">← Zurück</button>
       <button
-        @click="markAllAsRead"
-        class="text-xs font-semibold text-gray-700 hover:text-emerald-800 flex items-center gap-2 transition-colors"
+        v-if="store.ungelesen > 0"
+        @click="store.markiereAlleGelesen()"
+        class="text-sm text-emerald-800 hover:underline"
       >
-        <span>alle als gelesen markieren</span>
-        <!-- Briefumschlag Icon -->
-        <svg
-          xmlns="http://www.w3.org/2000/svg"
-          fill="none"
-          viewBox="0 0 24 24"
-          stroke-width="1.5"
-          stroke="currentColor"
-          class="w-6 h-6"
-        >
-          <path
-            stroke-linecap="round"
-            stroke-linejoin="round"
-            d="M21.75 6.75v10.5a2.25 2.25 0 0 1-2.25 2.25h-15a2.25 2.25 0 0 1-2.25-2.25V6.75m19.5 0A2.25 2.25 0 0 0 19.5 4.5h-15a2.25 2.25 0 0 0-2.25 2.25m19.5 0v.243a2.25 2.25 0 0 1-1.07 1.916l-7.5 4.615a2.25 2.25 0 0 1-2.36 0L3.32 8.91a2.25 2.25 0 0 1-1.07-1.916V6.75"
-          />
-        </svg>
+        Alle als gelesen markieren
       </button>
     </div>
 
-    <!-- Nachrichten-Liste -->
-    <div class="space-y-4">
-      <div
-        v-for="msg in notifications"
-        :key="msg.id"
-        :class="[
-          'flex items-center justify-between p-4 rounded-[2rem] border transition-all shadow-sm',
-          msg.read ? 'bg-[#D3DDD1]/40 border-gray-200 opacity-60' : 'bg-[#D3DDD1] border-gray-300',
-        ]"
-      >
-        <!-- Nachrichtentext (Rot bei wichtigen Warnungen, sonst Dunkelgrau) -->
-        <div class="text-left pr-4">
-          <p
-            :class="[
-              'text-xs font-semibold leading-relaxed',
-              msg.urgent && !msg.read ? 'text-red-600' : 'text-gray-800',
-            ]"
-          >
-            {{ msg.text }}
-          </p>
-        </div>
+    <h1 class="text-lg font-bold text-gray-800">Nachrichten</h1>
 
-        <!-- Haken-Button zum einzelnen Gelesen-Markieren -->
-        <button @click="toggleRead(msg.id)" class="flex-shrink-0 focus:outline-none">
-          <div
-            :class="[
-              'w-7 h-7 rounded-full border-2 flex items-center justify-center transition-colors',
-              msg.read
-                ? 'border-gray-500 text-gray-500 bg-transparent'
-                : 'border-gray-900 text-gray-900 bg-white/20 hover:bg-white/40',
-            ]"
-          >
-            <!-- Checkmark / Haken SVG -->
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              fill="none"
-              viewBox="0 0 24 24"
-              stroke-width="3"
-              stroke="currentColor"
-              class="w-4 h-4"
-            >
-              <path stroke-linecap="round" stroke-linejoin="round" d="m4.5 12.75 6 6 9-13.5" />
-            </svg>
+    <p v-if="store.fehler" class="text-sm text-red-700">{{ store.fehler }}</p>
+    <p v-else-if="!store.geladen" class="text-sm text-gray-500">Lade...</p>
+    <p v-else-if="store.alle.length === 0" class="text-sm text-gray-500 italic">
+      Keine Nachrichten vorhanden.
+    </p>
+
+    <ul v-else class="space-y-3">
+      <li v-for="n in store.alle" :key="n.id">
+        <button
+          @click="oeffne(n)"
+          :class="[
+            'w-full text-left p-4 rounded-2xl border shadow-sm transition-colors',
+            n.gelesen
+              ? 'bg-gray-50 border-gray-200'
+              : 'bg-[#D3DDD1] border-emerald-700 hover:bg-[#c2cebf]',
+          ]"
+        >
+          <div class="flex items-start gap-3">
+            <span
+              v-if="!n.gelesen"
+              class="mt-1.5 w-2.5 h-2.5 rounded-full bg-red-500 flex-shrink-0"
+            ></span>
+            <div class="flex-grow">
+              <p :class="['text-sm text-gray-900', n.gelesen ? '' : 'font-semibold']">
+                {{ n.text }}
+              </p>
+              <p class="text-xs text-gray-500 mt-1">{{ formatiere(n.erstelltAm) }}</p>
+            </div>
           </div>
         </button>
-      </div>
-    </div>
-
-    <!-- Fallback, wenn keine Benachrichtigungen da sind -->
-    <div v-if="notifications.length === 0" class="text-center py-12 text-gray-400 italic">
-      Keine neuen Nachrichten vorhanden.
-    </div>
+      </li>
+    </ul>
   </div>
 </template>
 
 <script setup>
-import { ref } from 'vue'
+import { onMounted } from 'vue'
+import { useRouter } from 'vue-router'
+import { useBenachrichtigungenStore } from '@/stores/benachrichtigungen.js'
 
-// Reaktiver State für die Nachrichten aus deinem Screenshot
-const notifications = ref([
-  {
-    id: 1,
-    text: 'Hund Akito wurde gesperrt! Die Reservierung vom 05.07. wurde aufgehoben.',
-    urgent: true,
-    read: false,
-  },
-  {
-    id: 2,
-    text: 'Ihre Reservierung vom 03.04. wurde storniert! Grund: Tier adoptiert',
-    urgent: false,
-    read: false,
-  },
-])
+const router = useRouter()
+const store = useBenachrichtigungenStore()
 
-// Einzelne Nachricht als gelesen markieren / umschalten
-const toggleRead = (id) => {
-  const item = notifications.value.find((n) => n.id === id)
-  if (item) {
-    item.read = !item.read
-  }
+onMounted(store.lade)
+
+const oeffne = (n) => {
+  if (!n.gelesen) store.markiereGelesen(n.id)
 }
 
-// Alle auf einmal als gelesen markieren
-const markAllAsRead = () => {
-  notifications.value.forEach((n) => (n.read = true))
-}
+const formatiere = (iso) =>
+  new Date(iso).toLocaleString('de-DE', { dateStyle: 'short', timeStyle: 'short' }) + ' Uhr'
 </script>

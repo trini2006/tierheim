@@ -7,6 +7,7 @@ import org.junit.jupiter.api.Test;
 import org.opentest4j.AssertionFailedError;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.cglib.core.Local;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import projekt_tierheim.tierheim.db.GassiGehZeiten.GassiGehZeiten;
 import projekt_tierheim.tierheim.db.GassiGehZeiten.GassiGehZeitenRepository;
@@ -34,6 +35,8 @@ class ReservierungServiceTest {
     GassiGehZeitenRepository gassiGehZeitenRepository;
     @MockitoBean
     TierheimRepository tierheimRepository;
+    @MockitoBean
+    ApplicationEventPublisher eventPublisher;
 
     ReservierungService reservierungService;
 
@@ -44,7 +47,8 @@ class ReservierungServiceTest {
                 hundRepository,
                 mitgliedRepository,
                 gassiGehZeitenRepository,
-                tierheimRepository
+                tierheimRepository,
+                eventPublisher
         );
     }
 

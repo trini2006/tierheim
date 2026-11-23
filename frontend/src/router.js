@@ -5,7 +5,7 @@ import LoginView from './views/login.vue'
 import AppLayout from './views/layout.vue'
 
 import Startseite from './views/benutzer/hauptseiten/start.vue'
-//import Nachrichten from './views/beides/benachrichtigungen.vue'
+import Nachrichten from './views/beides/benachrichtigungen.vue'
 import TierheimInfo from './views/benutzer/hauptseiten/tierheim.vue'
 import Einstellungen from './views/beides/systemEinstellungen.vue'
 import HundeBeschreibung from './views/beides/beschreibung.vue'
@@ -50,7 +50,7 @@ const routes = [
         meta: { title: 'ReservierungsDetails' },
         beforeEnter: () => (istMobilJetzt() ? true : '/app'),
       },
-      //{ path: 'nachrichten', component: Nachrichten, meta: { title: 'Nachrichten' } },
+      { path: 'nachrichten', component: Nachrichten, meta: { title: 'Nachrichten' } },
       { path: 'tierheim', component: TierheimInfo, meta: { title: 'Tierheim Weiden' } },
       { path: 'einstellungen', component: Einstellungen, meta: { title: 'Einstellungen' } },
       {
@@ -77,7 +77,7 @@ const routes = [
         path: 'admin',
         component: AdminStart,
         children: [
-          //{ path: 'nachrichten', component: Nachrichten },
+          { path: 'nachrichten', component: Nachrichten },
           //{ path: 'veranstaltungen', component: AdminVeranstaltungen }
         ],
       },

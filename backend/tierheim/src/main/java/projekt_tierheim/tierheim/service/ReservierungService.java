@@ -1,6 +1,8 @@
 package projekt_tierheim.tierheim.service;
 
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 import projekt_tierheim.tierheim.db.GassiGehZeiten.GassiGehZeiten;
 import projekt_tierheim.tierheim.db.GassiGehZeiten.GassiGehZeitenRepository;
@@ -9,10 +11,7 @@ import projekt_tierheim.tierheim.db.Hund.Hund;
 import projekt_tierheim.tierheim.db.Hund.HundRepository;
 import projekt_tierheim.tierheim.db.Mitglied.Mitglied;
 import projekt_tierheim.tierheim.db.Mitglied.MitgliedRepository;
-import projekt_tierheim.tierheim.db.Reservierung.Reservierung;
-import projekt_tierheim.tierheim.db.Reservierung.ReservierungDTO;
-import projekt_tierheim.tierheim.db.Reservierung.ReservierungRepository;
-import projekt_tierheim.tierheim.db.Reservierung.Reservierungsstatus;
+import projekt_tierheim.tierheim.db.Reservierung.*;
 import projekt_tierheim.tierheim.db.Tierheim.Tierheim;
 import projekt_tierheim.tierheim.db.Tierheim.TierheimRepository;
 import projekt_tierheim.tierheim.exception.NotFoundException;
@@ -33,14 +32,16 @@ public class ReservierungService {
     private final MitgliedRepository mitgliedRepository;
     private final GassiGehZeitenRepository gassiGehZeitenRepository;
     private final TierheimRepository tierheimRepository;
+    private final ApplicationEventPublisher eventPublisher;
 
     @Autowired
-    public ReservierungService(ReservierungRepository reservierungRepository, HundRepository hundRepository, MitgliedRepository mitgliedRepository, GassiGehZeitenRepository gassiGehZeitenRepository, TierheimRepository tierheimRepository) {
+    public ReservierungService(ReservierungRepository reservierungRepository, HundRepository hundRepository, MitgliedRepository mitgliedRepository, GassiGehZeitenRepository gassiGehZeitenRepository, TierheimRepository tierheimRepository, ApplicationEventPublisher eventPublisher) {
         this.reservierungRepository = reservierungRepository;
         this.hundRepository = hundRepository;
         this.mitgliedRepository = mitgliedRepository;
         this.gassiGehZeitenRepository = gassiGehZeitenRepository;
         this.tierheimRepository = tierheimRepository;
+        this.eventPublisher = eventPublisher;
     }
 
     public Reservierung erstelleReservierung(ReservierungDTO reservierungDTO) {
@@ -230,5 +231,33 @@ public class ReservierungService {
         if(!datum.isBefore(bisVorlauf)) {
             throw new IllegalArgumentException("Die Reservierungen können maximal 2 KW in voraus gebucht werden!");
         }
+    }
+
+    @Transactional
+    public Reservierung storniere(int reservierungId, String grund, Akteur akteur) {
+        Reservierung r = reservierungRepository.findReservierungById(reservierungId);
+        if (r == null) {
+            throw new NotFoundException("Reservierung mit der Id " + reservierungId + " nicht gefunden");
+        }
+        return storniereAlle(List.of(r), grund, akteur).get(0);
+    }
+
+    @Transactional
+    public List<Reservierung> storniereAlle(List<Reservierung> reservierungen, String grund, Akteur akteur) {
+        for (Reservierung r : reservierungen) {
+            if (r.getStatus() == Reservierungsstatus.STORNIERT) {
+                throw new IllegalArgumentException("Reservierung " + r.getId() + " ist bereits storniert");
+            }
+            r.setStatus(Reservierungsstatus.STORNIERT);
+            r.setStornierungsgrund(grund);
+            r.setStorniertAm(LocalDateTime.now());
+        }
+        List<Reservierung> gespeichert = reservierungRepository.saveAll(reservierungen);
+
+        if (!gespeichert.isEmpty()) {
+            eventPublisher.publishEvent(new ReservierungenStorniertEvent(
+                    gespeichert.stream().map(Reservierung::getId).toList(), akteur, grund));
+        }
+        return gespeichert;
     }
 }
