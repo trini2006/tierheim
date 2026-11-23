@@ -2,6 +2,7 @@ package projekt_tierheim.tierheim.service;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
@@ -27,11 +28,13 @@ public class BenachrichtigungsListener {
 
     private final ReservierungRepository reservierungRepository;
     private final BenachrichtigungRepository benachrichtigungRepository;
+    private final ApplicationEventPublisher eventPublisher;
 
     public BenachrichtigungsListener(ReservierungRepository reservierungRepository,
-                                     BenachrichtigungRepository benachrichtigungRepository) {
+                                     BenachrichtigungRepository benachrichtigungRepository, ApplicationEventPublisher eventPublisher) {
         this.reservierungRepository = reservierungRepository;
         this.benachrichtigungRepository = benachrichtigungRepository;
+        this.eventPublisher = eventPublisher;
     }
 
     // Listener läuft erst, wenn die Stornierung sicher in der DB steht
@@ -59,6 +62,10 @@ public class BenachrichtigungsListener {
                     + " am " + beschreibe(r) + " storniert.";
             benachrichtigungRepository.save(Benachrichtigung.fuerTierheim(
                     r.getHund().getTierheim(), BenachrichtigungsTyp.STORNIERUNG_MITGLIED, text));
+
+            eventPublisher.publishEvent(new PushVersandEvent(
+                    null, r.getHund().getTierheim().getId(),
+                    "Termin storniert", "Ein Mitglied hat einen Termin storniert.", "/app/nachrichten"));
         }
     }
 
@@ -89,6 +96,10 @@ public class BenachrichtigungsListener {
             }
             benachrichtigungRepository.save(
                     Benachrichtigung.fuerMitglied(liste.get(0).getMitglied(), typ, text));
+
+            eventPublisher.publishEvent(new PushVersandEvent(
+                    liste.get(0).getMitglied().getId(), null,
+                    "Termin storniert", "Ein Termin wurde " + wer + " storniert. Details in der App.", "/app/nachrichten"));
         }
     }
     private String beschreibe(Reservierung r) {
